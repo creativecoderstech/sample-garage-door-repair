@@ -75,7 +75,7 @@ const defaultSettings = {
   businessName: "Summit Garage Door Co.",
   phone: "(888) 555-0142",
   email: "service@summitgaragedoor.com",
-  serviceArea: "Serving Dallas–Fort Worth and nearby communities",
+  serviceArea: "Serving Metro Atlanta and nearby Georgia communities",
   theme: "industrial",
   serviceId: "garage-door-repair",
   emergencyEnabled: true,

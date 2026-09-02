@@ -22,7 +22,7 @@ export interface FAQ {
 }
 
 const defaultFaqs: FAQ[] = [
-  { id: "1", question: "What areas do you serve?", answer: "We serve Dallas–Fort Worth and nearby communities. Send us your ZIP code or call us, and we’ll quickly confirm whether your address is inside our service area." },
+  { id: "1", question: "What areas do you serve?", answer: "We serve Metro Atlanta and nearby Georgia communities. Send us your ZIP code or call us, and we’ll quickly confirm whether your address is inside our service area." },
   { id: "2", question: "How quickly can you respond?", answer: "We answer most requests within 45 minutes during business hours and offer priority scheduling for doors that are stuck open, off track, or creating a security concern." },
   { id: "3", question: "Do you provide estimates before starting work?", answer: "Yes. A technician will inspect the system, explain what failed, and give you clear repair options before work begins. We do not add work without your approval." },
   { id: "4", question: "Why won’t my garage door open?", answer: "Common causes include a broken spring, disconnected or failed opener, blocked safety sensor, damaged cable, power issue, or a door that has come off track. Stop pressing the opener if the door strains, lifts unevenly, or makes a sharp popping sound, and schedule an inspection." },

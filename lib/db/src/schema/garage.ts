@@ -7,7 +7,7 @@ export const serviceRequests = pgTable("garage_service_requests", {
   email: text("email").notNull(),
   streetAddress: text("street_address").notNull().default(""),
   city: text("city").notNull().default(""),
-  state: text("state").notNull().default("TX"),
+  state: text("state").notNull().default("GA"),
   zip: text("zip").notNull(),
   service: text("service").notNull(),
   urgency: text("urgency").notNull(),

@@ -84,7 +84,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
       email: "",
       streetAddress: "",
       city: "",
-      state: "TX",
+      state: "GA",
       zip: "",
       service: "repair",
       urgency: "flexible",
