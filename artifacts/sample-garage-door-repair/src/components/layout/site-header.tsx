@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 const NAV_LINKS = [
   { id: 'services', label: 'Services', href: '/#services' },
   { id: 'gallery', label: 'Gallery', href: '/#work' },
-  { id: 'before-after', label: 'Before & After', href: '/before-after' },
+  { id: 'before-after', label: 'Before & After', href: '/#before-after' },
   { id: 'faqs', label: 'FAQs', href: '/#faq' },
 ] as const;
 

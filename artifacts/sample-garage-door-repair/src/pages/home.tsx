@@ -211,6 +211,43 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* BEFORE & AFTER */}
+      <section id="before-after" className="py-24 bg-muted/20 border-b">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal-on-scroll">
+            <div className="max-w-2xl">
+              <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Real Transformations</p>
+              <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">See the difference a new door makes</h2>
+              <p className="text-muted-foreground text-lg">Matched photographs show the same properties before and after their garage-door upgrades.</p>
+            </div>
+            <Button variant="outline" asChild className="font-display font-bold shrink-0">
+              <Link href="/before-after">View All Transformations <ArrowRight className="h-4 w-4 ml-2" /></Link>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 reveal-on-scroll">
+            {tasks?.slice(0, 2).map((task) => (
+              <article key={task.id} className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+                <div className="grid grid-cols-2 h-56 sm:h-72">
+                  <figure className="relative border-r">
+                    <img src={task.beforeImageUrl} alt={`${task.title} before`} className="h-full w-full object-cover" loading="lazy" />
+                    <span className="absolute left-3 top-3 rounded-full bg-destructive px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-destructive-foreground">Before</span>
+                  </figure>
+                  <figure className="relative">
+                    <img src={task.afterImageUrl} alt={`${task.title} after`} className="h-full w-full object-cover" loading="lazy" />
+                    <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">After</span>
+                  </figure>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-display text-xl font-bold">{task.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{task.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* BOOKING */}
       <section className="py-24 bg-muted/20 border-b relative overflow-hidden" id="booking">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
