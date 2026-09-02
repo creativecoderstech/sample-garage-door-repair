@@ -5,6 +5,8 @@ description: Deployment-specific connector behavior and hostname propagation les
 
 GitHub's connector API may allow repository contents writes while blocking low-level Git blobs/trees; a workspace Git push with a securely stored token is the reliable fallback. Cloudflare Worker custom-domain attachment creates a proxied placeholder DNS record, and the certificate can take several minutes before HTTPS handshakes succeed.
 
-**Why:** The release encountered both behaviors in the same environment, and treating either as an application failure would lead to unnecessary code changes.
+For repository-backed Workers that use the Cache API to proxy built assets from GitHub, include the pinned GitHub revision in the cache key. Otherwise a successful Worker deployment can keep serving the previous HTML manifest and its old hashed bundles until the edge cache expires.
 
-**How to apply:** Prefer the authenticated workspace Git transport for complete repository pushes. After attaching a Worker hostname, verify DNS and wait for certificate issuance before diagnosing the Worker.
+**Why:** Releases encountered Git transport restrictions, certificate propagation, and a stale HTML manifest after a successful Worker version promotion. Treating any of these as application failures would lead to unnecessary source changes.
+
+**How to apply:** Prefer authenticated workspace Git for complete pushes. Version asset cache keys with the release revision. After attaching a Worker hostname, verify DNS and allow certificate propagation before diagnosing the Worker.

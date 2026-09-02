@@ -175,7 +175,7 @@ async function serveAsset(request, url, context) {
   const assetPath = url.pathname === "/" || !hasExtension ? "/index.html" : url.pathname;
   const sourceUrl = `${REPOSITORY}/${ASSET_REVISION}/${BUILD_ROOT}${assetPath}`;
   const cache = caches.default;
-  const cacheKey = new Request(url.origin + assetPath, { method: "GET" });
+  const cacheKey = new Request(`${url.origin}${assetPath}?revision=${ASSET_REVISION}`, { method: "GET" });
   let response = await cache.match(cacheKey);
 
   if (!response) {
