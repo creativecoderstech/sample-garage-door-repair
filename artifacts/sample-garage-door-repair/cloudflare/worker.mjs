@@ -3,6 +3,7 @@ const REPOSITORY =
 const ASSET_REVISION = "__GITHUB_REVISION__";
 const BUILD_ROOT =
   "artifacts/sample-garage-door-repair/dist/public";
+const ARTIFACT_BASE_PATH = "/sample-garage-door-repair";
 
 const services = [
   { id: 1, slug: "broken-spring", name: "Broken Spring Repair", description: "High-cycle spring replacement with a complete safety inspection.", startingPrice: 189, duration: "60–90 min", emergency: true },
@@ -171,8 +172,14 @@ const mimeTypes = {
 };
 
 async function serveAsset(request, url, context) {
-  const hasExtension = /\.[a-z0-9]+$/i.test(url.pathname);
-  const assetPath = url.pathname === "/" || !hasExtension ? "/index.html" : url.pathname;
+  const requestPath =
+    url.pathname === ARTIFACT_BASE_PATH
+      ? "/"
+      : url.pathname.startsWith(`${ARTIFACT_BASE_PATH}/`)
+        ? url.pathname.slice(ARTIFACT_BASE_PATH.length)
+        : url.pathname;
+  const hasExtension = /\.[a-z0-9]+$/i.test(requestPath);
+  const assetPath = requestPath === "/" || !hasExtension ? "/index.html" : requestPath;
   const sourceUrl = `${REPOSITORY}/${ASSET_REVISION}/${BUILD_ROOT}${assetPath}`;
   const cache = caches.default;
   const cacheKey = new Request(`${url.origin}${assetPath}?revision=${ASSET_REVISION}`, { method: "GET" });
