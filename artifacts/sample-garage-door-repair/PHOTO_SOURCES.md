@@ -14,3 +14,7 @@ Other site photography is sourced from Unsplash:
 - Evening home exterior: https://unsplash.com/photos/1494526585095-c41746248156
 - Classic white garage door: https://unsplash.com/photos/1576765915042-d4746f8b7727
 - Modern white home and garage doors: https://unsplash.com/photos/1770756051811-1612ac8bedfa
+- Modern garage door at a commercial-style building: https://unsplash.com/photos/1661286705410-edb4c9bde72a
+- Modern garage doors on a white house: https://unsplash.com/photos/1770756051811-1612ac8bedfa
+- Wood-panel garage door with windows: https://unsplash.com/photos/1775430766327-ca7d9f93f563
+- Clean residential garage interior with EV charger: https://unsplash.com/photos/1764691293898-fdd2e1553f2a

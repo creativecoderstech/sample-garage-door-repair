@@ -43,6 +43,10 @@ const defaultSettings = {
     "/images/garage/classic-white-door.jpg",
     "/images/garage/evening-home.jpg",
     "/images/garage/double-garage-home.jpg",
+    "/images/garage/gallery/garage-modern-building.jpg",
+    "/images/garage/gallery/garage-white-house.jpg",
+    "/images/garage/gallery/garage-wood-panel.jpg",
+    "/images/garage/gallery/garage-interior-ev.jpg",
   ],
 };
 
