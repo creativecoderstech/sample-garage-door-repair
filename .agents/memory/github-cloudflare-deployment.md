@@ -9,4 +9,4 @@ For repository-backed Workers that use the Cache API to proxy built assets from 
 
 **Why:** Releases encountered Git transport restrictions, certificate propagation, and a stale HTML manifest after a successful Worker version promotion. Treating any of these as application failures would lead to unnecessary source changes.
 
-**How to apply:** Prefer authenticated workspace Git for complete pushes. Version asset cache keys with the release revision. After attaching a Worker hostname, verify DNS and allow certificate propagation before diagnosing the Worker.
+**How to apply:** Prefer authenticated workspace Git for complete pushes. A GitHub push does not promote this Worker by itself: upload the Worker separately with the pushed commit as `ASSET_REVISION`. Version cache keys with that revision. After attaching a hostname, allow certificate propagation before diagnosing the Worker.

@@ -1,1 +1,1 @@
-- [GitHub and Cloudflare release behavior](github-cloudflare-deployment.md) — use workspace Git auth; revision-key Worker caches; allow hostname certificate propagation.
+- [GitHub and Cloudflare release behavior](github-cloudflare-deployment.md) — push assets, then promote the Worker with that revision; use revision-key caches.
