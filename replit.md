@@ -30,8 +30,8 @@ A customer-facing garage door repair website and operations admin with booking, 
 
 ## Deployment preference
 
-- When the user says “deploy,” target Cloudflare Workers using the Cloudflare production architecture rather than Replit Deployments.
-- Treat Cloudflare Workers, with the project’s documented Cloudflare services and routing, as the default production deployment target unless the user explicitly requests another platform.
+- When the user says “deploy,” first commit and push the code to GitHub, then deploy the GitHub-backed project to Cloudflare Workers using the documented Cloudflare production architecture.
+- Treat this GitHub-to-Cloudflare Workers flow as the default production deployment target; do not use Replit Deployments unless the user explicitly requests another platform.
 
 ## Architecture decisions
 
