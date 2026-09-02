@@ -14,13 +14,15 @@ import {
 
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
+import { FloatingChat } from '@/components/floating-chat';
 
 import HomePage from '@/pages/home';
 import ServicesPage from '@/pages/services';
+import GalleryPage from '@/pages/gallery';
+import BeforeAfterPage from '@/pages/before-after';
 import BookPage from '@/pages/book';
 import LoginPage from '@/pages/login';
-import AdminDashboardPage from '@/pages/admin-dashboard';
-import AdminSettingsPage from '@/pages/admin-settings';
+import AdminPage from '@/pages/admin';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,22 +40,28 @@ function Router() {
   return (
     <RoutedErrorBoundary>
       <div className="flex flex-col min-h-[100dvh]">
-        <SiteHeader />
+        {!isAdmin && <SiteHeader />}
         <main className="flex-1 flex flex-col">
           <Switch>
             <Route path="/" component={HomePage} />
             <Route path="/services" component={ServicesPage} />
+            <Route path="/gallery" component={GalleryPage} />
+            <Route path="/before-after" component={BeforeAfterPage} />
             <Route path="/book" component={BookPage} />
             <Route path="/login" component={LoginPage} />
             
-            {/* Admin Routes */}
-            <Route path="/admin" component={AdminDashboardPage} />
-            <Route path="/admin/settings" component={AdminSettingsPage} />
+            {/* Admin Route */}
+            <Route path="/admin" component={AdminPage} />
             
             <Route component={NotFound} />
           </Switch>
         </main>
-        {!isAdmin && <SiteFooter />}
+        {!isAdmin && (
+          <>
+            <SiteFooter />
+            <FloatingChat />
+          </>
+        )}
       </div>
     </RoutedErrorBoundary>
   );

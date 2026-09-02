@@ -31,6 +31,7 @@ A customer-facing garage door repair website and operations admin with booking, 
 ## Architecture decisions
 
 - Customer site and admin share one responsive app so Creative Coders can embed a single service sample.
+- The imported Sample Handyman application is the visual and feature reference; garage-door changes should adapt its content and safety workflows without introducing a separate design direction.
 - Media is admin-configurable through hosted image URLs now; R2 is the Cloudflare production upload target.
 - The AI assistant is constrained to safe intake guidance and must never coach customers through high-tension repairs.
 - API contracts remain provider-neutral so the Express preview adapter can be moved to Workers + D1 without redesigning the frontend.

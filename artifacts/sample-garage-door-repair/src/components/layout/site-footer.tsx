@@ -1,72 +1,61 @@
 import { Link } from "wouter";
-import { Shield, Wrench, Clock, Lock } from "lucide-react";
 import { useGetBusinessSettings } from "@workspace/api-client-react";
+import { Shield, MapPin, Phone, Mail } from "lucide-react";
+import { format } from "date-fns";
 
 export function SiteFooter() {
   const { data: settings } = useGetBusinessSettings();
-
+  
   return (
-    <footer className="bg-secondary text-secondary-foreground border-t">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
+    <footer className="bg-foreground text-background py-12 lg:py-16 mt-auto">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-16">
+          <div className="md:col-span-2">
+            <h3 className="font-display font-bold text-2xl mb-4 text-background">
+              {settings?.businessName || "Summit Garage Door Co."}
+            </h3>
+            <p className="text-background/70 mb-6 max-w-md leading-relaxed">
+              Professional garage door repair, installation, and maintenance. We secure your home's largest moving object safely and efficiently.
+            </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/10 text-background/90 text-xs font-bold tracking-wide uppercase">
+              <Shield className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+              Fully Licensed & Insured
+            </div>
+          </div>
           
-          <div className="md:col-span-1 space-y-4">
-             <div className="flex items-center gap-2 font-display font-bold text-xl tracking-tight">
-               <Wrench className="h-6 w-6 text-primary" />
-               <span>{settings?.businessName || "Sample Garage Door Repair"}</span>
-             </div>
-             <p className="text-secondary-foreground/70 text-sm max-w-xs leading-relaxed">
-               Trusted garage door repair and installation services. We secure your home's largest moving object with precision and care.
-             </p>
-             <div className="flex gap-4 pt-2">
-                <div className="bg-background/10 p-2 rounded-full text-primary">
-                    <Shield className="h-5 w-5" />
-                </div>
-                <div className="bg-background/10 p-2 rounded-full text-primary">
-                    <Clock className="h-5 w-5" />
-                </div>
-             </div>
-          </div>
-
           <div>
-            <h3 className="font-bold text-lg mb-4 font-display">Services</h3>
-            <ul className="space-y-3 text-sm text-secondary-foreground/80">
-              <li><Link href="/services" className="hover:text-primary transition-colors">Emergency Repair</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">Spring Replacement</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">Opener Installation</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">Maintenance Tune-up</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">New Doors</Link></li>
+            <h4 className="font-bold text-lg mb-4 text-background">Services</h4>
+            <ul className="space-y-3 text-background/70">
+              <li><Link href="/services" className="hover:text-background transition-colors">Spring Replacement</Link></li>
+              <li><Link href="/services" className="hover:text-background transition-colors">Opener Repair</Link></li>
+              <li><Link href="/services" className="hover:text-background transition-colors">Cable Replacement</Link></li>
+              <li><Link href="/services" className="hover:text-background transition-colors">New Installations</Link></li>
             </ul>
           </div>
-
+          
           <div>
-            <h3 className="font-bold text-lg mb-4 font-display">Company</h3>
-            <ul className="space-y-3 text-sm text-secondary-foreground/80">
-              <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
-              <li><Link href="/book" className="hover:text-primary transition-colors">Book Online</Link></li>
-              <li><Link href="/login" className="hover:text-primary transition-colors flex items-center gap-1"><Lock className="h-3 w-3"/> Staff Login</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-lg mb-4 font-display">Contact</h3>
-            <ul className="space-y-3 text-sm text-secondary-foreground/80">
-              <li className="font-medium text-lg text-primary">{settings?.phone || "(555) 123-4567"}</li>
-              <li>{settings?.email || "service@samplegaragerepair.com"}</li>
-              <li className="pt-2">
-                <span className="block font-semibold">Service Area:</span>
-                {settings?.serviceArea || "Greater Metropolitan Area"}
+            <h4 className="font-bold text-lg mb-4 text-background">Contact</h4>
+            <ul className="space-y-3 text-background/70">
+              <li className="flex items-start gap-2">
+                <Phone className="w-4 h-4 mt-1 shrink-0" />
+                <span>{settings?.phone || "(555) 123-4567"}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Mail className="w-4 h-4 mt-1 shrink-0" />
+                <span>{settings?.email || "service@summitgaragedoor.demo"}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 mt-1 shrink-0" />
+                <span>{settings?.serviceArea || "Greater Metropolitan Area"}</span>
               </li>
             </ul>
           </div>
-
         </div>
         
-        <div className="border-t border-border/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-secondary-foreground/50">
-          <p>© {new Date().getFullYear()} {settings?.businessName || "Sample Garage Door Repair"}. All rights reserved.</p>
-          <div className="flex gap-4">
-            <span className="hover:text-secondary-foreground cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-secondary-foreground cursor-pointer">Terms of Service</span>
+        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4 text-background/50 text-sm">
+          <p>© {format(new Date(), 'yyyy')} {settings?.businessName || "Summit Garage Door Co."}. All rights reserved.</p>
+          <div className="flex gap-6">
+            <Link href="/login" className="hover:text-background transition-colors">Admin Login</Link>
           </div>
         </div>
       </div>
