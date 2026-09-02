@@ -23,14 +23,38 @@ export function SiteHeader() {
   const phoneDisplay = settings?.phone?.trim() || '(555) 123-4567';
 
   useEffect(() => {
+    if (location !== '/') {
+      setActiveSection('');
+      return;
+    }
+
+    let animationFrame = 0;
     const syncActiveSection = () => {
-      setActiveSection(location === '/' ? window.location.hash.slice(1) : '');
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        const marker = window.scrollY + 140 + window.innerHeight * 0.45;
+        let current = '';
+
+        for (const link of NAV_LINKS) {
+          const section = document.getElementById(link.id === 'gallery' ? 'work' : link.id === 'faqs' ? 'faq' : link.id);
+          if (section && section.offsetTop <= marker) {
+            current = link.href.replace('/#', '');
+          }
+        }
+
+        setActiveSection(current);
+      });
     };
 
     syncActiveSection();
+    window.addEventListener('scroll', syncActiveSection, { passive: true });
+    window.addEventListener('resize', syncActiveSection);
     window.addEventListener('hashchange', syncActiveSection);
     window.addEventListener('popstate', syncActiveSection);
     return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener('scroll', syncActiveSection);
+      window.removeEventListener('resize', syncActiveSection);
       window.removeEventListener('hashchange', syncActiveSection);
       window.removeEventListener('popstate', syncActiveSection);
     };
@@ -147,7 +171,11 @@ export function SiteHeader() {
           {/* Nav links */}
           <nav className="flex flex-col gap-1 flex-1">
             <SheetClose asChild>
-              <Link href="/" className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted hover:text-foreground'}`}>
+              <Link
+                href="/"
+                onClick={() => setActiveSection('')}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${location === '/' && !activeSection ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted hover:text-foreground'}`}
+              >
                 Home
               </Link>
             </SheetClose>
