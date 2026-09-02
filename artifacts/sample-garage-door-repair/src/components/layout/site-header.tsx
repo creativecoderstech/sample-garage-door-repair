@@ -6,31 +6,35 @@ import { Sheet, SheetContent, SheetTitle, SheetClose } from "@/components/ui/she
 import { useState, useEffect } from "react";
 
 const NAV_LINKS = [
-  { id: 'services', label: 'Services', href: '/services' },
-  { id: 'gallery', label: 'Gallery', href: '/gallery' },
+  { id: 'services', label: 'Services', href: '/#services' },
+  { id: 'gallery', label: 'Gallery', href: '/#work' },
   { id: 'before-after', label: 'Before & After', href: '/before-after' },
-  { id: 'faqs', label: 'FAQs', href: '/faqs' },
+  { id: 'faqs', label: 'FAQs', href: '/#faq' },
 ] as const;
 
 export function SiteHeader() {
   const { data: settings } = useGetBusinessSettings();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const phoneDisplay = settings?.phone?.trim() || '(555) 123-4567';
 
-  // Hash-based scroll to matching sections if on home page
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // If it's just a hash link and we are on home, let normal behavior happen or scroll
-    if (href.startsWith('/#') && location === '/') {
-      e.preventDefault();
-      const id = href.replace('/#', '');
-      const el = document.getElementById(id);
-      if (el) {
-        const headerH = 80;
-        const top = el.getBoundingClientRect().top + window.scrollY - headerH;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
+    if (!href.startsWith('/#')) return;
+
+    e.preventDefault();
+    const id = href.replace('/#', '');
+    if (location !== '/') {
+      setLocation(href);
+      return;
+    }
+
+    window.history.pushState(null, '', `#${id}`);
+    const element = document.getElementById(id);
+    if (element) {
+      const stickyHeaderOffset = 112;
+      const top = element.getBoundingClientRect().top + window.scrollY - stickyHeaderOffset;
+      window.scrollTo({ top, behavior: 'smooth' });
     }
   };
 
@@ -54,14 +58,14 @@ export function SiteHeader() {
                 key={link.id}
                 href={link.href}
                 className={`text-sm font-semibold transition-colors relative ${
-                  location === link.href
+                  location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))
                     ? 'text-primary'
                     : 'text-foreground/70 hover:text-foreground'
                 }`}
                 onClick={(e) => handleNavClick(e, link.href)}
               >
                 {link.label}
-                {location === link.href && (
+                {(location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))) && (
                   <span className="absolute -bottom-5 left-0 right-0 h-0.5 bg-primary" />
                 )}
               </Link>
@@ -129,14 +133,14 @@ export function SiteHeader() {
                 <Link
                   href={link.href}
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${
-                    location === link.href
+                    location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground/80 hover:bg-muted hover:text-foreground'
                   }`}
                   onClick={(e) => handleNavClick(e, link.href)}
                 >
                   {link.label}
-                  {location === link.href && (
+                  {(location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))) && (
                     <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
                   )}
                 </Link>
