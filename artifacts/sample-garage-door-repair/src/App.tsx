@@ -15,13 +15,9 @@ import {
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { FloatingChat } from '@/components/floating-chat';
+import { getPublicSectionRouterHref, scrollToPublicSectionId, type PublicSection } from '@/lib/public-navigation';
 
 import HomePage from '@/pages/home';
-import ServicesPage from '@/pages/services';
-import GalleryPage from '@/pages/gallery';
-import BeforeAfterPage from '@/pages/before-after';
-import FaqsPage from '@/pages/faqs';
-import BookPage from '@/pages/book';
 import LoginPage from '@/pages/login';
 import AdminPage from '@/pages/admin';
 
@@ -46,11 +42,21 @@ function Router() {
         <main className="flex-1 flex flex-col">
           <Switch>
             <Route path="/" component={HomePage} />
-            <Route path="/services" component={ServicesPage} />
-            <Route path="/gallery" component={GalleryPage} />
-            <Route path="/before-after" component={BeforeAfterPage} />
-            <Route path="/faqs" component={FaqsPage} />
-            <Route path="/book" component={BookPage} />
+            <Route path="/services">
+              <LegacyPublicRoute section="services" />
+            </Route>
+            <Route path="/gallery">
+              <LegacyPublicRoute section="gallery" />
+            </Route>
+            <Route path="/before-after">
+              <LegacyPublicRoute section="beforeAfter" />
+            </Route>
+            <Route path="/faqs">
+              <LegacyPublicRoute section="faqs" />
+            </Route>
+            <Route path="/book">
+              <LegacyPublicRoute section="booking" />
+            </Route>
             <Route path="/login" component={LoginPage} />
             
             {/* Admin Route */}
@@ -70,6 +76,16 @@ function Router() {
   );
 }
 
+function LegacyPublicRoute({ section }: { section: PublicSection }) {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    setLocation(getPublicSectionRouterHref(section));
+  }, [section, setLocation]);
+
+  return null;
+}
+
 function ScrollPositionManager() {
   const [location] = useLocation();
 
@@ -81,12 +97,7 @@ function ScrollPositionManager() {
     }
 
     const scrollToSection = () => {
-      const element = document.getElementById(hash);
-      if (!element) return false;
-      const stickyHeaderOffset = 112;
-      const top = element.getBoundingClientRect().top + window.scrollY - stickyHeaderOffset;
-      window.scrollTo({ top, behavior: 'auto' });
-      return true;
+      return scrollToPublicSectionId(hash, 'auto');
     };
 
     scrollToSection();

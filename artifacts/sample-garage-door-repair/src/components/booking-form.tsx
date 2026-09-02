@@ -12,7 +12,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, CalendarCheck, ShieldCheck, MapPin, Upload, Camera, Video, X, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceInput } from "@/components/voice-input";
-import { consumeServiceRequestDraft } from "@/components/customer-care-chat";
+import {
+  consumeServiceRequestDraft,
+  SERVICE_REQUEST_DRAFT_EVENT,
+  type ServiceRequestDraft,
+} from "@/components/customer-care-chat";
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -76,7 +80,7 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 export function BookingForm({ className = "" }: { className?: string }) {
   const { toast } = useToast();
   const createRequest = useCreateServiceRequest();
-  const [assistantDraft] = useState(() => consumeServiceRequestDraft());
+  const [assistantDraft, setAssistantDraft] = useState(() => consumeServiceRequestDraft());
   
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -112,6 +116,22 @@ export function BookingForm({ className = "" }: { className?: string }) {
   useEffect(() => {
     photosRef.current = photos;
   }, [photos]);
+
+  useEffect(() => {
+    const applyAssistantDraft = (event: Event) => {
+      const eventDraft = (event as CustomEvent<Partial<ServiceRequestDraft>>).detail;
+      const draft = consumeServiceRequestDraft() ?? eventDraft;
+      if (!draft) return;
+
+      setAssistantDraft(draft);
+      if (draft.service) form.setValue("service", draft.service, { shouldDirty: true });
+      if (draft.urgency) form.setValue("urgency", draft.urgency, { shouldDirty: true });
+      if (draft.details) form.setValue("details", draft.details, { shouldDirty: true });
+    };
+
+    window.addEventListener(SERVICE_REQUEST_DRAFT_EVENT, applyAssistantDraft);
+    return () => window.removeEventListener(SERVICE_REQUEST_DRAFT_EVENT, applyAssistantDraft);
+  }, [form]);
 
   useEffect(() => () => revokePreviews(photosRef.current), []);
 

@@ -4,7 +4,6 @@ import type { GoogleReviewFeed, Testimonial } from '@workspace/api-client-react'
 import { SiGoogle } from 'react-icons/si';
 import { useListFaqs, useListTasks } from '@/lib/demo-store';
 import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
 import { BookingForm } from '@/components/booking-form';
 import { 
   Shield, 
@@ -40,8 +39,10 @@ export default function HomePage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [showQuickRequest, setShowQuickRequest] = useState(false);
+  const [showAllServices, setShowAllServices] = useState(false);
   const [showAllGallery, setShowAllGallery] = useState(false);
   const [showAllBeforeAfter, setShowAllBeforeAfter] = useState(false);
+  const [showAllFaqs, setShowAllFaqs] = useState(false);
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -92,8 +93,10 @@ export default function HomePage() {
     ? settings.galleryImages
     : defaultGalleryImages;
   const topServices = services?.slice(0, 3) || [];
+  const visibleServices = showAllServices ? (services || []) : topServices;
   const visibleGalleryImages = showAllGallery ? galleryImages : galleryImages.slice(0, 4);
   const visibleBeforeAfterTasks = showAllBeforeAfter ? (tasks || []) : (tasks || []).slice(0, 2);
+  const visibleFaqs = showAllFaqs ? (faqs || []) : (faqs || []).slice(0, 6);
   
   return (
     <div className="min-h-screen bg-background noise-overlay" id="main-content">
@@ -174,20 +177,28 @@ export default function HomePage() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="py-24 bg-muted/30">
+      <section id="services" className="scroll-mt-[112px] py-24 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal-on-scroll">
             <div>
               <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">Our Core Services</h2>
               <p className="text-muted-foreground text-lg max-w-2xl">Expert solutions for every component of your garage door system.</p>
             </div>
-            <Button variant="ghost" asChild className="font-bold gap-1 text-primary hover:text-primary hover:bg-primary/10">
-              <Link href="/services">See full catalog <ArrowRight className="h-4 w-4" /></Link>
+            <Button
+              type="button"
+              variant="ghost"
+              className="font-bold gap-1 text-primary hover:text-primary hover:bg-primary/10"
+              aria-expanded={showAllServices}
+              aria-controls="services-grid"
+              onClick={() => setShowAllServices((expanded) => !expanded)}
+            >
+              {showAllServices ? 'Show featured services' : 'See full catalog'}
+              <ArrowRight className={`h-4 w-4 transition-transform ${showAllServices ? 'rotate-90' : ''}`} />
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {topServices.map((service, i) => (
+          <div id="services-grid" className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {visibleServices.map((service, i) => (
               <div key={service.id} className="group bg-card border rounded-2xl p-8 hover-elevate transition-all duration-300 flex flex-col h-full reveal-on-scroll" style={{ transitionDelay: `${i * 100}ms` }}>
                 <div className="bg-primary/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary transition-colors">
                   <Wrench className="h-7 w-7" />
@@ -207,7 +218,7 @@ export default function HomePage() {
       </section>
 
       {/* GALLERY TEASER */}
-      <section id="work" className="py-24 border-y bg-background">
+       <section id="work" className="scroll-mt-[112px] py-24 border-y bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-12">
             <div className="text-center max-w-2xl mx-auto mb-16 reveal-on-scroll">
               <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Recent Field Work</p>
@@ -240,7 +251,7 @@ export default function HomePage() {
       </section>
 
       {/* BEFORE & AFTER */}
-      <section id="before-after" className="py-24 bg-muted/20 border-b">
+       <section id="before-after" className="scroll-mt-[112px] py-24 bg-muted/20 border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal-on-scroll">
             <div className="max-w-2xl">
@@ -287,7 +298,7 @@ export default function HomePage() {
       </section>
 
       {/* BOOKING */}
-      <section className="py-24 bg-muted/20 border-b relative overflow-hidden" id="booking">
+       <section className="scroll-mt-[112px] py-24 bg-muted/20 border-b relative overflow-hidden" id="booking">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <div className="max-w-2xl mx-auto reveal-on-scroll">
             <BookingForm />
@@ -307,7 +318,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-24 bg-muted/10" id="faq">
+       <section className="scroll-mt-[112px] py-24 bg-muted/10" id="faq">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12">
           <div className="max-w-4xl mx-auto reveal-on-scroll">
             <div className="flex items-end justify-between gap-5 mb-10">
@@ -315,10 +326,18 @@ export default function HomePage() {
                 <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Helpful Answers</p>
                 <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight">Frequently Asked Questions</h2>
               </div>
-              <Link href="/faqs" className="hidden sm:inline-flex text-sm font-bold text-primary hover:underline shrink-0">View all FAQs</Link>
+              <button
+                type="button"
+                className="hidden sm:inline-flex text-sm font-bold text-primary hover:underline shrink-0"
+                aria-expanded={showAllFaqs}
+                aria-controls="faq-list"
+                onClick={() => setShowAllFaqs((expanded) => !expanded)}
+              >
+                {showAllFaqs ? 'Show featured FAQs' : 'View all FAQs'}
+              </button>
             </div>
-            <div className="space-y-3">
-              {faqs?.slice(0, 6).map((faq) => (
+            <div id="faq-list" className="space-y-3">
+              {visibleFaqs.map((faq) => (
                 <div 
                   key={faq.id} 
                   className={`border rounded-xl bg-card overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'shadow-md border-primary/30' : 'hover:border-border/80'}`}
@@ -336,7 +355,15 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <Link href="/faqs" className="sm:hidden mt-7 inline-flex text-sm font-bold text-primary hover:underline">View all FAQs</Link>
+            <button
+              type="button"
+              className="sm:hidden mt-7 inline-flex text-sm font-bold text-primary hover:underline"
+              aria-expanded={showAllFaqs}
+              aria-controls="faq-list"
+              onClick={() => setShowAllFaqs((expanded) => !expanded)}
+            >
+              {showAllFaqs ? 'Show featured FAQs' : 'View all FAQs'}
+            </button>
           </div>
         </div>
       </section>

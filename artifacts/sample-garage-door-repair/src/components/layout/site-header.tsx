@@ -4,18 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Phone, Menu, Shield, Wrench } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
+import {
+  getPublicSectionId,
+  getPublicSectionRouterHref,
+  navigateToPublicSection,
+  type PublicSection,
+} from "@/lib/public-navigation";
 
 const NAV_LINKS = [
-  { id: 'services', label: 'Services', href: '/#services' },
-  { id: 'gallery', label: 'Gallery', href: '/#work' },
-  { id: 'before-after', label: 'Before & After', href: '/#before-after' },
-  { id: 'faqs', label: 'FAQs', href: '/#faq' },
+  { id: 'services', label: 'Services', section: 'services' },
+  { id: 'gallery', label: 'Gallery', section: 'gallery' },
+  { id: 'before-after', label: 'Before & After', section: 'beforeAfter' },
+  { id: 'faqs', label: 'FAQs', section: 'faqs' },
 ] as const;
 
 export function SiteHeader() {
   const { data: settings } = useGetBusinessSettings();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const [activeSection, setActiveSection] = useState(() =>
     typeof window === 'undefined' ? '' : window.location.hash.slice(1),
   );
@@ -36,9 +42,9 @@ export function SiteHeader() {
         let current = '';
 
         for (const link of NAV_LINKS) {
-          const section = document.getElementById(link.id === 'gallery' ? 'work' : link.id === 'faqs' ? 'faq' : link.id);
+          const section = document.getElementById(getPublicSectionId(link.section));
           if (section && section.offsetTop <= marker) {
-            current = link.href.replace('/#', '');
+            current = getPublicSectionId(link.section);
           }
         }
 
@@ -60,29 +66,15 @@ export function SiteHeader() {
     };
   }, [location]);
 
-  const isLinkActive = (href: string) => {
-    if (!href.startsWith('/#')) return location === href;
-    return location === '/' && activeSection === href.replace('/#', '');
+  const isLinkActive = (section: PublicSection) => {
+    return location === '/' && activeSection === getPublicSectionId(section);
   };
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (!href.startsWith('/#')) return;
-
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, section: PublicSection) => {
     e.preventDefault();
-    const id = href.replace('/#', '');
+    const id = getPublicSectionId(section);
     setActiveSection(id);
-    if (location !== '/') {
-      setLocation(href);
-      return;
-    }
-
-    window.history.pushState(null, '', `#${id}`);
-    const element = document.getElementById(id);
-    if (element) {
-      const stickyHeaderOffset = 112;
-      const top = element.getBoundingClientRect().top + window.scrollY - stickyHeaderOffset;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }
+    navigateToPublicSection(section);
   };
 
   return (
@@ -103,16 +95,16 @@ export function SiteHeader() {
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.id}
-                href={link.href}
+                href={getPublicSectionRouterHref(link.section)}
                 className={`text-sm font-semibold transition-colors relative ${
-                  isLinkActive(link.href)
+                  isLinkActive(link.section)
                     ? 'text-primary'
                     : 'text-foreground/70 hover:text-foreground'
                 }`}
-                onClick={(e) => handleNavClick(e, link.href)}
+                onClick={(e) => handleNavClick(e, link.section)}
               >
                 {link.label}
-                {isLinkActive(link.href) && (
+                {isLinkActive(link.section) && (
                   <span className="absolute -bottom-5 left-0 right-0 h-0.5 bg-primary" />
                 )}
               </Link>
@@ -130,7 +122,10 @@ export function SiteHeader() {
               size="sm"
               className="font-display font-bold h-10 px-3 sm:px-5 shadow-md glow-primary"
             >
-              <Link href="/book">
+              <Link
+                href={getPublicSectionRouterHref("booking")}
+                onClick={(e) => handleNavClick(e, "booking")}
+              >
                 <span className="sm:hidden">Book</span>
                 <span className="hidden sm:inline">Book a Service</span>
               </Link>
@@ -182,16 +177,16 @@ export function SiteHeader() {
             {NAV_LINKS.map((link) => (
               <SheetClose asChild key={link.id}>
                 <Link
-                  href={link.href}
+                  href={getPublicSectionRouterHref(link.section)}
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${
-                    isLinkActive(link.href)
+                    isLinkActive(link.section)
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground/80 hover:bg-muted hover:text-foreground'
                   }`}
-                  onClick={(e) => handleNavClick(e, link.href)}
+                  onClick={(e) => handleNavClick(e, link.section)}
                 >
                   {link.label}
-                  {isLinkActive(link.href) && (
+                  {isLinkActive(link.section) && (
                     <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
                   )}
                 </Link>

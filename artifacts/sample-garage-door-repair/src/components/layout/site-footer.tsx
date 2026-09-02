@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { useGetBusinessSettings } from "@workspace/api-client-react";
 import { Shield, MapPin, Phone, Mail } from "lucide-react";
 import { format } from "date-fns";
+import { getPublicSectionHref } from "@/lib/public-navigation";
 
 export function SiteFooter() {
   const { data: settings } = useGetBusinessSettings();
@@ -26,10 +27,10 @@ export function SiteFooter() {
           <div className="min-w-0">
             <h4 className="font-bold text-lg mb-4 text-background">Services</h4>
             <ul className="space-y-3 text-background/70">
-              <li><Link href="/services" className="hover:text-background transition-colors">Spring Replacement</Link></li>
-              <li><Link href="/services" className="hover:text-background transition-colors">Opener Repair</Link></li>
-              <li><Link href="/services" className="hover:text-background transition-colors">Cable Replacement</Link></li>
-              <li><Link href="/services" className="hover:text-background transition-colors">New Installations</Link></li>
+              <li><a href={getPublicSectionHref("services")} className="hover:text-background transition-colors">Spring Replacement</a></li>
+              <li><a href={getPublicSectionHref("services")} className="hover:text-background transition-colors">Opener Repair</a></li>
+              <li><a href={getPublicSectionHref("services")} className="hover:text-background transition-colors">Cable Replacement</a></li>
+              <li><a href={getPublicSectionHref("services")} className="hover:text-background transition-colors">New Installations</a></li>
             </ul>
           </div>
           

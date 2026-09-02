@@ -63,7 +63,7 @@ export default function FaqsPage() {
               <a href={`tel:${settings?.phone ?? ''}`}><Phone className="mr-2 h-4 w-4" /> Call {settings?.phone}</a>
             </Button>
             <Button asChild variant="outline" size="lg" className="mt-3 w-full border-secondary-foreground/20 bg-transparent font-bold text-secondary-foreground hover:bg-secondary-foreground/10">
-              <Link href="/book">Request Service</Link>
+              <Link href="/#booking">Request Service</Link>
             </Button>
           </aside>
         </div>

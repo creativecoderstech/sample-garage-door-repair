@@ -27,7 +27,7 @@ export default function ServicesPage() {
               <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/50">
                 <span className="font-bold text-lg">From ${service.startingPrice}</span>
                 <Button variant="ghost" size="sm" asChild className="rounded-full">
-                  <Link href="/book">Book <ChevronRight className="h-4 w-4 ml-1"/></Link>
+                  <Link href="/#booking">Book <ChevronRight className="h-4 w-4 ml-1"/></Link>
                 </Button>
               </div>
             </div>

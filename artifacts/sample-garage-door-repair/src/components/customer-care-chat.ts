@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAskGarageAssistant, useGetBusinessSettings } from "@workspace/api-client-react";
 import type { AssistantInput, AssistantReply } from "@workspace/api-client-react";
+import { navigateToPublicSection } from "@/lib/public-navigation";
 
 export type CustomerCareMessage = {
   role: "user" | "assistant";
@@ -16,6 +17,7 @@ export type ServiceRequestDraft = {
 };
 
 export const CUSTOMER_CARE_NAME = "Maya";
+export const SERVICE_REQUEST_DRAFT_EVENT = "garage-service-request-draft";
 
 export const customerCareWelcome = (businessName = "Summit Garage Door Co.") =>
   `Hi! I’m Maya from ${businessName}. I can help with services, service area, and next steps—and help you start a service request. What can we help with today?`;
@@ -146,7 +148,8 @@ export function useCustomerCareChat() {
       details: `Started with customer care.\n\n${transcript}`,
     };
     sessionStorage.setItem("garage_service_request_draft", JSON.stringify(draft));
-    window.location.assign(`${import.meta.env.BASE_URL}book`);
+    window.dispatchEvent(new CustomEvent(SERVICE_REQUEST_DRAFT_EVENT, { detail: draft }));
+    navigateToPublicSection("booking");
   };
 
   return {
