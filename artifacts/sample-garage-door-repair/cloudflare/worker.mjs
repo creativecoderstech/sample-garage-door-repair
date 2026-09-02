@@ -151,10 +151,10 @@ async function serveAsset(request, url, context) {
   return response;
 }
 
-export default {
-  async fetch(request, environment, context) {
-    const url = new URL(request.url);
-    if (url.pathname.startsWith("/api/")) return handleApi(request, url);
-    return serveAsset(request, url, context);
-  },
-};
+addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  const response = url.pathname.startsWith("/api/")
+    ? handleApi(event.request, url)
+    : serveAsset(event.request, url, event);
+  event.respondWith(response);
+});
