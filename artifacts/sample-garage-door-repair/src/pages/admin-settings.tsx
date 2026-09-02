@@ -156,6 +156,38 @@ export default function AdminSettingsPage() {
     <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Workspace configuration</p>
+              <div className="mt-1 flex flex-wrap items-center gap-3">
+                <h2 className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">Business controls</h2>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">4 sections</span>
+              </div>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                Keep the public identity, photography, visual theme, and dispatch settings aligned from one detailed workspace.
+              </p>
+            </div>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Configuration loaded
+            </span>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Public identity", "Customer-facing business details"],
+              ["Photography", "Hero and gallery image sources"],
+              ["Site aesthetics", THEMES.find((theme) => theme.id === selectedTheme)?.name || "Theme selection"],
+              ["Operations", form.watch("emergencyEnabled") ? "Emergency mode enabled" : "Standard availability"],
+            ].map(([label, detail], index) => (
+              <div key={label} className="rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+                  <span className={`h-2 w-2 rounded-full ${index === 3 && form.watch("emergencyEnabled") ? "bg-red-500" : "bg-primary"}`} />
+                </div>
+                <p className="mt-3 text-sm font-bold text-slate-950 dark:text-white">{detail}</p>
+              </div>
+            ))}
+          </div>
           
           <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
             <CardHeader>

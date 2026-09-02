@@ -242,7 +242,7 @@ export default function AdminPage() {
          tab === 'service-requests' ? <ServiceRequestsAdmin /> :
          tab === 'faqs' ? <FaqsAdmin /> :
          tab === 'tasks' ? <TasksAdmin /> :
-         tab === 'bookings' ? <BookingsAdmin /> :
+         tab === 'bookings' ? <BookingsAdmin setTab={setTab} /> :
          tab === 'chats' ? <ChatsAdmin /> :
          tab === 'gallery' ? <GalleryAdmin /> :
          tab === 'services' ? <ServicesAdmin /> :
@@ -282,6 +282,12 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
 
   return (
     <div className="space-y-6">
+      <AdminSectionHeader
+        eyebrow="Today at Summit"
+        title="Business pulse"
+        description="Start with the newest customer requests, then check the schedule. Everything else is one click away."
+        count={`${pendingCount} open request${pendingCount === 1 ? "" : "s"}`}
+      />
       {/* Hero Banner */}
       <div className="bg-[#1e293b] rounded-2xl p-8 sm:p-10 text-white relative overflow-hidden mb-8 shadow-sm">
         <div className="relative z-10">
@@ -420,28 +426,114 @@ function ListCard({ icon, title, description, linkText, onLinkClick, children }:
   )
 }
 
-// === Sub-components (Restyled to match flat/clean look) ===
+// === Sub-components (shared Sample Handyman-style detail language) ===
+
+function AdminSectionHeader({
+  eyebrow = "Manage this area",
+  title,
+  description,
+  count,
+  action,
+}: {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  count?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{eyebrow}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-3">
+          <h2 className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">{title}</h2>
+          {count ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{count}</span> : null}
+        </div>
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
+      </div>
+      {action ? <div className="flex shrink-0 flex-wrap gap-2">{action}</div> : null}
+    </div>
+  );
+}
+
+function AdminStatStrip({ stats }: { stats: { label: string; value: string | number; detail: string; tone?: "default" | "success" | "warning" }[] }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat) => (
+        <div key={stat.label} className={`${adminCardClass} p-4`}>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{stat.label}</p>
+            <span className={`h-2 w-2 rounded-full ${stat.tone === "success" ? "bg-emerald-500" : stat.tone === "warning" ? "bg-amber-500" : "bg-primary"}`} />
+          </div>
+          <p className={`mt-2 text-2xl font-bold tracking-tight ${stat.tone === "warning" ? "text-amber-700 dark:text-amber-300" : "text-slate-950 dark:text-white"}`}>{stat.value}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stat.detail}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StatusBadge({ value }: { value: string }) {
+  const normalized = value.toLowerCase();
+  const tone = normalized.includes("published") || normalized.includes("approved") || normalized.includes("active") || normalized.includes("replied")
+    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900"
+    : normalized.includes("pending") || normalized.includes("new") || normalized.includes("draft")
+      ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900"
+      : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+  return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${tone}`}>{value}</span>;
+}
 
 function ChatsAdmin() {
-  return <ContentModuleAdmin storageKey="garage-admin-chats" title="Chat Inquiries" description="Review and track conversations started with Maya and your customer-care team." fields={['Customer', 'Phone', 'Status']} defaults={[
-    ['Taylor Morgan', '(214) 555-0178', 'New'],
-    ['Jordan Lee', '(972) 555-0134', 'Replied'],
-  ]} />
+  return (
+    <ContentModuleAdmin
+      storageKey="garage-admin-chats"
+      title="Chat inquiries"
+      eyebrow="Customer care"
+      description="Review conversations started with Maya, keep follow-ups visible, and give every lead a clear next step."
+      fields={["Customer", "Phone", "Latest message", "Started", "Status"]}
+      defaults={[
+        ["Taylor Morgan", "(214) 555-0178", "The door is stuck halfway and I need help before tonight.", "Today, 9:42 AM", "New"],
+        ["Jordan Lee", "(972) 555-0134", "Thanks for the estimate. Can someone confirm the opener model?", "Yesterday, 4:18 PM", "Replied"],
+      ]}
+      addLabel="Add inquiry"
+    />
+  );
 }
 
 function GalleryAdmin() {
-  return <ContentModuleAdmin storageKey="garage-admin-gallery-v2" title="Gallery" description="Manage the project photographs shown throughout the customer website." fields={['Project', 'Image URL', 'Status']} defaults={[
-    ['Modern insulated door', '/images/garage/modern-white-home.jpg', 'Published'],
-    ['Classic residential door', '/images/garage/classic-white-door.jpg', 'Published'],
-  ]} />
+  return (
+    <ContentModuleAdmin
+      storageKey="garage-admin-gallery-v2"
+      title="Gallery"
+      eyebrow="Website content"
+      description="Curate the garage-door project photography customers see online, with accessible labels and homepage ordering."
+      fields={["Project", "Image URL", "Alt text", "Sort order", "Status"]}
+      defaults={[
+        ["Modern insulated door", "/images/garage/modern-white-home.jpg", "White insulated garage door installation", "1", "Published"],
+        ["Classic residential door", "/images/garage/classic-white-door.jpg", "Classic residential garage door", "2", "Published"],
+      ]}
+      addLabel="Add photo"
+      imageField="Image URL"
+    />
+  );
 }
 
 function ServicesAdmin() {
-  return <ContentModuleAdmin storageKey="garage-admin-services" title="Services" description="Maintain the service catalog and customer-facing starting prices." fields={['Service', 'Starting Price', 'Status']} defaults={[
-    ['Broken spring replacement', '$249', 'Published'],
-    ['Garage door opener repair', '$179', 'Published'],
-    ['New door installation', '$1,299', 'Published'],
-  ]} />
+  return (
+    <ContentModuleAdmin
+      storageKey="garage-admin-services"
+      title="Services"
+      eyebrow="Website content"
+      description="Maintain the service catalog, customer-facing benefits, starting prices, and publishing status shown on the homepage."
+      fields={["Service", "Benefit", "Description", "Starting price", "Status"]}
+      defaults={[
+        ["Broken spring replacement", "Get the door balanced and moving safely again.", "Torsion and extension spring diagnosis and replacement by a trained technician.", "$249", "Published"],
+        ["Garage door opener repair", "Quiet, reliable access without the guesswork.", "Troubleshoot motors, remotes, sensors, travel limits, and worn opener parts.", "$179", "Published"],
+        ["New door installation", "A better-looking, better-insulated entry.", "Measure, recommend, and install a residential garage door that fits the home.", "$1,299", "Published"],
+      ]}
+      addLabel="Add service"
+    />
+  );
 }
 
 function ReviewsAdmin() {
@@ -450,6 +542,18 @@ function ReviewsAdmin() {
 
   return (
     <div className="space-y-8">
+      <AdminSectionHeader
+        eyebrow="Reputation"
+        title="Reviews"
+        description="Keep Google previews and customer-submitted testimonials trustworthy, current, and ready for the public site."
+        count={feed?.connectionStatus === "connected" ? "Google connected" : "Demo review feed"}
+      />
+      <AdminStatStrip stats={[
+        { label: "Google status", value: feed?.connectionStatus === "connected" ? "Live" : "Demo", detail: feed?.locationName || "Previewing local business profile", tone: feed?.connectionStatus === "connected" ? "success" : "default" },
+        { label: "Average rating", value: "5.0", detail: "From the current review preview", tone: "success" },
+        { label: "Public proof", value: "Ready", detail: "Manual testimonials remain available", tone: "success" },
+        { label: "Next step", value: "Moderate", detail: "Review pending submissions below" },
+      ]} />
       {/* Google Business Profile Connection Panel */}
       <div className={`${adminCardClass} overflow-hidden`}>
         <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
@@ -530,27 +634,38 @@ function ReviewsAdmin() {
          </div>
       )}
 
-      {/* Existing Manual Reviews Module */}
       <ContentModuleAdmin
         storageKey="garage-admin-reviews"
         title="Manual Reviews"
+        eyebrow="Customer proof"
         description="Moderate customer reviews captured directly on your site before they appear publicly. These remain available when Google is disconnected."
-        fields={['Customer', 'Rating', 'Status']}
+        fields={['Customer', 'Rating', 'Review quote', 'Source', 'Status']}
         defaults={[
-          ['Elena Rodriguez', '5 stars', 'Approved'],
-          ['Marcus Bennett', '5 stars', 'Approved'],
-          ['Priya Shah', '5 stars', 'Pending'],
+          ['Elena Rodriguez', '5 stars', 'Fast, careful, and honest about the repair options. The door is quieter than it has ever been.', 'Website form', 'Approved'],
+          ['Marcus Bennett', '5 stars', 'They arrived when promised, explained the spring issue, and got us back on the road.', 'Website form', 'Approved'],
+          ['Priya Shah', '5 stars', 'Great communication so far. Waiting for the installation date to be confirmed.', 'Website form', 'Pending'],
         ]}
+        addLabel="Add review"
       />
     </div>
   )
 }
 
 function UsersAdmin() {
-  return <ContentModuleAdmin storageKey="garage-admin-users" title="Users" description="Manage staff access and operating roles for this service sample." fields={['Team Member', 'Role', 'Status']} defaults={[
-    ['admin@summitgaragedoor.demo', 'Super Admin', 'Active'],
-    ['dispatch@summitgaragedoor.demo', 'Dispatcher', 'Active'],
-  ]} />
+  return (
+    <ContentModuleAdmin
+      storageKey="garage-admin-users"
+      title="Users"
+      eyebrow="Workspace access"
+      description="Keep staff access easy to review. Roles below are demo controls for the Summit workspace and do not replace production authentication."
+      fields={["Team member", "Role", "Access scope", "Last active", "Status"]}
+      defaults={[
+        ["admin@summitgaragedoor.demo", "Super Admin", "Everything", "Today, 10:12 AM", "Active"],
+        ["dispatch@summitgaragedoor.demo", "Dispatcher", "Requests + bookings", "Yesterday, 4:42 PM", "Active"],
+      ]}
+      addLabel="Invite user"
+    />
+  );
 }
 
 
@@ -617,20 +732,30 @@ function ContentModuleAdmin({
   description,
   fields,
   defaults,
+  eyebrow,
+  addLabel = "Add new",
+  imageField,
 }: {
   storageKey: string;
   title: string;
   description: string;
   fields: string[];
   defaults: string[][];
+  eyebrow?: string;
+  addLabel?: string;
+  imageField?: string;
 }) {
   const { toast } = useToast();
   const [rows, setRows] = useState<ContentRow[]>(() => {
-    const stored = localStorage.getItem(storageKey);
-    if (stored) return JSON.parse(stored) as ContentRow[];
+    const stored = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
+    if (stored) {
+      const parsed = JSON.parse(stored) as ContentRow[];
+      return parsed.map((row) => normalizeContentRow(storageKey, row, fields));
+    }
     return defaults.map((values, index) => ({ id: `${storageKey}-${index}`, values }));
   });
   const [draft, setDraft] = useState<string[] | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ContentRow | null>(null);
 
   useEffect(() => {
@@ -639,65 +764,119 @@ function ContentModuleAdmin({
 
   const addRow = () => {
     if (!draft || draft.some((value) => !value.trim())) return;
-    setRows((current) => [...current, { id: `${storageKey}-${Date.now()}`, values: draft }]);
+    setRows((current) => editingId
+      ? current.map((row) => row.id === editingId ? { ...row, values: draft } : row)
+      : [...current, { id: `${storageKey}-${Date.now()}`, values: draft }]);
     setDraft(null);
-    toast({ title: `${title} updated` });
+    setEditingId(null);
+    toast({ title: editingId ? `${title} updated` : `${title} item added` });
   };
 
+  const startEdit = (row: ContentRow) => {
+    setEditingId(row.id);
+    setDraft([...row.values, ...Array(Math.max(0, fields.length - row.values.length)).fill("")].slice(0, fields.length));
+  };
+
+  const cancelDraft = () => {
+    setDraft(null);
+    setEditingId(null);
+  };
+
+  const statusValues = rows.map((row) => row.values[row.values.length - 1] || "").filter(Boolean);
+  const publishedCount = statusValues.filter((value) => /published|approved|active|replied/i.test(value)).length;
+  const hasImages = Boolean(imageField);
+  const imageIndex = imageField ? fields.indexOf(imageField) : -1;
+
   return (
-    <section className="space-y-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{description}</p>
-        </div>
-        <Button onClick={() => setDraft(fields.map(() => ''))} size="sm" className="shadow-sm">
-          <Plus className="w-4 h-4 mr-2" /> Add New
-        </Button>
-      </div>
+    <section className="space-y-6">
+      <AdminSectionHeader
+        eyebrow={eyebrow}
+        title={title}
+        description={description}
+        count={`${rows.length} ${rows.length === 1 ? "item" : "items"}`}
+        action={<Button onClick={() => { setEditingId(null); setDraft(fields.map(() => "")); }} className="h-10 rounded-xl font-bold shadow-sm"><Plus className="mr-2 h-4 w-4" /> {addLabel}</Button>}
+      />
+
+      <AdminStatStrip stats={[
+        { label: "Total records", value: rows.length, detail: "Stored in this browser's demo state" },
+        { label: "Active / visible", value: publishedCount, detail: "Ready for the customer experience", tone: "success" },
+        { label: "Needs attention", value: Math.max(rows.length - publishedCount, 0), detail: "Draft, pending, or inactive records", tone: rows.length - publishedCount > 0 ? "warning" : "default" },
+        { label: "Action", value: addLabel, detail: "Use the button above to keep this area current" },
+      ]} />
 
       {draft && (
-        <div className={`${adminCardClass} p-5 sm:p-6`}>
-          <div className="grid gap-3 md:grid-cols-3">
+        <div className={`${adminCardClass} overflow-hidden border-primary/30`}>
+          <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{editingId ? "Edit record" : "New record"}</p>
+            <h3 className="mt-1 font-display text-lg font-bold text-slate-950 dark:text-white">{editingId ? `Update ${title.toLowerCase()} details` : `Add to ${title.toLowerCase()}`}</h3>
+            <p className="mt-1 text-sm text-slate-500">Complete each field so the customer-facing content stays clear and useful.</p>
+          </div>
+          <div className="p-5 sm:p-6">
+          <div className="grid gap-4 md:grid-cols-2">
             {fields.map((field, index) => (
-              <Input
-                key={field}
-                placeholder={field}
-                value={draft[index]}
-                onChange={(event) => setDraft((current) => current?.map((value, i) => i === index ? event.target.value : value) ?? null)}
-                className="bg-white dark:bg-slate-900"
-              />
+              <div key={field} className={field.toLowerCase().includes("description") || field.toLowerCase().includes("message") || field.toLowerCase().includes("quote") ? "md:col-span-2" : ""}>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">{field}</label>
+                {field.toLowerCase().includes("description") || field.toLowerCase().includes("message") || field.toLowerCase().includes("quote") ? (
+                  <Textarea
+                    placeholder={field}
+                    value={draft[index] || ""}
+                    rows={3}
+                    onChange={(event) => setDraft((current) => current?.map((value, i) => i === index ? event.target.value : value) ?? null)}
+                    className="bg-white dark:bg-slate-900"
+                  />
+                ) : (
+                  <Input
+                    placeholder={field}
+                    value={draft[index] || ""}
+                    onChange={(event) => setDraft((current) => current?.map((value, i) => i === index ? event.target.value : value) ?? null)}
+                    className="bg-white dark:bg-slate-900"
+                  />
+                )}
+              </div>
             ))}
           </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" size="sm" onClick={() => setDraft(null)}>Cancel</Button>
-            <Button size="sm" onClick={addRow}><Check className="w-4 h-4 mr-2" /> Save</Button>
+          <div className="mt-5 flex flex-wrap justify-end gap-2">
+            <Button variant="outline" onClick={cancelDraft}>Cancel</Button>
+            <Button onClick={addRow}><Check className="mr-2 h-4 w-4" /> {editingId ? "Save changes" : "Save record"}</Button>
+          </div>
           </div>
         </div>
       )}
 
       <div className="grid gap-4">
         {rows.map((row) => (
-          <div key={row.id} className={`${adminCardClass} p-5 grid grid-cols-[1fr_auto] gap-5 items-center hover:shadow-md transition-shadow`}>
-            <div className="grid sm:grid-cols-3 gap-3">
-              {row.values.map((value, index) => (
-                <div key={`${row.id}-${fields[index]}`}>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{fields[index]}</p>
-                  {fields[index].toLowerCase().includes('image') ? (
-                    <div className="flex min-w-0 items-center gap-3">
-                      <AdminImagePreview src={value} alt={`${row.values[0] || title} preview`} />
-                      <p className="min-w-0 text-sm font-medium text-slate-900 dark:text-white break-all">{value}</p>
-                    </div>
-                  ) : (
-                    <p className="text-sm font-medium text-slate-900 dark:text-white break-all">{value}</p>
-                  )}
+          <article key={row.id} className={`${adminCardClass} overflow-hidden transition-shadow hover:shadow-lg`}>
+            <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
+              <div className="flex min-w-0 gap-4">
+                {hasImages && row.values[imageIndex] ? <AdminImagePreview src={row.values[imageIndex]} alt={`${row.values[0] || title} preview`} /> : (
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-primary dark:bg-orange-950/30"><Wrench className="h-6 w-6" /></div>
+                )}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="truncate font-display text-lg font-bold text-slate-950 dark:text-white">{row.values[0] || "Untitled item"}</h3>
+                    {row.values[row.values.length - 1] ? <StatusBadge value={row.values[row.values.length - 1]} /> : null}
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">{title} record · Browser demo state</p>
                 </div>
-              ))}
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button size="sm" variant="outline" className="h-9 gap-1.5 rounded-lg" onClick={() => startEdit(row)}><Edit2 className="h-3.5 w-3.5" /> Edit</Button>
+                <Button size="sm" variant="outline" className="h-9 gap-1.5 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setDeleteTarget(row)}><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
+              </div>
             </div>
-            <Button size="icon" variant="ghost" aria-label={`Delete ${title} item`} title={`Delete ${title} item`} onClick={() => setDeleteTarget(row)}>
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </Button>
-          </div>
+            <div className="grid gap-5 p-5 md:grid-cols-2 lg:grid-cols-4">
+              {row.values.map((value, index) => {
+                const field = fields[index] || `Detail ${index + 1}`;
+                if (index === 0 || index === imageIndex) return null;
+                return (
+                  <div key={`${row.id}-${field}`} className={field.toLowerCase().includes("description") || field.toLowerCase().includes("message") || field.toLowerCase().includes("quote") ? "md:col-span-2 lg:col-span-2" : ""}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{field}</p>
+                    <p className={`mt-1 text-sm ${field.toLowerCase().includes("description") || field.toLowerCase().includes("message") || field.toLowerCase().includes("quote") ? "leading-6 text-slate-600 dark:text-slate-300" : "font-semibold text-slate-900 dark:text-white"} break-words`}>{value || "—"}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </article>
         ))}
         {rows.length === 0 && <EmptyState title={`No ${title.toLowerCase()} yet`} description="Add your first item to get started." />}
       </div>
@@ -714,6 +893,27 @@ function ContentModuleAdmin({
       />
     </section>
   );
+}
+
+function normalizeContentRow(storageKey: string, row: ContentRow, fields: string[]): ContentRow {
+  if (row.values.length >= fields.length) return row;
+  const values = [...row.values];
+  if (storageKey === "garage-admin-services" && values.length === 3) {
+    return { ...row, values: [values[0], "Professional garage door service.", "Clear, careful work from diagnosis through completion.", values[1], values[2]] };
+  }
+  if (storageKey === "garage-admin-gallery-v2" && values.length === 3) {
+    return { ...row, values: [values[0], values[1], `${values[0]} project photo`, "1", values[2]] };
+  }
+  if (storageKey === "garage-admin-reviews" && values.length === 3) {
+    return { ...row, values: [values[0], values[1], "A customer review awaiting a longer quote.", "Website form", values[2]] };
+  }
+  if (storageKey === "garage-admin-users" && values.length === 3) {
+    return { ...row, values: [values[0], values[1], "Workspace access", "Recently", values[2]] };
+  }
+  if (storageKey === "garage-admin-chats" && values.length === 3) {
+    return { ...row, values: [values[0], values[1], "Conversation imported from the customer-care inbox.", "Recently", values[2]] };
+  }
+  return { ...row, values: [...values, ...Array(fields.length - values.length).fill("—")] };
 }
 
 function EmptyState({ title, description }: { title: string; description: string }) {
@@ -780,6 +980,12 @@ function ServiceRequestsAdmin() {
 
   return (
     <div className="space-y-7">
+      <AdminSectionHeader
+        eyebrow="Today · Lead pipeline"
+        title="Service requests"
+        description="Review new leads, confirm job details, and keep every request moving toward a safe, scheduled visit."
+        count={`${filteredRequests.length} visible`}
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className={`${adminCardClass} p-5`}>
           <div className="flex items-center justify-between mb-3">
@@ -885,32 +1091,62 @@ function MetadataRow({ icon, label, children }: { icon: React.ReactNode; label: 
   );
 }
 
-function BookingsAdmin() {
+function BookingsAdmin({ setTab }: { setTab: (tab: AdminTab) => void }) {
   const { data: bookings } = useListBookings();
   
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Confirmed appointments</h2>
-          <p className="text-sm text-slate-500 mt-1">Local demo schedule, ordered for quick dispatch review.</p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <AdminSectionHeader
+        eyebrow="Today · Schedule"
+        title="Confirmed appointments"
+        description="See the work coming up next, with the customer and service context needed for a quick dispatch review."
+        count={`${bookings?.length || 0} scheduled`}
+      />
+      <AdminStatStrip stats={[
+        { label: "Upcoming", value: bookings?.length || 0, detail: "Appointments in the demo schedule", tone: bookings?.length ? "success" : "default" },
+        { label: "Confirmed", value: bookings?.length || 0, detail: "Ready for the dispatch team" },
+        { label: "Customer detail", value: "Attached", detail: "Each card shows the available booking context" },
+        { label: "Schedule source", value: "Local", detail: "Stored in this browser's demo state" },
+      ]} />
       
       {(!bookings || bookings.length === 0) ? (
         <EmptyState title="No bookings scheduled yet" description="Confirmed customer appointments will appear here." />
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-4">
            {bookings.map(b => (
-             <div key={b.id} className={`${adminCardClass} p-5 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center`}>
-               <div>
-                 <p className="font-bold text-sm text-slate-900 dark:text-white">{b.title}</p>
-                 <p className="text-xs text-slate-500 mt-0.5">{b.customer}</p>
+             <article key={b.id} className={`${adminCardClass} overflow-hidden`}>
+               <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
+                 <div>
+                   <div className="flex flex-wrap items-center gap-2">
+                     <h3 className="font-display text-lg font-bold text-slate-950 dark:text-white">{b.title}</h3>
+                     <StatusBadge value="Confirmed" />
+                   </div>
+                   <p className="mt-1 text-xs text-slate-400">Booking #{b.id} · Confirmed customer appointment</p>
+                 </div>
+                 <div className="inline-flex items-center gap-2 rounded-xl border-2 border-primary/20 bg-orange-50 px-3 py-2 text-sm font-bold text-slate-900 dark:bg-orange-950/20 dark:text-white">
+                   <CalendarDays className="h-4 w-4 text-primary" /> {b.date}
+                 </div>
                </div>
-               <div className="font-medium text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-md border border-slate-100 dark:border-slate-800 shadow-sm">
-                 {b.date}
+               <div className="grid gap-5 p-5 sm:grid-cols-3">
+                 <MetadataRow icon={<User />} label="Customer">{b.customer}</MetadataRow>
+                 <MetadataRow icon={<Wrench />} label="Service">{b.title}</MetadataRow>
+                 <MetadataRow icon={<Clock />} label="Dispatch note">Confirm arrival window before sending the technician.</MetadataRow>
                </div>
-             </div>
+               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3 dark:border-slate-800 dark:bg-slate-950/30">
+                 <p className="text-xs text-slate-500">Use the service request record for phone, email, and full job location.</p>
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   className="rounded-lg"
+                   onClick={() => {
+                     setTab("service-requests");
+                     window.history.replaceState(null, "", "#service-requests");
+                   }}
+                 >
+                   Open request queue <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                 </Button>
+               </div>
+             </article>
            ))}
         </div>
       )}
@@ -942,44 +1178,75 @@ function FaqsAdmin() {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Published questions</h2>
-          <p className="text-sm text-slate-500 mt-1">Changes are saved in this browser’s demo state.</p>
-        </div>
-        <Button size="sm" onClick={() => { setEditingId(""); setQ(""); setA(""); }}>
-          <Plus className="w-4 h-4 mr-2" /> Add FAQ
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <AdminSectionHeader
+        eyebrow="Website content · Safety answers"
+        title="Published questions"
+        description="Keep customer answers accurate, useful, and safety focused. Changes are saved in this browser's demo state."
+        count={`${faqs?.length || 0} questions`}
+        action={<Button size="sm" className="h-10 rounded-xl font-bold" onClick={() => { setEditingId(""); setQ(""); setA(""); }}><Plus className="mr-2 h-4 w-4" /> Add FAQ</Button>}
+      />
+      <AdminStatStrip stats={[
+        { label: "Questions", value: faqs?.length || 0, detail: "Customer answers currently available" },
+        { label: "Safety coverage", value: "Strong", detail: "Answers include high-tension warnings", tone: "success" },
+        { label: "Publishing", value: "Live", detail: "FAQ content is ready for the homepage", tone: "success" },
+        { label: "Storage", value: "Browser", detail: "Demo changes stay on this device" },
+      ]} />
 
       {editingId !== null && (
-        <div className={`${adminCardClass} p-5 space-y-4`}>
-          <Input placeholder="Question" value={q} onChange={e => setQ(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
-          <Textarea placeholder="Answer" value={a} onChange={e => setA(e.target.value)} rows={3} className="bg-white dark:bg-slate-900" />
-          <div className="flex gap-2 justify-end pt-2">
-            <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>
-            <Button size="sm" onClick={handleSave}>Save FAQ</Button>
+        <div className={`${adminCardClass} overflow-hidden border-primary/30`}>
+          <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{editingId ? "Edit question" : "New question"}</p>
+            <h3 className="mt-1 font-display text-lg font-bold text-slate-950 dark:text-white">{editingId ? "Update customer guidance" : "Add a customer question"}</h3>
+          </div>
+          <div className="space-y-4 p-5">
+            <div>
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Question</label>
+              <Input placeholder="What areas do you serve?" value={q} onChange={e => setQ(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Answer</label>
+              <Textarea placeholder="Write a clear, customer-safe answer." value={a} onChange={e => setA(e.target.value)} rows={4} className="bg-white dark:bg-slate-900" />
+            </div>
+            <div className="flex flex-wrap justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+              <Button onClick={handleSave} disabled={saveFaq.isPending}>{saveFaq.isPending ? "Saving..." : "Save FAQ"}</Button>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {faqs?.map(faq => (
-          <div key={faq.id} className={`${adminCardClass} p-5 flex justify-between gap-4 group hover:shadow-md transition-shadow`}>
-            <div>
-              <p className="font-bold text-sm text-slate-900 dark:text-white mb-1.5">{faq.question}</p>
-              <p className="text-sm text-slate-500">{faq.answer}</p>
+          <article key={faq.id} className={`${adminCardClass} overflow-hidden transition-shadow hover:shadow-lg`}>
+            <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
+              <div className="flex min-w-0 gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-primary dark:bg-orange-950/30"><HelpCircle className="h-5 w-5" /></div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-display text-lg font-bold text-slate-950 dark:text-white">{faq.question}</h3>
+                    <StatusBadge value="Published" />
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">FAQ #{faq.id} · Safety-focused customer guidance</p>
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button size="sm" variant="outline" className="h-9 rounded-lg" aria-label={`Edit FAQ: ${faq.question}`} onClick={() => { setEditingId(faq.id); setQ(faq.question); setA(faq.answer); }}><Edit2 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
+                <Button size="sm" variant="outline" className="h-9 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700" aria-label={`Delete FAQ: ${faq.question}`} onClick={() => setDeleteTarget(faq)}><Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete</Button>
+              </div>
             </div>
-             <div className="flex shrink-0 flex-col gap-2 opacity-100 transition-opacity sm:flex-row sm:opacity-0 sm:group-hover:opacity-100">
-               <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs" aria-label={`Edit FAQ: ${faq.question}`} title={`Edit FAQ: ${faq.question}`} onClick={() => { setEditingId(faq.id); setQ(faq.question); setA(faq.answer); }}>
-                 <Edit2 className="w-3.5 h-3.5" /> <span>Edit</span>
-              </Button>
-               <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs text-red-500 hover:text-red-600 hover:bg-red-50" aria-label={`Delete FAQ: ${faq.question}`} title={`Delete FAQ: ${faq.question}`} onClick={() => setDeleteTarget(faq)}>
-                 <Trash2 className="w-3.5 h-3.5" /> <span>Delete</span>
-              </Button>
+            <div className="grid gap-4 p-5 md:grid-cols-[minmax(0,1fr)_220px]">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer answer</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{faq.answer}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Content notes</p>
+                <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Visible on the public FAQ section</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">Review after changes to services, service areas, or safety policies.</p>
+              </div>
             </div>
-          </div>
+          </article>
         ))}
         {(!faqs || faqs.length === 0) && <EmptyState title="No FAQs yet" description="Add the first customer question and answer." />}
       </div>
@@ -1026,52 +1293,64 @@ function TasksAdmin() {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Project transformations</h2>
-          <p className="text-sm text-slate-500 mt-1">Pair before and after images to show the quality of your work.</p>
-        </div>
-        <Button size="sm" onClick={() => { setEditingId(""); setTitle(""); setDesc(""); setBeforeImg(""); setAfterImg(""); }}>
-          <Plus className="w-4 h-4 mr-2" /> Add Task
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <AdminSectionHeader
+        eyebrow="Website content · Proof of work"
+        title="Project transformations"
+        description="Pair before and after images to show the quality of your garage-door repairs, upgrades, and installations."
+        count={`${tasks?.length || 0} projects`}
+        action={<Button size="sm" className="h-10 rounded-xl font-bold" onClick={() => { setEditingId(""); setTitle(""); setDesc(""); setBeforeImg(""); setAfterImg(""); }}><Plus className="mr-2 h-4 w-4" /> Add project</Button>}
+      />
+      <AdminStatStrip stats={[
+        { label: "Projects", value: tasks?.length || 0, detail: "Transformation stories on the site" },
+        { label: "Image pairs", value: tasks?.length || 0, detail: "Each project has before and after views", tone: tasks?.length ? "success" : "default" },
+        { label: "Customer trust", value: "Visual", detail: "Use matching photos from the same project", tone: "success" },
+        { label: "Storage", value: "Browser", detail: "Demo changes stay on this device" },
+      ]} />
 
       {editingId !== null && (
-        <div className={`${adminCardClass} p-5 space-y-4`}>
-          <Input placeholder="Project Title" value={title} onChange={e => setTitle(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
-          <Textarea placeholder="Description (Optional)" value={desc} onChange={e => setDesc(e.target.value)} rows={2} className="bg-white dark:bg-slate-900" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input placeholder="Before Image URL" value={beforeImg} onChange={e => setBeforeImg(e.target.value)} className="bg-white dark:bg-slate-900" />
-            <Input placeholder="After Image URL" value={afterImg} onChange={e => setAfterImg(e.target.value)} className="bg-white dark:bg-slate-900" />
+        <div className={`${adminCardClass} overflow-hidden border-primary/30`}>
+          <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{editingId ? "Edit project" : "New project"}</p>
+            <h3 className="mt-1 font-display text-lg font-bold text-slate-950 dark:text-white">{editingId ? "Update transformation details" : "Add a before-and-after project"}</h3>
           </div>
-          <div className="flex gap-2 justify-end pt-2">
-            <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>
-            <Button size="sm" onClick={handleSave}>Save Task</Button>
+          <div className="space-y-4 p-5">
+            <Input placeholder="Project title" value={title} onChange={e => setTitle(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
+            <Textarea placeholder="Describe the transformation and the customer benefit." value={desc} onChange={e => setDesc(e.target.value)} rows={3} className="bg-white dark:bg-slate-900" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div><label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Before image URL</label><Input placeholder="/images/garage/before.jpg" value={beforeImg} onChange={e => setBeforeImg(e.target.value)} className="bg-white dark:bg-slate-900" /></div>
+              <div><label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">After image URL</label><Input placeholder="/images/garage/after.jpg" value={afterImg} onChange={e => setAfterImg(e.target.value)} className="bg-white dark:bg-slate-900" /></div>
+            </div>
+            <div className="flex flex-wrap justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+              <Button onClick={handleSave} disabled={saveTask.isPending}>{saveTask.isPending ? "Saving..." : "Save project"}</Button>
+            </div>
           </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {tasks?.map(task => (
-          <div key={task.id} className={`${adminCardClass} overflow-hidden flex flex-col group hover:shadow-lg transition-shadow`}>
-            <div className="grid grid-cols-2 h-32 border-b border-slate-100 dark:border-slate-800">
-              <img src={task.beforeImageUrl} className="w-full h-full object-cover" alt="Before" />
-              <img src={task.afterImageUrl} className="w-full h-full object-cover border-l border-slate-100 dark:border-slate-800" alt="After" />
+          <article key={task.id} className={`${adminCardClass} overflow-hidden flex flex-col transition-shadow hover:shadow-lg`}>
+            <div className="grid grid-cols-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800"><img src={task.beforeImageUrl} className="h-full w-full object-cover" alt={`${task.title} before`} /><span className="absolute left-3 top-3 rounded-full bg-slate-950/75 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Before</span></div>
+              <div className="relative aspect-[4/3] border-l border-slate-100 bg-slate-100 dark:border-slate-800 dark:bg-slate-800"><img src={task.afterImageUrl} className="h-full w-full object-cover" alt={`${task.title} after`} /><span className="absolute left-3 top-3 rounded-full bg-primary/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">After</span></div>
             </div>
-            <div className="p-4 flex-1 flex flex-col">
-              <h4 className="font-bold text-sm text-slate-900 dark:text-white">{task.title}</h4>
-              <p className="text-xs text-slate-500 mt-1 mb-4 line-clamp-2">{task.description}</p>
-              <div className="mt-auto flex gap-2 justify-end opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { setEditingId(task.id); setTitle(task.title); setDesc(task.description); setBeforeImg(task.beforeImageUrl); setAfterImg(task.afterImageUrl); }}>
-                  Edit
-                </Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 border-slate-200" onClick={() => setDeleteTarget(task)}>
-                  Delete
-                </Button>
+            <div className="flex flex-1 flex-col p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div><h3 className="font-display text-lg font-bold text-slate-950 dark:text-white">{task.title}</h3><p className="mt-1 text-xs text-slate-400">Project #{task.id} · Published transformation</p></div>
+                <StatusBadge value="Published" />
+              </div>
+              <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{task.description || "No project description added yet."}</p>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+                <span className="text-xs font-medium text-slate-500">Matched image pair</span>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" className="h-9 rounded-lg" onClick={() => { setEditingId(task.id); setTitle(task.title); setDesc(task.description); setBeforeImg(task.beforeImageUrl); setAfterImg(task.afterImageUrl); }}><Edit2 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
+                  <Button size="sm" variant="outline" className="h-9 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setDeleteTarget(task)}><Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete</Button>
+                </div>
               </div>
             </div>
-          </div>
+          </article>
         ))}
         {(!tasks || tasks.length === 0) && <div className="md:col-span-2"><EmptyState title="No transformations yet" description="Add a before-and-after project to get started." /></div>}
       </div>
