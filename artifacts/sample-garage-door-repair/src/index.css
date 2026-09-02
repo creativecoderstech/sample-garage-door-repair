@@ -1,0 +1,377 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:wght@400..700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: hsl(var(--primary));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: hsl(var(--secondary));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: hsl(var(--muted));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: hsl(var(--accent));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: hsl(var(--destructive));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: hsl(var(--sidebar-primary));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: hsl(var(--sidebar-accent));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --font-display: var(--app-font-display);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* THEME 1: Industrial (Default) */
+  --theme-industrial-background: 40 10% 98%;
+  --theme-industrial-foreground: 220 15% 15%;
+  --theme-industrial-card: 0 0% 100%;
+  --theme-industrial-card-foreground: 220 15% 15%;
+  --theme-industrial-popover: 0 0% 100%;
+  --theme-industrial-popover-foreground: 220 15% 15%;
+  --theme-industrial-primary: 24 95% 53%; /* Bold safety orange */
+  --theme-industrial-primary-foreground: 0 0% 100%;
+  --theme-industrial-secondary: 220 15% 15%; /* Charcoal */
+  --theme-industrial-secondary-foreground: 0 0% 100%;
+  --theme-industrial-muted: 220 10% 92%;
+  --theme-industrial-muted-foreground: 220 15% 45%;
+  --theme-industrial-accent: 24 95% 53%;
+  --theme-industrial-accent-foreground: 0 0% 100%;
+  --theme-industrial-destructive: 0 84% 60%;
+  --theme-industrial-destructive-foreground: 0 0% 100%;
+  --theme-industrial-border: 220 10% 85%;
+  --theme-industrial-input: 220 10% 85%;
+  --theme-industrial-ring: 24 95% 53%;
+
+  /* THEME 2: Trust */
+  --theme-trust-background: 210 20% 98%;
+  --theme-trust-foreground: 222 47% 11%;
+  --theme-trust-card: 0 0% 100%;
+  --theme-trust-card-foreground: 222 47% 11%;
+  --theme-trust-popover: 0 0% 100%;
+  --theme-trust-popover-foreground: 222 47% 11%;
+  --theme-trust-primary: 221 83% 53%; /* Trust Blue */
+  --theme-trust-primary-foreground: 0 0% 100%;
+  --theme-trust-secondary: 210 40% 96.1%;
+  --theme-trust-secondary-foreground: 222.2 47.4% 11.2%;
+  --theme-trust-muted: 210 40% 96.1%;
+  --theme-trust-muted-foreground: 215.4 16.3% 46.9%;
+  --theme-trust-accent: 210 40% 96.1%;
+  --theme-trust-accent-foreground: 222.2 47.4% 11.2%;
+  --theme-trust-destructive: 0 84.2% 60.2%;
+  --theme-trust-destructive-foreground: 210 40% 98%;
+  --theme-trust-border: 214.3 31.8% 91.4%;
+  --theme-trust-input: 214.3 31.8% 91.4%;
+  --theme-trust-ring: 221 83% 53%;
+
+  /* THEME 3: Eco */
+  --theme-eco-background: 120 10% 98%;
+  --theme-eco-foreground: 120 20% 15%;
+  --theme-eco-card: 0 0% 100%;
+  --theme-eco-card-foreground: 120 20% 15%;
+  --theme-eco-popover: 0 0% 100%;
+  --theme-eco-popover-foreground: 120 20% 15%;
+  --theme-eco-primary: 142 40% 40%; /* Forest Green */
+  --theme-eco-primary-foreground: 0 0% 100%;
+  --theme-eco-secondary: 30 20% 92%;
+  --theme-eco-secondary-foreground: 120 20% 15%;
+  --theme-eco-muted: 120 10% 92%;
+  --theme-eco-muted-foreground: 120 10% 45%;
+  --theme-eco-accent: 142 40% 40%;
+  --theme-eco-accent-foreground: 0 0% 100%;
+  --theme-eco-destructive: 0 84% 60%;
+  --theme-eco-destructive-foreground: 0 0% 100%;
+  --theme-eco-border: 120 10% 85%;
+  --theme-eco-input: 120 10% 85%;
+  --theme-eco-ring: 142 40% 40%;
+
+  /* THEME 4: Modern */
+  --theme-modern-background: 0 0% 100%;
+  --theme-modern-foreground: 0 0% 0%;
+  --theme-modern-card: 0 0% 98%;
+  --theme-modern-card-foreground: 0 0% 0%;
+  --theme-modern-popover: 0 0% 100%;
+  --theme-modern-popover-foreground: 0 0% 0%;
+  --theme-modern-primary: 0 0% 0%; /* Black */
+  --theme-modern-primary-foreground: 0 0% 100%;
+  --theme-modern-secondary: 0 0% 90%;
+  --theme-modern-secondary-foreground: 0 0% 0%;
+  --theme-modern-muted: 0 0% 96%;
+  --theme-modern-muted-foreground: 0 0% 40%;
+  --theme-modern-accent: 0 90% 50%; /* Red accent */
+  --theme-modern-accent-foreground: 0 0% 100%;
+  --theme-modern-destructive: 0 90% 50%;
+  --theme-modern-destructive-foreground: 0 0% 100%;
+  --theme-modern-border: 0 0% 90%;
+  --theme-modern-input: 0 0% 90%;
+  --theme-modern-ring: 0 0% 0%;
+
+  /* THEME 5: Classic */
+  --theme-classic-background: 40 10% 98%;
+  --theme-classic-foreground: 220 30% 20%;
+  --theme-classic-card: 0 0% 100%;
+  --theme-classic-card-foreground: 220 30% 20%;
+  --theme-classic-popover: 0 0% 100%;
+  --theme-classic-popover-foreground: 220 30% 20%;
+  --theme-classic-primary: 220 40% 25%; /* Navy */
+  --theme-classic-primary-foreground: 0 0% 100%;
+  --theme-classic-secondary: 45 90% 60%; /* Gold */
+  --theme-classic-secondary-foreground: 220 30% 20%;
+  --theme-classic-muted: 40 10% 92%;
+  --theme-classic-muted-foreground: 220 10% 45%;
+  --theme-classic-accent: 45 90% 60%;
+  --theme-classic-accent-foreground: 220 30% 20%;
+  --theme-classic-destructive: 0 84% 60%;
+  --theme-classic-destructive-foreground: 0 0% 100%;
+  --theme-classic-border: 220 10% 85%;
+  --theme-classic-input: 220 10% 85%;
+  --theme-classic-ring: 220 40% 25%;
+
+  /* Default theme mappings (Industrial) */
+  --background: var(--theme-industrial-background);
+  --foreground: var(--theme-industrial-foreground);
+  --border: var(--theme-industrial-border);
+  --card: var(--theme-industrial-card);
+  --card-foreground: var(--theme-industrial-card-foreground);
+  --popover: var(--theme-industrial-popover);
+  --popover-foreground: var(--theme-industrial-popover-foreground);
+  --primary: var(--theme-industrial-primary);
+  --primary-foreground: var(--theme-industrial-primary-foreground);
+  --secondary: var(--theme-industrial-secondary);
+  --secondary-foreground: var(--theme-industrial-secondary-foreground);
+  --muted: var(--theme-industrial-muted);
+  --muted-foreground: var(--theme-industrial-muted-foreground);
+  --accent: var(--theme-industrial-accent);
+  --accent-foreground: var(--theme-industrial-accent-foreground);
+  --destructive: var(--theme-industrial-destructive);
+  --destructive-foreground: var(--theme-industrial-destructive-foreground);
+  --input: var(--theme-industrial-input);
+  --ring: var(--theme-industrial-ring);
+
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+
+  --sidebar: var(--theme-industrial-background);
+  --sidebar-foreground: var(--theme-industrial-foreground);
+  --sidebar-border: var(--theme-industrial-border);
+  --sidebar-primary: var(--theme-industrial-primary);
+  --sidebar-primary-foreground: var(--theme-industrial-primary-foreground);
+  --sidebar-accent: var(--theme-industrial-muted);
+  --sidebar-accent-foreground: var(--theme-industrial-foreground);
+  --sidebar-ring: var(--theme-industrial-ring);
+
+  --app-font-sans: 'Plus Jakarta Sans', sans-serif;
+  --app-font-display: 'Bricolage Grotesque', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+}
+
+[data-theme="trust"] {
+  --background: var(--theme-trust-background);
+  --foreground: var(--theme-trust-foreground);
+  --border: var(--theme-trust-border);
+  --card: var(--theme-trust-card);
+  --card-foreground: var(--theme-trust-card-foreground);
+  --popover: var(--theme-trust-popover);
+  --popover-foreground: var(--theme-trust-popover-foreground);
+  --primary: var(--theme-trust-primary);
+  --primary-foreground: var(--theme-trust-primary-foreground);
+  --secondary: var(--theme-trust-secondary);
+  --secondary-foreground: var(--theme-trust-secondary-foreground);
+  --muted: var(--theme-trust-muted);
+  --muted-foreground: var(--theme-trust-muted-foreground);
+  --accent: var(--theme-trust-accent);
+  --accent-foreground: var(--theme-trust-accent-foreground);
+  --destructive: var(--theme-trust-destructive);
+  --destructive-foreground: var(--theme-trust-destructive-foreground);
+  --input: var(--theme-trust-input);
+  --ring: var(--theme-trust-ring);
+  --sidebar: var(--theme-trust-background);
+  --sidebar-foreground: var(--theme-trust-foreground);
+  --sidebar-border: var(--theme-trust-border);
+  --sidebar-primary: var(--theme-trust-primary);
+  --sidebar-primary-foreground: var(--theme-trust-primary-foreground);
+  --sidebar-accent: var(--theme-trust-muted);
+  --sidebar-accent-foreground: var(--theme-trust-foreground);
+  --sidebar-ring: var(--theme-trust-ring);
+}
+
+[data-theme="eco"] {
+  --background: var(--theme-eco-background);
+  --foreground: var(--theme-eco-foreground);
+  --border: var(--theme-eco-border);
+  --card: var(--theme-eco-card);
+  --card-foreground: var(--theme-eco-card-foreground);
+  --popover: var(--theme-eco-popover);
+  --popover-foreground: var(--theme-eco-popover-foreground);
+  --primary: var(--theme-eco-primary);
+  --primary-foreground: var(--theme-eco-primary-foreground);
+  --secondary: var(--theme-eco-secondary);
+  --secondary-foreground: var(--theme-eco-secondary-foreground);
+  --muted: var(--theme-eco-muted);
+  --muted-foreground: var(--theme-eco-muted-foreground);
+  --accent: var(--theme-eco-accent);
+  --accent-foreground: var(--theme-eco-accent-foreground);
+  --destructive: var(--theme-eco-destructive);
+  --destructive-foreground: var(--theme-eco-destructive-foreground);
+  --input: var(--theme-eco-input);
+  --ring: var(--theme-eco-ring);
+  --sidebar: var(--theme-eco-background);
+  --sidebar-foreground: var(--theme-eco-foreground);
+  --sidebar-border: var(--theme-eco-border);
+  --sidebar-primary: var(--theme-eco-primary);
+  --sidebar-primary-foreground: var(--theme-eco-primary-foreground);
+  --sidebar-accent: var(--theme-eco-muted);
+  --sidebar-accent-foreground: var(--theme-eco-foreground);
+  --sidebar-ring: var(--theme-eco-ring);
+}
+
+[data-theme="modern"] {
+  --background: var(--theme-modern-background);
+  --foreground: var(--theme-modern-foreground);
+  --border: var(--theme-modern-border);
+  --card: var(--theme-modern-card);
+  --card-foreground: var(--theme-modern-card-foreground);
+  --popover: var(--theme-modern-popover);
+  --popover-foreground: var(--theme-modern-popover-foreground);
+  --primary: var(--theme-modern-primary);
+  --primary-foreground: var(--theme-modern-primary-foreground);
+  --secondary: var(--theme-modern-secondary);
+  --secondary-foreground: var(--theme-modern-secondary-foreground);
+  --muted: var(--theme-modern-muted);
+  --muted-foreground: var(--theme-modern-muted-foreground);
+  --accent: var(--theme-modern-accent);
+  --accent-foreground: var(--theme-modern-accent-foreground);
+  --destructive: var(--theme-modern-destructive);
+  --destructive-foreground: var(--theme-modern-destructive-foreground);
+  --input: var(--theme-modern-input);
+  --ring: var(--theme-modern-ring);
+  --sidebar: var(--theme-modern-background);
+  --sidebar-foreground: var(--theme-modern-foreground);
+  --sidebar-border: var(--theme-modern-border);
+  --sidebar-primary: var(--theme-modern-primary);
+  --sidebar-primary-foreground: var(--theme-modern-primary-foreground);
+  --sidebar-accent: var(--theme-modern-muted);
+  --sidebar-accent-foreground: var(--theme-modern-foreground);
+  --sidebar-ring: var(--theme-modern-ring);
+}
+
+[data-theme="classic"] {
+  --background: var(--theme-classic-background);
+  --foreground: var(--theme-classic-foreground);
+  --border: var(--theme-classic-border);
+  --card: var(--theme-classic-card);
+  --card-foreground: var(--theme-classic-card-foreground);
+  --popover: var(--theme-classic-popover);
+  --popover-foreground: var(--theme-classic-popover-foreground);
+  --primary: var(--theme-classic-primary);
+  --primary-foreground: var(--theme-classic-primary-foreground);
+  --secondary: var(--theme-classic-secondary);
+  --secondary-foreground: var(--theme-classic-secondary-foreground);
+  --muted: var(--theme-classic-muted);
+  --muted-foreground: var(--theme-classic-muted-foreground);
+  --accent: var(--theme-classic-accent);
+  --accent-foreground: var(--theme-classic-accent-foreground);
+  --destructive: var(--theme-classic-destructive);
+  --destructive-foreground: var(--theme-classic-destructive-foreground);
+  --input: var(--theme-classic-input);
+  --ring: var(--theme-classic-ring);
+  --sidebar: var(--theme-classic-background);
+  --sidebar-foreground: var(--theme-classic-foreground);
+  --sidebar-border: var(--theme-classic-border);
+  --sidebar-primary: var(--theme-classic-primary);
+  --sidebar-primary-foreground: var(--theme-classic-primary-foreground);
+  --sidebar-accent: var(--theme-classic-muted);
+  --sidebar-accent-foreground: var(--theme-classic-foreground);
+  --sidebar-ring: var(--theme-classic-ring);
+}
+
+.dark {
+  /* Defaulting dark mode to industrial dark */
+  --background: 220 15% 10%;
+  --foreground: 0 0% 98%;
+  --card: 220 15% 13%;
+  --card-foreground: 0 0% 98%;
+  --popover: 220 15% 13%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 15% 20%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 220 15% 20%;
+  --muted-foreground: 220 10% 65%;
+  --accent: 24 95% 53%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 220 15% 20%;
+  --input: 220 15% 20%;
+  --ring: 24 95% 53%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}

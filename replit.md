@@ -1,6 +1,6 @@
-# [Project name]
+# Sample Garage Door Repair
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A customer-facing garage door repair website and operations admin with booking, dispatch, configurable themes and photography, and an AI safety assistant.
 
 ## Run & Operate
 
@@ -22,15 +22,23 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Web app: `artifacts/sample-garage-door-repair`
+- API routes: `artifacts/api-server/src/routes/garage.ts`
+- API contract: `lib/api-spec/openapi.yaml`
+- Database schema: `lib/db/src/schema/garage.ts`
+- Cloudflare production blueprint: `artifacts/sample-garage-door-repair/CLOUDFLARE_ARCHITECTURE.md`
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Customer site and admin share one responsive app so Creative Coders can embed a single service sample.
+- Media is admin-configurable through hosted image URLs now; R2 is the Cloudflare production upload target.
+- The AI assistant is constrained to safe intake guidance and must never coach customers through high-tension repairs.
+- API contracts remain provider-neutral so the Express preview adapter can be moved to Workers + D1 without redesigning the frontend.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Service catalog, ZIP response-time check, online booking, reviews, project gallery, emergency messaging, and AI issue triage.
+- Admin dispatch dashboard, lead status management, business settings, five authentic theme presets, service ID, and photo controls.
 
 ## User preferences
 

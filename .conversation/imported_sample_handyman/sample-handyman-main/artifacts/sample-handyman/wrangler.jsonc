@@ -1,0 +1,131 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Top-level holds ONLY shared Worker source settings.
+  // All bindings/vars are non-inheritable and are declared per environment below
+  // so Dev and Prod never share Cloudflare resources.
+  "name": "sample-handyman-home-solutions",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "env": {
+    "dev": {
+      "name": "sample-handyman-home-solutions-dev",
+      "workers_dev": true,
+      "preview_urls": true,
+      "vars": {
+        "ENVIRONMENT": "dev"
+      },
+      "triggers": {
+        // Daily purge of chat inquiries older than 7 days (UTC)
+        "crons": ["0 6 * * *"]
+      },
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "assets": {
+        "directory": "./dist/public",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api/*", "/admin", "/admin/*"]
+      },
+      "send_email": [
+        {
+          "name": "EMAIL"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "sample-handyman-db-dev",
+          "database_id": "d285b105-808b-442c-988b-e43ef8affdab",
+          "migrations_dir": "./migrations"
+        }
+      ],
+      "ai": {
+        "binding": "AI"
+      },
+      "kv_namespaces": [
+        {
+          "binding": "RATE_LIMIT",
+          "id": "c4629b63a87b4b9082aad70d27f12c0f"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "sample-handyman-media-dev"
+        }
+      ]
+    },
+    "production": {
+      "name": "sample-handyman-home-solutions",
+      "workers_dev": true,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "sample-handyman.samples.creativecoders.tech",
+          "custom_domain": true
+        },
+        {
+          "pattern": "admin.sample-handyman.samples.creativecoders.tech",
+          "custom_domain": true
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        // Required secrets (set via `wrangler secret put … --env production`):
+        //   SESSION_SECRET        — random 32+ byte string for signing session cookies
+        //   GOOGLE_CLIENT_ID      — OAuth 2.0 client ID from Google Cloud Console
+        //   GOOGLE_CLIENT_SECRET  — OAuth 2.0 client secret from Google Cloud Console
+        //
+        // Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client:
+        //   Authorized redirect URI: https://admin.sample-handyman.samples.creativecoders.tech/api/auth/callback
+        "ADMIN_ORIGIN": "https://admin.sample-handyman.samples.creativecoders.tech",
+        "PUBLIC_ORIGIN": "https://sample-handyman.samples.creativecoders.tech"
+      },
+      "triggers": {
+        // Daily purge of chat inquiries older than 7 days (UTC)
+        "crons": ["0 6 * * *"]
+      },
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "assets": {
+        "directory": "./dist/public",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": true
+      },
+      "send_email": [
+        {
+          "name": "EMAIL"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "sample-handyman-db",
+          "database_id": "6e8a604b-55ce-4b14-aa35-1755c614fc28",
+          "migrations_dir": "./migrations"
+        }
+      ],
+      "ai": {
+        "binding": "AI"
+      },
+      "kv_namespaces": [
+        {
+          "binding": "RATE_LIMIT",
+          "id": "a7d0c4340c46415c8a9067903f874750"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "sample-handyman-media-prod"
+        }
+      ]
+    }
+  }
+}

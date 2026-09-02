@@ -1,0 +1,41 @@
+{
+  // Minimal wrangler config used only by the Vitest integration-test suite.
+  // No real Cloudflare resource IDs — Miniflare creates everything in-memory.
+  // ENVIRONMENT=dev so dev-login and other dev-only routes are testable.
+  "name": "sample-handyman-test",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-02",
+  "compatibility_flags": ["nodejs_compat"],
+  // Tiny static fixture so /admin (serveAdminSpa → ASSETS.fetch) is testable.
+  "assets": {
+    "directory": "./test-assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "ENVIRONMENT": "dev",
+    "GOOGLE_CLIENT_ID": "test-google-client-id",
+    "GOOGLE_CLIENT_SECRET": "test-google-client-secret",
+    "SESSION_SECRET": "test-session-secret-at-least-32-chars",
+    "GOOGLE_PLACES_API_KEY": "test-places-key"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sample-handyman-test",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "00000000000000000000000000000001"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "sample-handyman-media-test"
+    }
+  ]
+}

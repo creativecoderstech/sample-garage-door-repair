@@ -1,0 +1,79 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "9214cRAsY5mRw_zBZdlWL"
+uri = "file://attached_assets/logo-options.png"
+type = "image"
+title = "New logo options"
+description = "Three new logo concepts: A) crossed hammer & wrench, B) circular badge with house & wrench door, C) house-gable letter P."
+
+[[outputs]]
+id = "r9aBLSqIyeGdm7JcXNRyY"
+uri = "file://owner-guide.html"
+type = "unspecified"
+title = "Sample Handyman — Website Owner Guide (spacing fixed)"
+description = "Download and open in Chrome or Firefox. All section gaps, heading margins, screenshot spacing, tab blocks, and info boxes have been tightened."
+
+[[outputs]]
+id = "VIc8mCKH6gXklfuRXw19D"
+uri = "file://attached_assets/Creative_Coders_Agreement.pdf"
+type = "pdf"
+title = "Creative Coders LLC — Website Development & Maintenance Agreement (Final)"
+description = "$1,500 due upon signing | Maintenance $20/month from Sep 1, 2026 | Brandon Boyd | Aug 10, 2026"
+
+[[outputs]]
+id = "bqpKzjns_v49mX5zq_eMt"
+uri = "file://google-indexing-client-brandon.pdf"
+type = "pdf"
+title = "For Brandon — Getting Your Website Found on Google"
+description = "Verification step now shows 3 clear sub-actions: copy code → send to Creativecoders → wait for confirmation → come back and click Verify."
+
+[[outputs]]
+id = "uVqT195rOYSrfJuWxoVFB"
+uri = "file://google-indexing-agency-internal.pdf"
+type = "pdf"
+title = "Agency Internal — Google Indexing Checklist"
+description = "Verification now split into two separate rows — your Cloudflare action, then Brandon clicks Verify in his own GSC session."
+
+[[outputs]]
+id = "UH6J5W-yzZVsyS7izfrZF"
+uri = "file://attached_assets/google-indexing-agency-internal-v2.pdf"
+type = "pdf"
+title = "Google Indexing — Agency Internal Reference v2"
+description = "4-page internal reference with screen-by-screen steps for every agency action: Cloudflare TXT record field values, GSC access confirmation, sitemap submission, URL Inspection + Request Indexing, and weekly/monthly/quarterly monitoring cadence."
+
+[[outputs]]
+id = "J_ckJvE9IR34x2bKqKXpO"
+uri = "file://attached_assets/Session_Summary.pdf"
+type = "pdf"
+title = "Session Topic Summary — Website Development Agreement Consultation"
+description = "All 10 topics covered | Creative Coders LLC & Brandon Boyd | August 10, 2026"
+
+[[outputs]]
+id = "JvcM2fa0D3QqkY_6XoL9X"
+uri = "file://attached_assets/Project_Topics_Summary.pdf"
+type = "pdf"
+title = "Brandon Boyd Website — Full Project Topic History"
+description = "All 84 tasks across 15 categories | 37 Completed | 10 Planned | 37 Superseded"
+
+[[outputs]]
+id = "xe_bEWC6rh-QrjCxscROY"
+uri = "file://attached_assets/Project_Detailed_Summary.pdf"
+type = "pdf"
+title = "Cloudflare Setup + Full Project Topics with Sub-Topics (Final)"
+description = "Page 1: Original prompt + Cloudflare setup | Pages 2-5: 15 categories, sub-topics, 84 tasks"
+
+[[outputs]]
+id = "SxGfZRECK8e_n_FnRzIqk"
+uri = "file://attached_assets/sample-handyman-gbp-action-plan.pdf"
+type = "pdf"
+title = "Sample Handyman — GBP Action Plan for Brandon"
+description = "Google Business Profile action plan covering: critical profile fixes, photos to upload (from website + phone), the Google Reviews question, 10 ready-to-paste weekly posts, and a reviews strategy with text template. Ready to send to Brandon."
+
+[[outputs]]
+id = "G2TsqvG3kj-k-GZ4wYUo-"
+uri = "file://artifacts/sample-handyman/docs/reviews-guide.html"
+type = "text"
+title = "How Reviews Work — Owner's Guide"
+description = "A plain-language guide for Brandon covering the full review flow: the review link, submission and spam limits, pending-until-approved moderation, the Google review nudge for glowing reviews, and admin approval — with examples and an FAQ."

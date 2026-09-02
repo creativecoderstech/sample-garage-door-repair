@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#0f2818"/>
+      <stop offset="100%" stop-color="#1a3d25"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#197A4A" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0f2818" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accentLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#E87820"/>
+      <stop offset="100%" stop-color="#F59C3A"/>
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="1" fill="#ffffff" fill-opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Left accent bar -->
+  <rect x="72" y="80" width="6" height="128" rx="3" fill="url(#accentLine)"/>
+
+  <!-- Business name -->
+  <text x="102" y="150" font-family="'DejaVu Sans', Arial, sans-serif"
+        font-weight="bold" font-size="68" fill="#ffffff" letter-spacing="-1">Penny Lane</text>
+  <text x="102" y="222" font-family="'DejaVu Sans', Arial, sans-serif"
+        font-weight="bold" font-size="68" fill="#E87820" letter-spacing="-1">Home Solutions</text>
+
+  <!-- Divider -->
+  <rect x="102" y="248" width="530" height="2" rx="1" fill="url(#accentLine)" fill-opacity="0.7"/>
+
+  <!-- Tagline -->
+  <text x="102" y="298" font-family="'DejaVu Sans', Arial, sans-serif"
+        font-size="28" fill="#9ecfb4" letter-spacing="0.3">Professional Handyman · Canton &amp; Woodstock, GA</text>
+
+  <!-- Badge row -->
+  <rect x="102" y="324" width="188" height="40" rx="8" fill="#197A4A" fill-opacity="0.45"/>
+  <text x="196" y="350" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="14"
+        fill="#7ecfa3" text-anchor="middle" letter-spacing="0.5">VETERAN OWNED</text>
+
+  <rect x="302" y="324" width="148" height="40" rx="8" fill="#197A4A" fill-opacity="0.45"/>
+  <text x="376" y="350" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="14"
+        fill="#7ecfa3" text-anchor="middle" letter-spacing="0.5">INSURED</text>
+
+  <rect x="462" y="324" width="226" height="40" rx="8" fill="#197A4A" fill-opacity="0.45"/>
+  <text x="575" y="350" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="14"
+        fill="#7ecfa3" text-anchor="middle" letter-spacing="0.5">BACKGROUND CHECKED</text>
+
+  <!-- Thumbtack rating card -->
+  <rect x="102" y="400" width="252" height="172" rx="14" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="102" y="400" width="252" height="172" rx="14" fill="none" stroke="#2d7a52" stroke-width="1.5"/>
+  <text x="228" y="442" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="16"
+        fill="#7ecfa3" text-anchor="middle" letter-spacing="1">THUMBTACK</text>
+  <text x="228" y="502" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="52"
+        fill="#ffffff" text-anchor="middle">4.9&#9733;</text>
+  <text x="228" y="530" font-family="'DejaVu Sans', Arial, sans-serif" font-size="15"
+        fill="#7ecfa3" text-anchor="middle">110 reviews · Top Pro 2024 &amp; 2025</text>
+  <text x="228" y="554" font-family="'DejaVu Sans', Arial, sans-serif" font-size="13"
+        fill="#7ecfa3" fill-opacity="0.7" text-anchor="middle">thumbtack.com</text>
+
+  <!-- TaskRabbit rating card -->
+  <rect x="374" y="400" width="252" height="172" rx="14" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="374" y="400" width="252" height="172" rx="14" fill="none" stroke="#2d7a52" stroke-width="1.5"/>
+  <text x="500" y="442" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="16"
+        fill="#7ecfa3" text-anchor="middle" letter-spacing="1">TASKRABBIT</text>
+  <text x="500" y="502" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="52"
+        fill="#ffffff" text-anchor="middle">5.0&#9733;</text>
+  <text x="500" y="530" font-family="'DejaVu Sans', Arial, sans-serif" font-size="15"
+        fill="#7ecfa3" text-anchor="middle">384 reviews</text>
+  <text x="500" y="554" font-family="'DejaVu Sans', Arial, sans-serif" font-size="13"
+        fill="#7ecfa3" fill-opacity="0.7" text-anchor="middle">taskrabbit.com</text>
+
+  <!-- Right decorative circle with stats -->
+  <circle cx="960" cy="310" r="230" fill="#197A4A" fill-opacity="0.11"/>
+  <circle cx="960" cy="310" r="188" fill="#197A4A" fill-opacity="0.10"/>
+  <circle cx="960" cy="310" r="145" fill="#ffffff" fill-opacity="0.04"/>
+
+  <text x="960" y="248" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="74"
+        fill="#ffffff" text-anchor="middle">660+</text>
+  <text x="960" y="282" font-family="'DejaVu Sans', Arial, sans-serif" font-size="19"
+        fill="#9ecfb4" text-anchor="middle">Jobs Completed</text>
+
+  <rect x="898" y="304" width="124" height="2" rx="1" fill="#E87820" fill-opacity="0.7"/>
+
+  <text x="960" y="352" font-family="'DejaVu Sans', Arial, sans-serif" font-weight="bold" font-size="54"
+        fill="#E87820" text-anchor="middle">41 min</text>
+  <text x="960" y="388" font-family="'DejaVu Sans', Arial, sans-serif" font-size="19"
+        fill="#9ecfb4" text-anchor="middle">Avg. Response Time</text>
+
+  <!-- Domain -->
+  <text x="1130" y="608" font-family="'DejaVu Sans', Arial, sans-serif" font-size="16"
+        fill="#7ecfa3" fill-opacity="0.45" text-anchor="end">pennylanehomesolutions.com</text>
+</svg>

@@ -1,0 +1,10 @@
+- [Orval zod integer pitfall](orval-zod-int.md) — use `type: number` (not `integer`) in openapi.yaml; orval emits zod-v4-only `z.int()` which breaks with zod 3.x.
+- [Cloudflare portability constraint](cloudflare-portability.md) — user plans to move production to Cloudflare; keep frontend static, API stateless, LLM behind one provider module, config via env vars.
+- [Replit local dev for the Worker app](replit-local-dev.md) — run wrangler dev with the stripped local config, not bare Vite; pnpm 11 self-update is firewall-blocked, disable manage-package-manager-versions.
+- [SPA client-side admin-host redirect](spa-host-redirect.md) — dev "/admin bounces to prod" was the SPA's own host allowlist; keep client+worker host predicates in sync; raw Response drops Hono setCookie.
+- [R2 media sync to dev](r2-media-sync.md) — workspace CF token has no R2 read scope; copy prod objects via the public /api/media route, and check file size (wrangler get "succeeds" on 403).
+- [Worker OAuth integration tests](worker-oauth-tests.md) — vitest-pool-workers v0.20 setup: no ./config export, use cloudflareTest plugin; DB.exec() broken for multi-line SQL, use prepare().run(); fetchMock removed, use vi.stubGlobal("fetch").
+- [gitPush silent-fail](gitpush-provider.md) — always pass `provider: "github"` explicitly; omitting it returns success without actually pushing.
+- [Release workflow](release-workflow.md) — pnpm release pushes via URL-embedded GITHUB_PAT; fine-grained PAT edits need re-approval by the org; test write with push --dry-run, not GET headers.
+- [GitHub LFS template compatibility](github-push-lfs.md) — template repos require no reachable LFS content; rewrite every published ref, remove LFS rules, then verify from a fresh clone.
+- [CF token scope for sample-handyman prod](cf-token-scope.md) — prod D1 DB is migrated; current token has D1-only scope, blocks Workers/R2/KV deploy; requestSecrets shows Confirm for existing secrets, not a text input.

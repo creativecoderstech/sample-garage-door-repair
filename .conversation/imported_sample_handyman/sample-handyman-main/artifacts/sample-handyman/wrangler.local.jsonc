@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Local-only wrangler config for Replit dev — NOT committed to git.
+  // Generated from wrangler.jsonc env.dev with `ai` and `send_email` stripped
+  // (those require a live Cloudflare session / email worker).
+  "name": "sample-handyman-home-solutions-dev",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "ENVIRONMENT": "dev"
+  },
+  "assets": {
+    "directory": "./dist/public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/admin", "/admin/*"]
+  },
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sample-handyman-db-dev",
+      "database_id": "d285b105-808b-442c-988b-e43ef8affdab",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "c4629b63a87b4b9082aad70d27f12c0f"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "sample-handyman-media-dev"
+    }
+  ]
+}

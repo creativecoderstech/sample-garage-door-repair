@@ -1,0 +1,142 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Top-level holds ONLY shared Worker source settings.
+  // All bindings/vars are non-inheritable and are declared per environment below
+  // so Dev and Prod never share Cloudflare resources.
+  "name": "penny-lane-home-solutions",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "env": {
+    "dev": {
+      "name": "penny-lane-home-solutions-dev",
+      "workers_dev": true,
+      "preview_urls": true,
+      "vars": {
+        "ENVIRONMENT": "dev",
+        "OPENAI_BASE_URL": "https://api.openai.com/v1"
+      },
+      "triggers": {
+        // Daily purge of chat inquiries older than 7 days (UTC)
+        "crons": ["0 6 * * *"]
+      },
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "assets": {
+        "directory": "./dist/public",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api/*", "/admin", "/admin/*"]
+      },
+      "send_email": [
+        {
+          "name": "EMAIL"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "penny-lane-db-dev",
+          "database_id": "26e948c1-1d74-4d2c-b792-3267ef2b45c0",
+          "migrations_dir": "./migrations"
+        }
+      ],
+      "ai": {
+        "binding": "AI"
+      },
+      "kv_namespaces": [
+        {
+          "binding": "RATE_LIMIT",
+          "id": "1a9cd90863b14e0d8bf9200d88e13848"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "penny-lane-media-dev"
+        }
+      ]
+    },
+    "production": {
+      "name": "penny-lane-home-solutions",
+      "workers_dev": true,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "pennylanehomesolutions.com",
+          "zone_name": "pennylanehomesolutions.com"
+        },
+        {
+          "pattern": "pennylanehomesolutions.com/*",
+          "zone_name": "pennylanehomesolutions.com"
+        },
+        {
+          "pattern": "www.pennylanehomesolutions.com",
+          "zone_name": "pennylanehomesolutions.com"
+        },
+        {
+          "pattern": "www.pennylanehomesolutions.com/*",
+          "zone_name": "pennylanehomesolutions.com"
+        },
+        {
+          "pattern": "admin.pennylanehomesolutions.com",
+          "zone_name": "pennylanehomesolutions.com"
+        },
+        {
+          "pattern": "admin.pennylanehomesolutions.com/*",
+          "zone_name": "pennylanehomesolutions.com"
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "OPENAI_BASE_URL": "https://api.openai.com/v1",
+        "ADMIN_ORIGIN": "https://admin.pennylanehomesolutions.com",
+        "PUBLIC_ORIGIN": "https://pennylanehomesolutions.com"
+      },
+      "triggers": {
+        // Daily purge of chat inquiries older than 7 days (UTC)
+        "crons": ["0 6 * * *"]
+      },
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "assets": {
+        "directory": "./dist/public",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": true
+      },
+      "send_email": [
+        {
+          "name": "EMAIL"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "penny-lane-db",
+          "database_id": "d294cf5d-b99a-4797-9851-09e95e0b9709",
+          "migrations_dir": "./migrations"
+        }
+      ],
+      "ai": {
+        "binding": "AI"
+      },
+      "kv_namespaces": [
+        {
+          "binding": "RATE_LIMIT",
+          "id": "bb0f522f05694482a6347b36505f5429"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "penny-lane-media-prod"
+        }
+      ]
+    }
+  }
+}

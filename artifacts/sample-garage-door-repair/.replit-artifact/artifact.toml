@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Sample Garage Door Repair"
+description = "A conversion-focused garage door repair website and operations admin for a US service business, with emergency booking, estimates, service requests, reviews, gallery, theme presets, and an AI repair assistant."
+version = "1.0.0"
+id = "artifacts/sample-garage-door-repair"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22004
+
+[services.development]
+run = "pnpm --filter @workspace/sample-garage-door-repair run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/sample-garage-door-repair", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/sample-garage-door-repair/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22004"
+BASE_PATH = "/"

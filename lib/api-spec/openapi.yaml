@@ -1,36 +1,280 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Garage door repair customer and operations API
 servers:
   - url: /api
-    description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: public
+  - name: requests
+  - name: admin
+  - name: assistant
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
-      summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
           content:
             application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+  /garage/services:
+    get:
+      operationId: listGarageServices
+      tags: [public]
+      responses:
+        "200":
+          description: Service catalog
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/HealthStatus"
+                type: array
+                items: { $ref: "#/components/schemas/GarageService" }
+  /garage/testimonials:
+    get:
+      operationId: listTestimonials
+      tags: [public]
+      responses:
+        "200":
+          description: Customer testimonials
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Testimonial" }
+  /garage/availability:
+    get:
+      operationId: getAvailability
+      tags: [public]
+      parameters:
+        - in: query
+          name: zip
+          required: true
+          schema: { type: string, minLength: 5, maxLength: 10 }
+      responses:
+        "200":
+          description: Service area and next appointment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Availability" }
+  /garage/requests:
+    get:
+      operationId: listServiceRequests
+      tags: [admin]
+      responses:
+        "200":
+          description: All service requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ServiceRequest" }
+    post:
+      operationId: createServiceRequest
+      tags: [requests]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServiceRequestInput" }
+      responses:
+        "201":
+          description: Request created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceRequest" }
+  /garage/requests/{id}:
+    patch:
+      operationId: updateServiceRequest
+      tags: [admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: number }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServiceRequestUpdate" }
+      responses:
+        "200":
+          description: Request updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceRequest" }
+  /garage/dashboard:
+    get:
+      operationId: getGarageDashboard
+      tags: [admin]
+      responses:
+        "200":
+          description: Operations summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardSummary" }
+  /garage/settings:
+    get:
+      operationId: getBusinessSettings
+      tags: [admin]
+      responses:
+        "200":
+          description: Business settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BusinessSettings" }
+    patch:
+      operationId: updateBusinessSettings
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BusinessSettingsInput" }
+      responses:
+        "200":
+          description: Settings updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BusinessSettings" }
+  /garage/assistant:
+    post:
+      operationId: askGarageAssistant
+      tags: [assistant]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AssistantInput" }
+      responses:
+        "200":
+          description: Assistant response
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AssistantReply" }
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+    GarageService:
+      type: object
+      required: [id, slug, name, description, startingPrice, duration, emergency]
+      properties:
+        id: { type: number }
+        slug: { type: string }
+        name: { type: string }
+        description: { type: string }
+        startingPrice: { type: number }
+        duration: { type: string }
+        emergency: { type: boolean }
+    Testimonial:
+      type: object
+      required: [id, name, city, rating, quote, service]
+      properties:
+        id: { type: number }
+        name: { type: string }
+        city: { type: string }
+        rating: { type: number }
+        quote: { type: string }
+        service: { type: string }
+    Availability:
+      type: object
+      required: [available, zip, eta, message]
+      properties:
+        available: { type: boolean }
+        zip: { type: string }
+        eta: { type: string }
+        message: { type: string }
+    ServiceRequest:
+      type: object
+      required: [id, customerName, phone, email, zip, service, urgency, status, preferredDate, createdAt]
+      properties:
+        id: { type: number }
+        customerName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        zip: { type: string }
+        service: { type: string }
+        urgency: { type: string, enum: [emergency, soon, flexible] }
+        status: { type: string, enum: [new, scheduled, dispatched, completed] }
+        preferredDate: { type: string }
+        details: { type: string }
+        createdAt: { type: string }
+    ServiceRequestInput:
+      type: object
+      required: [customerName, phone, email, zip, service, urgency, preferredDate]
+      properties:
+        customerName: { type: string, minLength: 2 }
+        phone: { type: string, minLength: 7 }
+        email: { type: string }
+        zip: { type: string, minLength: 5 }
+        service: { type: string }
+        urgency: { type: string, enum: [emergency, soon, flexible] }
+        preferredDate: { type: string }
+        details: { type: string }
+    ServiceRequestUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [new, scheduled, dispatched, completed] }
+        preferredDate: { type: string }
+        details: { type: string }
+    DashboardSummary:
+      type: object
+      required: [newRequests, scheduledToday, emergencyCalls, completedThisWeek, estimatedRevenue, requests]
+      properties:
+        newRequests: { type: number }
+        scheduledToday: { type: number }
+        emergencyCalls: { type: number }
+        completedThisWeek: { type: number }
+        estimatedRevenue: { type: number }
+        requests:
+          type: array
+          items: { $ref: "#/components/schemas/ServiceRequest" }
+    BusinessSettings:
+      type: object
+      required: [businessName, phone, email, serviceArea, theme, serviceId, emergencyEnabled, heroImage, galleryImages]
+      properties:
+        businessName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        serviceArea: { type: string }
+        theme: { type: string }
+        serviceId: { type: string }
+        emergencyEnabled: { type: boolean }
+        heroImage: { type: string }
+        galleryImages:
+          type: array
+          items: { type: string }
+    BusinessSettingsInput:
+      type: object
+      properties:
+        businessName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        serviceArea: { type: string }
+        theme: { type: string }
+        serviceId: { type: string }
+        emergencyEnabled: { type: boolean }
+        heroImage: { type: string }
+        galleryImages:
+          type: array
+          items: { type: string }
+    AssistantInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1, maxLength: 1000 }
+    AssistantReply:
+      type: object
+      required: [reply, safetyLevel, suggestedService]
+      properties:
+        reply: { type: string }
+        safetyLevel: { type: string, enum: [safe, caution, urgent] }
+        suggestedService: { type: string }
