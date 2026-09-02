@@ -85,7 +85,7 @@ export default function HomePage() {
     };
   }, []);
 
-  const heroImage = settings?.heroImage || "/images/garage/hero-modern-garage.jpg";
+  const heroImage = settings?.heroImage || "/images/garage/hero-door-forward.jpg";
   const galleryImages = settings?.galleryImages?.length
     ? settings.galleryImages
     : defaultGalleryImages;
@@ -98,7 +98,7 @@ export default function HomePage() {
         {/* Mobile View */}
         <div className="lg:hidden relative" style={{ minHeight: 'calc(100svh - 3.75rem)' }}>
           <div className="absolute inset-0 w-full h-full">
-            <img src={heroImage} alt="Garage Door Service" className="w-full h-full object-cover object-top" />
+            <img src={heroImage} alt="Three premium residential garage doors on a Georgia craftsman home" className="w-full h-full object-cover object-[62%_center]" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           
@@ -125,45 +125,44 @@ export default function HomePage() {
         </div>
 
         {/* Desktop View */}
-        <div className="hidden lg:block relative pt-16 pb-24 border-b">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-          <div className="container mx-auto px-12 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="reveal-on-scroll">
-                <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-bold tracking-wide uppercase">
-                  <Shield className="w-3.5 h-3.5 shrink-0" />
-                  Local & Trusted Experts
-                </div>
-                <h1 className="font-display font-bold text-6xl xl:text-7xl leading-[1.02] mb-6 tracking-tight">
-                  Don't let a broken door <br /><span className="text-primary">hold your day hostage.</span>
-                </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed mb-10 max-w-lg">
-                  Fast, professional garage door repair and installation. We secure your home's largest moving object so you can get back to life.
-                </p>
-                <div className="flex gap-4 mb-10">
-                  <Button asChild size="lg" className="font-display font-bold h-14 px-8 text-lg shadow-xl glow-primary hover-elevate">
-                    <a href="#booking">Book Service Now</a>
-                  </Button>
-                  <Button asChild variant="outline" size="lg" className="font-display font-bold h-14 px-8 text-lg hover-elevate">
-                    <a href="#services">Our Services</a>
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border/60">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-sm">Same-Day Service</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-sm">Fully Insured</span>
-                  </div>
-                </div>
+        <div className="relative hidden min-h-[720px] border-b lg:flex lg:items-center">
+          <img
+            src={heroImage}
+            alt="Three premium residential garage doors on a Georgia craftsman home"
+            className="absolute inset-0 h-full w-full object-cover object-[center_60%]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/72 to-slate-950/5" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-black/10" />
+
+          <div className="container relative z-10 mx-auto px-12 py-20">
+            <div className="max-w-2xl reveal-on-scroll">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white backdrop-blur-md">
+                <Shield className="h-3.5 w-3.5 shrink-0 text-primary" />
+                Local & Trusted Experts
               </div>
-              <div className="relative reveal-scale">
-                <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative z-10 border-4 border-background">
-                  <img src={heroImage} alt="Professional Garage Door Repair" className="w-full h-full object-cover" />
+              <h1 className="mb-6 font-display text-6xl font-bold leading-[1.02] tracking-tight text-white xl:text-7xl">
+                Don't let a broken door <br /><span className="text-primary">hold your day hostage.</span>
+              </h1>
+              <p className="mb-10 max-w-xl text-xl leading-relaxed text-white/78">
+                Fast, professional garage door repair and installation. We secure your home's largest moving object so you can get back to life.
+              </p>
+              <div className="mb-10 flex gap-4">
+                <Button asChild size="lg" className="h-14 px-8 font-display text-lg font-bold shadow-2xl glow-primary hover-elevate">
+                  <a href="#booking">Book Service Now</a>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="h-14 border-2 border-white/60 bg-white/10 px-8 font-display text-lg font-bold text-white backdrop-blur-sm hover:bg-white hover:text-slate-950">
+                  <a href="#services">Our Services</a>
+                </Button>
+              </div>
+              <div className="grid max-w-xl grid-cols-2 gap-4 border-t border-white/25 pt-6 text-white">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-semibold">Same-Day Service</span>
                 </div>
-                <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/20 blur-3xl -z-10 rounded-full" />
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-semibold">Fully Insured</span>
+                </div>
               </div>
             </div>
           </div>

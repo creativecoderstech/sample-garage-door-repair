@@ -79,7 +79,7 @@ const defaultSettings = {
   theme: "industrial",
   serviceId: "garage-door-repair",
   emergencyEnabled: true,
-  heroImage: "/images/garage/hero-modern-garage.jpg",
+  heroImage: "/images/garage/hero-door-forward.jpg",
   galleryImages: [
     "/images/garage/modern-white-home.jpg",
     "/images/garage/classic-white-door.jpg",
@@ -94,6 +94,7 @@ const defaultSettings = {
 
 const legacyHeroImage =
   "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=2000&q=85";
+const previousLocalHeroImage = "/images/garage/hero-modern-garage.jpg";
 
 const legacyGalleryImageReplacements = new Map([
   [
@@ -112,7 +113,7 @@ const legacyGalleryImageReplacements = new Map([
 
 const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect) => ({
   ...settings,
-  heroImage: settings.heroImage === legacyHeroImage
+  heroImage: settings.heroImage === legacyHeroImage || settings.heroImage === previousLocalHeroImage
     ? defaultSettings.heroImage
     : settings.heroImage,
   galleryImages: settings.galleryImages.map((image) =>
