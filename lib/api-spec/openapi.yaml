@@ -46,6 +46,17 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/Testimonial" }
+  /garage/reviews:
+    get:
+      operationId: getGoogleReviewFeed
+      tags: [public]
+      responses:
+        "200":
+          description: Google Business Profile review presentation feed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoogleReviewFeed"
   /garage/availability:
     get:
       operationId: getAvailability
@@ -184,6 +195,32 @@ components:
         rating: { type: number }
         quote: { type: string }
         service: { type: string }
+    GoogleReview:
+      type: object
+      required: [id, reviewerName, rating, comment, publishedAt, relativeTime, source]
+      properties:
+        id: { type: string }
+        reviewerName: { type: string }
+        reviewerPhotoUrl: { type: ["string", "null"] }
+        rating: { type: number, minimum: 1, maximum: 5 }
+        comment: { type: string }
+        publishedAt: { type: string }
+        relativeTime: { type: string }
+        source: { type: string, enum: [google] }
+    GoogleReviewFeed:
+      type: object
+      required: [mode, connectionStatus, locationName, aggregateRating, totalReviewCount, lastSyncedAt, reviews]
+      properties:
+        mode: { type: string, enum: [demo, live] }
+        connectionStatus: { type: string, enum: [disconnected, connected, permission_error, unavailable] }
+        locationName: { type: string }
+        aggregateRating: { type: number }
+        totalReviewCount: { type: number }
+        lastSyncedAt: { type: ["string", "null"] }
+        profileUrl: { type: ["string", "null"] }
+        reviews:
+          type: array
+          items: { $ref: "#/components/schemas/GoogleReview" }
     Availability:
       type: object
       required: [available, zip, eta, message]

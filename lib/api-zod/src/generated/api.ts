@@ -36,6 +36,31 @@ export const ListTestimonialsResponseItem = zod.object({
 export const ListTestimonialsResponse = zod.array(ListTestimonialsResponseItem)
 
 
+export const getGoogleReviewFeedResponseReviewsItemRatingMax = 5;
+
+
+
+export const GetGoogleReviewFeedResponse = zod.object({
+  "mode": zod.enum(['demo', 'live']),
+  "connectionStatus": zod.enum(['disconnected', 'connected', 'permission_error', 'unavailable']),
+  "locationName": zod.string(),
+  "aggregateRating": zod.number(),
+  "totalReviewCount": zod.number(),
+  "lastSyncedAt": zod.string().nullable(),
+  "profileUrl": zod.string().nullish(),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "reviewerName": zod.string(),
+  "reviewerPhotoUrl": zod.string().nullish(),
+  "rating": zod.number().min(1).max(getGoogleReviewFeedResponseReviewsItemRatingMax),
+  "comment": zod.string(),
+  "publishedAt": zod.string(),
+  "relativeTime": zod.string(),
+  "source": zod.enum(['google'])
+}))
+})
+
+
 export const getAvailabilityQueryZipMin = 5;
 export const getAvailabilityQueryZipMax = 10;
 

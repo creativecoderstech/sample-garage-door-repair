@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useListGarageServices, useListTestimonials, useGetBusinessSettings } from '@workspace/api-client-react';
+import { useGetGoogleReviewFeed, useListGarageServices, useListTestimonials, useGetBusinessSettings } from '@workspace/api-client-react';
+import type { GoogleReviewFeed, Testimonial } from '@workspace/api-client-react';
+import { SiGoogle } from 'react-icons/si';
 import { useListFaqs, useListTasks } from '@/lib/demo-store';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
@@ -31,6 +33,7 @@ export default function HomePage() {
   const { data: settings } = useGetBusinessSettings();
   const { data: services } = useListGarageServices();
   const { data: testimonials } = useListTestimonials();
+  const { data: googleFeed, isLoading: isLoadingReviews, isError: isErrorReviews } = useGetGoogleReviewFeed();
   const { data: faqs } = useListFaqs();
   const { data: tasks } = useListTasks();
   
@@ -273,29 +276,9 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-12">
           <div className="max-w-2xl mb-12 reveal-on-scroll">
             <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Customer Stories</p>
-            <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight">What our neighbors say</h2>
+            <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight mb-8">What our neighbors say</h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-on-scroll">
-            {testimonials?.slice(0, 4).map((review) => (
-              <div key={review.id} className="bg-card border rounded-2xl p-7 shadow-sm hover-elevate flex flex-col">
-                <div className="flex gap-1 mb-5 text-primary">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-muted stroke-current'}`} />
-                  ))}
-                </div>
-                <p className="text-muted-foreground leading-relaxed mb-7">"{review.quote}"</p>
-                <div className="mt-auto flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold font-display">
-                    {review.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm">{review.name}</p>
-                    <p className="text-xs text-muted-foreground">{review.city} • {review.service}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <GoogleReviewsPresentation feed={googleFeed} isLoading={isLoadingReviews} isError={isErrorReviews} fallbackTestimonials={testimonials} />
         </div>
       </section>
 
@@ -343,6 +326,143 @@ export default function HomePage() {
         <Button asChild size="lg" className="h-14 px-8 font-display font-bold shadow-2xl glow-primary rounded-full min-w-[200px]">
           <a href="#booking">Book Now</a>
         </Button>
+      </div>
+    </div>
+  );
+}
+
+function GoogleReviewsPresentation({
+  feed,
+  isLoading,
+  isError,
+  fallbackTestimonials,
+}: {
+  feed: GoogleReviewFeed | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  fallbackTestimonials: Testimonial[] | undefined;
+}) {
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="h-32 w-full bg-muted/30 animate-pulse rounded-3xl border border-border/50"></div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-48 bg-muted/20 animate-pulse rounded-3xl border border-border/50"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center p-12 bg-muted/10 rounded-3xl border border-border/50 text-muted-foreground">
+        Unable to load reviews.
+      </div>
+    );
+  }
+
+  const isDisconnected = feed?.mode === 'live' && feed?.connectionStatus !== 'connected';
+  const hasNoReviews = !feed || !feed.reviews || feed.reviews.length === 0;
+
+  if (isDisconnected || hasNoReviews) {
+    if (fallbackTestimonials && fallbackTestimonials.length > 0) {
+      return (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-on-scroll">
+          {fallbackTestimonials.slice(0, 4).map((review) => (
+            <div key={review.id} className="bg-card border rounded-2xl p-7 shadow-sm hover-elevate flex flex-col">
+              <div className="flex gap-1 mb-5 text-[#FBBC04]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
+                ))}
+              </div>
+              <p className="text-muted-foreground leading-relaxed mb-7">"{review.quote}"</p>
+              <div className="mt-auto flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold font-display">
+                  {review.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-foreground">{review.name}</p>
+                  <p className="text-xs text-muted-foreground">{review.city} • {review.service}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return (
+      <div className="text-center p-12 bg-muted/10 rounded-3xl border border-border/50 text-muted-foreground">
+        No reviews available at this time.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-10 reveal-on-scroll">
+      {/* Aggregate Header */}
+      <div className="flex flex-col md:flex-row gap-8 md:items-center justify-between p-8 sm:p-10 rounded-3xl bg-card border shadow-sm relative overflow-hidden">
+        {feed.mode === 'demo' && (
+          <div className="absolute top-0 right-0 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 border-b border-l border-primary/20">
+            Preview Data
+          </div>
+        )}
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm shrink-0">
+            <SiGoogle className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              <span className="text-5xl font-display font-bold tracking-tight text-foreground">{feed.aggregateRating.toFixed(1)}</span>
+              <div className="flex gap-1 text-[#FBBC04]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className={`w-6 h-6 ${i < Math.round(feed.aggregateRating) ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
+                ))}
+              </div>
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">
+              {feed.mode === 'demo' ? 'Previewing' : 'Based on'} {feed.totalReviewCount} Google reviews for <strong className="text-foreground">{feed.locationName}</strong>
+            </p>
+          </div>
+        </div>
+        {feed.profileUrl && (
+          <Button variant="outline" size="lg" className="font-display font-bold shrink-0 relative z-10 h-14 px-8 rounded-xl border-border/60 hover:bg-slate-50 dark:hover:bg-slate-900 shadow-sm" asChild>
+            <a href={feed.profileUrl} target="_blank" rel="noopener noreferrer">Review us on Google</a>
+          </Button>
+        )}
+      </div>
+
+      {/* Reviews Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {feed.reviews.map((review) => (
+          <div key={review.id} className="bg-card border rounded-3xl p-8 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover-elevate flex flex-col relative group transition-all duration-300 hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)]">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-4">
+                {review.reviewerPhotoUrl ? (
+                  <img src={review.reviewerPhotoUrl} alt={review.reviewerName} className="w-12 h-12 rounded-full bg-muted object-cover shadow-sm" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold font-display text-lg shadow-sm border border-slate-200 dark:border-slate-700">
+                    {review.reviewerName.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <p className="font-bold text-base leading-tight text-foreground">{review.reviewerName}</p>
+                  <p className="text-xs font-medium text-muted-foreground mt-0.5">{review.relativeTime}</p>
+                </div>
+              </div>
+              <SiGoogle className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-slate-400 dark:group-hover:text-slate-500 transition-colors" />
+            </div>
+
+            <div className="flex gap-0.5 mb-5 text-[#FBBC04]">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
+              ))}
+            </div>
+
+            <p className="text-muted-foreground text-sm leading-relaxed">"{review.comment}"</p>
+          </div>
+        ))}
       </div>
     </div>
   );

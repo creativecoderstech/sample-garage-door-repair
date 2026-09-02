@@ -28,6 +28,48 @@ const testimonials = [
   { id: 3, name: "Jordan T.", city: "Frisco", rating: 5, quote: "No pressure and no mystery fees. They repaired the cable instead of trying to sell us a whole new door.", service: "Cable repair" },
 ];
 
+const googleReviewFeed = {
+  mode: "demo" as const,
+  connectionStatus: "disconnected" as const,
+  locationName: "Summit Garage Door Co.",
+  aggregateRating: 4.9,
+  totalReviewCount: 127,
+  lastSyncedAt: null,
+  profileUrl: null,
+  reviews: [
+    {
+      id: "demo-google-1",
+      reviewerName: "Melissa R.",
+      reviewerPhotoUrl: null,
+      rating: 5,
+      comment: "Our spring broke before school drop-off. Summit arrived quickly, explained every option, and left the door quieter than it has been in years.",
+      publishedAt: "2026-08-26T14:00:00.000Z",
+      relativeTime: "1 week ago",
+      source: "google" as const,
+    },
+    {
+      id: "demo-google-2",
+      reviewerName: "David K.",
+      reviewerPhotoUrl: null,
+      rating: 5,
+      comment: "Straightforward estimate and a very clean opener installation. The technician connected the remotes, keypad, and our phones before leaving.",
+      publishedAt: "2026-08-18T16:30:00.000Z",
+      relativeTime: "2 weeks ago",
+      source: "google" as const,
+    },
+    {
+      id: "demo-google-3",
+      reviewerName: "Jordan T.",
+      reviewerPhotoUrl: null,
+      rating: 5,
+      comment: "No pressure and no mystery fees. They repaired the damaged cable and rollers instead of trying to sell us a whole new door.",
+      publishedAt: "2026-08-05T19:10:00.000Z",
+      relativeTime: "4 weeks ago",
+      source: "google" as const,
+    },
+  ],
+};
+
 const defaultSettings = {
   id: 1,
   businessName: "Summit Garage Door Co.",
@@ -85,6 +127,10 @@ const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
 
 router.get("/garage/services", (_req, res) => res.json(services));
 router.get("/garage/testimonials", (_req, res) => res.json(testimonials));
+router.get("/garage/reviews", (_req, res) => {
+  res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+  res.json(googleReviewFeed);
+});
 
 router.get("/garage/availability", (req, res) => {
   const parsed = GetAvailabilityQueryParams.safeParse(req.query);

@@ -28,6 +28,60 @@ export interface Testimonial {
   service: string;
 }
 
+export type GoogleReviewSource = typeof GoogleReviewSource[keyof typeof GoogleReviewSource];
+
+
+export const GoogleReviewSource = {
+  google: 'google',
+} as const;
+
+export interface GoogleReview {
+  id: string;
+  reviewerName: string;
+  /** @nullable */
+  reviewerPhotoUrl?: string | null;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  rating: number;
+  comment: string;
+  publishedAt: string;
+  relativeTime: string;
+  source: GoogleReviewSource;
+}
+
+export type GoogleReviewFeedMode = typeof GoogleReviewFeedMode[keyof typeof GoogleReviewFeedMode];
+
+
+export const GoogleReviewFeedMode = {
+  demo: 'demo',
+  live: 'live',
+} as const;
+
+export type GoogleReviewFeedConnectionStatus = typeof GoogleReviewFeedConnectionStatus[keyof typeof GoogleReviewFeedConnectionStatus];
+
+
+export const GoogleReviewFeedConnectionStatus = {
+  disconnected: 'disconnected',
+  connected: 'connected',
+  permission_error: 'permission_error',
+  unavailable: 'unavailable',
+} as const;
+
+export interface GoogleReviewFeed {
+  mode: GoogleReviewFeedMode;
+  connectionStatus: GoogleReviewFeedConnectionStatus;
+  locationName: string;
+  aggregateRating: number;
+  totalReviewCount: number;
+  /** @nullable */
+  lastSyncedAt: string | null;
+  /** @nullable */
+  profileUrl?: string | null;
+  reviews: GoogleReview[];
+}
+
 export interface Availability {
   available: boolean;
   zip: string;

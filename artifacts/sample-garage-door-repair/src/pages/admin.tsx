@@ -3,6 +3,7 @@ import {
   useGetGarageDashboard, 
   useListServiceRequests, 
   useUpdateServiceRequest, 
+  useGetGoogleReviewFeed,
   getGetGarageDashboardQueryKey, 
   getListServiceRequestsQueryKey 
 } from "@workspace/api-client-react";
@@ -17,6 +18,7 @@ import {
   HelpCircle, Star, Settings, Users, ChevronRight, 
   ExternalLink, Sparkles, Building2, Menu, X
 } from "lucide-react";
+import { SiGoogle } from "react-icons/si";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +49,11 @@ type AdminTab =
   | 'users';
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<AdminTab>('overview');
+  const [tab, setTab] = useState<AdminTab>(() => {
+    const requestedTab = window.location.hash.slice(1) as AdminTab;
+    const availableTabs: AdminTab[] = ['overview', 'service-requests', 'bookings', 'chats', 'tasks', 'gallery', 'faqs', 'services', 'reviews', 'settings', 'users'];
+    return availableTabs.includes(requestedTab) ? requestedTab : 'overview';
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: dashboard } = useGetGarageDashboard();
   const pendingCount = dashboard?.newRequests ?? 0;
@@ -120,7 +126,11 @@ export default function AdminPage() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setTab(item.id as AdminTab); setIsMobileMenuOpen(false); }}
+                    onClick={() => {
+                      setTab(item.id as AdminTab);
+                      window.history.replaceState(null, '', `#${item.id}`);
+                      setIsMobileMenuOpen(false);
+                    }}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive 
                         ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' 
@@ -397,11 +407,105 @@ function ServicesAdmin() {
 }
 
 function ReviewsAdmin() {
-  return <ContentModuleAdmin storageKey="garage-admin-reviews" title="Reviews" description="Moderate customer reviews before they appear publicly." fields={['Customer', 'Rating', 'Status']} defaults={[
-    ['Elena Rodriguez', '5 stars', 'Approved'],
-    ['Marcus Bennett', '5 stars', 'Approved'],
-    ['Priya Shah', '5 stars', 'Pending'],
-  ]} />
+  const { data: feed, isLoading } = useGetGoogleReviewFeed();
+  const [showConnectDialog, setShowConnectDialog] = useState(false);
+
+  return (
+    <div className="space-y-8 max-w-5xl">
+      {/* Google Business Profile Connection Panel */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex items-center gap-4">
+             <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
+               <SiGoogle className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+             </div>
+             <div>
+               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                 Google Business Profile
+                 {isLoading ? (
+                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Checking...</span>
+                 ) : feed?.connectionStatus === 'connected' ? (
+                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Connected</span>
+                 ) : feed?.mode === 'demo' ? (
+                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Demo Mode</span>
+                 ) : (
+                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Disconnected</span>
+                 )}
+               </h3>
+               <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Sync public reviews directly to your website.</p>
+             </div>
+          </div>
+          <div>
+             <Button variant="outline" className="shadow-sm font-medium bg-white dark:bg-slate-900" onClick={() => setShowConnectDialog(true)}>
+                Manage Connection
+             </Button>
+          </div>
+        </div>
+
+        {/* Connection Details */}
+        {!isLoading && feed && (
+          <div className="p-5 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Status</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">
+                {feed.connectionStatus === 'connected' ? 'Actively syncing' :
+                 feed.mode === 'demo' ? 'Previewing demo content' : 'Not connected'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Location</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">
+                {feed.locationName || 'Unknown'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Last Synced</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">
+                {feed.lastSyncedAt ? format(new Date(feed.lastSyncedAt), 'MMM d, yyyy h:mm a') : 'Never'}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {showConnectDialog && (
+         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowConnectDialog(false)}>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
+               <div className="p-6">
+                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5 border border-slate-200 dark:border-slate-700">
+                   <SiGoogle className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+                 </div>
+                 <h2 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Google Authorization Required</h2>
+                 <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                   Secure OAuth setup is required to connect your Google Business Profile. For your security, this feature requires a registered domain and verified API credentials.
+                 </p>
+                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4 mb-6">
+                   <p className="text-sm text-blue-800 dark:text-blue-300 font-medium leading-relaxed">
+                      Google Business Profile OAuth must be enabled for the live domain before this workspace can connect the owner's account.
+                   </p>
+                 </div>
+                 <div className="flex justify-end">
+                   <Button onClick={() => setShowConnectDialog(false)}>Understood</Button>
+                 </div>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {/* Existing Manual Reviews Module */}
+      <ContentModuleAdmin
+        storageKey="garage-admin-reviews"
+        title="Manual Reviews"
+        description="Moderate customer reviews captured directly on your site before they appear publicly. These remain available when Google is disconnected."
+        fields={['Customer', 'Rating', 'Status']}
+        defaults={[
+          ['Elena Rodriguez', '5 stars', 'Approved'],
+          ['Marcus Bennett', '5 stars', 'Approved'],
+          ['Priya Shah', '5 stars', 'Pending'],
+        ]}
+      />
+    </div>
+  )
 }
 
 function UsersAdmin() {
