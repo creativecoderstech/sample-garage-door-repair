@@ -28,6 +28,11 @@ A customer-facing garage door repair website and operations admin with booking, 
 - Database schema: `lib/db/src/schema/garage.ts`
 - Cloudflare production blueprint: `artifacts/sample-garage-door-repair/CLOUDFLARE_ARCHITECTURE.md`
 
+## Deployment preference
+
+- When the user says “deploy,” target Cloudflare Workers using the Cloudflare production architecture rather than Replit Deployments.
+- Treat Cloudflare Workers, with the project’s documented Cloudflare services and routing, as the default production deployment target unless the user explicitly requests another platform.
+
 ## Architecture decisions
 
 - Customer site and admin share one responsive app so Creative Coders can embed a single service sample.
