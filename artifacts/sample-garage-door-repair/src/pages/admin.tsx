@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { 
   useGetGarageDashboard, 
   useListServiceRequests, 
@@ -16,7 +16,7 @@ import {
   LayoutGrid, Inbox, CalendarDays, MessageCircle, 
   Wrench, Image as ImageIcon, SplitSquareHorizontal, 
   HelpCircle, Star, Settings, Users, ChevronRight, 
-  ExternalLink, Sparkles, Building2, Menu, X, MapPin, Mail, Phone
+  ExternalLink, Sparkles, Building2, Menu, X, MapPin, Mail, Phone, Upload
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 import { Badge } from "@/components/ui/badge";
@@ -483,6 +483,91 @@ function StatusBadge({ value }: { value: string }) {
   return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${tone}`}>{value}</span>;
 }
 
+function ImageUploadField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+
+  const handleFileChange = (file: File | undefined) => {
+    if (!file) return;
+    setError("");
+    if (!file.type.startsWith("image/")) {
+      setError("Choose an image file such as JPG, PNG, or WebP.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Choose an image smaller than 2 MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") onChange(reader.result);
+    };
+    reader.onerror = () => setError("This image could not be read. Please try another file.");
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</label>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-9 rounded-lg"
+          onClick={() => inputRef.current?.click()}
+        >
+          <Upload className="mr-1.5 h-3.5 w-3.5" />
+          {value ? "Replace image" : "Upload image"}
+        </Button>
+        {value && (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-9 rounded-lg text-slate-500 hover:text-red-600"
+            onClick={() => {
+              onChange("");
+              setError("");
+              if (inputRef.current) inputRef.current.value = "";
+            }}
+          >
+            Remove
+          </Button>
+        )}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(event) => {
+          handleFileChange(event.target.files?.[0]);
+          event.target.value = "";
+        }}
+      />
+      {value && (
+        <div className="relative aspect-[4/3] max-w-[220px] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+          <img src={value} alt={`${label} preview`} className="h-full w-full object-cover" />
+          <span className="absolute bottom-2 left-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+            Ready to save
+          </span>
+        </div>
+      )}
+      {error && <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>}
+    </div>
+  );
+}
+
 function ChatsAdmin() {
   return (
     <ContentModuleAdmin
@@ -507,13 +592,13 @@ function GalleryAdmin() {
       title="Gallery"
       eyebrow="Website content"
       description="Curate the garage-door project photography customers see online, with accessible labels and homepage ordering."
-      fields={["Project", "Image URL", "Alt text", "Sort order", "Status"]}
+      fields={["Project", "Project image", "Alt text", "Sort order", "Status"]}
       defaults={[
         ["Modern insulated door", "/images/garage/modern-white-home.jpg", "White insulated garage door installation", "1", "Published"],
         ["Classic residential door", "/images/garage/classic-white-door.jpg", "Classic residential garage door", "2", "Published"],
       ]}
       addLabel="Add photo"
-      imageField="Image URL"
+      imageField="Project image"
     />
   );
 }
@@ -823,6 +908,12 @@ function ContentModuleAdmin({
                     rows={3}
                     onChange={(event) => setDraft((current) => current?.map((value, i) => i === index ? event.target.value : value) ?? null)}
                     className="bg-white dark:bg-slate-900"
+                  />
+                ) : imageField && index === imageIndex ? (
+                  <ImageUploadField
+                    label={field}
+                    value={draft[index] || ""}
+                    onChange={(value) => setDraft((current) => current?.map((item, i) => i === index ? value : item) ?? null)}
                   />
                 ) : (
                   <Input
@@ -1318,8 +1409,8 @@ function TasksAdmin() {
             <Input placeholder="Project title" value={title} onChange={e => setTitle(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
             <Textarea placeholder="Describe the transformation and the customer benefit." value={desc} onChange={e => setDesc(e.target.value)} rows={3} className="bg-white dark:bg-slate-900" />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div><label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Before image URL</label><Input placeholder="/images/garage/before.jpg" value={beforeImg} onChange={e => setBeforeImg(e.target.value)} className="bg-white dark:bg-slate-900" /></div>
-              <div><label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">After image URL</label><Input placeholder="/images/garage/after.jpg" value={afterImg} onChange={e => setAfterImg(e.target.value)} className="bg-white dark:bg-slate-900" /></div>
+              <ImageUploadField label="Before image" value={beforeImg} onChange={setBeforeImg} />
+              <ImageUploadField label="After image" value={afterImg} onChange={setAfterImg} />
             </div>
             <div className="flex flex-wrap justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
