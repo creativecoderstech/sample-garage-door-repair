@@ -100,7 +100,7 @@ export default function HomePage() {
           <div className="absolute inset-0 w-full h-full">
             <img src={heroImage} alt="Three premium residential garage doors on a Georgia craftsman home" className="w-full h-full object-cover object-[62%_center]" />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/25" />
           
           <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-12 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 backdrop-blur-sm text-white text-xs font-bold tracking-wide uppercase">
@@ -401,32 +401,32 @@ function GoogleReviewsPresentation({
   return (
     <div className="space-y-10 reveal-on-scroll">
       {/* Aggregate Header */}
-      <div className="flex flex-col md:flex-row gap-8 md:items-center justify-between p-8 sm:p-10 rounded-3xl bg-card border shadow-sm relative overflow-hidden">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between rounded-3xl bg-card border p-5 sm:gap-8 sm:p-8 lg:p-10 shadow-sm relative overflow-hidden">
         {feed.mode === 'demo' && (
           <div className="absolute top-0 right-0 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 border-b border-l border-primary/20">
             Preview Data
           </div>
         )}
-        <div className="flex items-center gap-6 relative z-10">
-          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm shrink-0">
-            <SiGoogle className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+        <div className="relative z-10 flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-50 shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 sm:h-20 sm:w-20">
+            <SiGoogle className="h-8 w-8 text-slate-700 dark:text-slate-300 sm:h-10 sm:w-10" />
           </div>
-          <div>
-            <div className="flex items-center gap-4 mb-2">
-              <span className="text-5xl font-display font-bold tracking-tight text-foreground">{feed.aggregateRating.toFixed(1)}</span>
-              <div className="flex gap-1 text-[#FBBC04]">
+          <div className="min-w-0 max-w-full">
+            <div className="mb-2 flex max-w-full flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="font-display text-5xl font-bold tracking-tight text-foreground">{feed.aggregateRating.toFixed(1)}</span>
+              <div className="flex shrink-0 gap-1 text-[#FBBC04]" aria-label={`${feed.aggregateRating.toFixed(1)} out of 5 stars`}>
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-6 h-6 ${i < Math.round(feed.aggregateRating) ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
+                  <Star key={i} className={`h-6 w-6 ${i < Math.round(feed.aggregateRating) ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
                 ))}
               </div>
             </div>
-            <p className="text-sm font-medium text-muted-foreground">
+            <p className="break-words text-sm font-medium text-muted-foreground">
               {feed.mode === 'demo' ? 'Previewing' : 'Based on'} {feed.totalReviewCount} Google reviews for <strong className="text-foreground">{feed.locationName}</strong>
             </p>
           </div>
         </div>
         {feed.profileUrl && (
-          <Button variant="outline" size="lg" className="font-display font-bold shrink-0 relative z-10 h-14 px-8 rounded-xl border-border/60 hover:bg-slate-50 dark:hover:bg-slate-900 shadow-sm" asChild>
+          <Button variant="outline" size="lg" className="relative z-10 h-12 w-full shrink-0 rounded-xl border-border/60 px-8 font-display font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-900 md:h-14 md:w-auto" asChild>
             <a href={feed.profileUrl} target="_blank" rel="noopener noreferrer">Review us on Google</a>
           </Button>
         )}
