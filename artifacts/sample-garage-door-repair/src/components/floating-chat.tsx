@@ -10,7 +10,7 @@ export function FloatingChat() {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl glow-primary z-50 p-0"
+        className="phi-chat-launcher fixed bottom-[var(--phi-space-4)] right-[var(--phi-space-4)] h-[var(--phi-control)] w-[var(--phi-control)] rounded-full shadow-2xl glow-primary z-50 p-0"
         aria-label="Open customer care chat"
       >
         <MessageSquare className="h-6 w-6" />

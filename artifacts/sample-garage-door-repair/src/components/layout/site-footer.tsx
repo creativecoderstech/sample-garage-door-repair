@@ -8,9 +8,9 @@ export function SiteFooter() {
   const { data: settings } = useGetBusinessSettings();
   
   return (
-    <footer className="bg-foreground text-background py-12 lg:py-16 mt-auto">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-16">
+    <footer className="phi-site-footer bg-foreground text-background mt-auto">
+      <div className="phi-container">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)]">
           <div className="md:col-span-2">
             <h3 className="font-display font-bold text-2xl mb-4 text-background">
               {settings?.businessName || "Summit Garage Door Co."}
@@ -58,7 +58,7 @@ export function SiteFooter() {
           </div>
         </div>
         
-        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4 text-background/50 text-sm">
+        <div className="mt-[var(--phi-space-6)] pt-[var(--phi-space-4)] border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-[var(--phi-space-3)] text-background/50 text-sm">
           <p>© {format(new Date(), 'yyyy')} {settings?.businessName || "Summit Garage Door Co."}. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/login" className="hover:text-background transition-colors">Admin Login</Link>

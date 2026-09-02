@@ -252,8 +252,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
   };
 
   return (
-    <div className={cn("bg-card rounded-2xl border shadow-xl overflow-hidden", className)}>
-      <div className="bg-primary p-6 text-primary-foreground">
+    <div className={cn("phi-booking-card phi-card bg-card border shadow-xl overflow-hidden", className)}>
+      <div className="phi-booking-header bg-primary text-primary-foreground">
         <h3 className="text-2xl font-display font-bold flex items-center gap-2">
           <CalendarCheck className="w-6 h-6" /> Book Service
         </h3>
@@ -266,8 +266,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
         </div>
       )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
+          <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
             <FormField control={form.control} name="customerName" render={({ field }) => (
               <FormItem>
                 <FormLabel>Full Name *</FormLabel>
@@ -284,7 +284,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )} />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
              <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem>
                 <FormLabel>Email (Optional)</FormLabel>
@@ -386,7 +386,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 <FormLabel>How soon do you need this?</FormLabel>
                 <FormControl>
                   <div
-                    className="grid grid-cols-1 sm:grid-cols-3 gap-2"
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-[var(--phi-space-2)]"
                     role="radiogroup"
                   >
                     {URGENCY_OPTIONS.map((option) => {
@@ -422,7 +422,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
             <FormField control={form.control} name="preferredDate" render={({ field }) => (
               <FormItem>
                 <FormLabel>Preferred Date (Optional)</FormLabel>
@@ -481,7 +481,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-[var(--phi-space-2)]">
               <button
                 type="button"
                 onClick={() => browseInputRef.current?.click()}
@@ -614,7 +614,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )}
           </div>
 
-          <Button type="submit" size="lg" className="w-full font-bold text-lg h-14 mt-4 shadow-md glow-primary" disabled={createRequest.isPending}>
+          <Button type="submit" size="lg" className="w-full font-bold text-lg min-h-[var(--phi-control)] py-4 mt-4 shadow-md glow-primary" disabled={createRequest.isPending}>
             {createRequest.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Request Service"}
           </Button>
         </form>

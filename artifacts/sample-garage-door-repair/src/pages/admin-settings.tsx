@@ -49,7 +49,7 @@ function ThemePreview({ theme }: { theme: ThemeOption }) {
   const { preview } = theme;
   return (
     <div
-      className="mt-4 overflow-hidden rounded-lg border shadow-sm"
+      className="phi-card mt-4 overflow-hidden border shadow-sm"
       style={{ backgroundColor: preview.background, color: preview.foreground, borderColor: preview.border }}
       aria-label={`${theme.name} color preview`}
     >
@@ -153,10 +153,10 @@ export default function AdminSettingsPage() {
   const selectedTheme = form.watch("theme");
 
   return (
-    <div>
+    <div className="phi-admin-settings">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-[var(--phi-space-5)]">
+          <div className="phi-admin-section flex flex-col border-b border-slate-200 pb-[var(--phi-space-3)] sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Workspace configuration</p>
               <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -172,14 +172,14 @@ export default function AdminSettingsPage() {
             </span>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-[var(--phi-space-2)] sm:grid-cols-2 lg:grid-cols-4">
             {[
               ["Public identity", "Customer-facing business details"],
               ["Photography", "Hero and gallery image sources"],
               ["Site aesthetics", THEMES.find((theme) => theme.id === selectedTheme)?.name || "Theme selection"],
               ["Operations", form.watch("emergencyEnabled") ? "Emergency mode enabled" : "Standard availability"],
             ].map(([label, detail], index) => (
-              <div key={label} className="rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900">
+              <div key={label} className="phi-admin-card border-2 border-slate-200 bg-white p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
                   <span className={`h-2 w-2 rounded-full ${index === 3 && form.watch("emergencyEnabled") ? "bg-red-500" : "bg-primary"}`} />
@@ -189,7 +189,7 @@ export default function AdminSettingsPage() {
             ))}
           </div>
           
-          <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+          <Card className="phi-admin-card border-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display"><Store className="h-5 w-5 text-primary"/> Public Identity</CardTitle>
               <CardDescription>How your business appears to customers on the site.</CardDescription>
@@ -206,7 +206,7 @@ export default function AdminSettingsPage() {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="phi-field-grid grid grid-cols-1 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="phone"
@@ -244,7 +244,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+          <Card className="phi-admin-card border-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display"><Images className="h-5 w-5 text-primary"/> Website Photography</CardTitle>
               <CardDescription>Use licensed stock photos or your own hosted images. Changes appear on the customer website after saving.</CardDescription>
@@ -284,7 +284,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+          <Card className="phi-admin-card border-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display"><Palette className="h-5 w-5 text-primary"/> Site Aesthetics</CardTitle>
               <CardDescription>Choose the visual identity for your public website.</CardDescription>
@@ -299,7 +299,7 @@ export default function AdminSettingsPage() {
                       <RadioGroup
                         onValueChange={field.onChange}
                         value={field.value}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                        className="phi-field-grid grid grid-cols-1 md:grid-cols-2"
                       >
                         {THEMES.map((theme) => (
                           <FormItem key={theme.id} className="relative flex items-center space-x-0 space-y-0">
@@ -343,12 +343,12 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border-2 border-destructive/20 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+          <Card className="phi-admin-card border-2 border-destructive/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display text-destructive"><ShieldAlert className="h-5 w-5"/> Operations & Safety</CardTitle>
               <CardDescription>Critical flags for your dispatch logic.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-[var(--phi-space-4)]">
               <FormField
                 control={form.control}
                 name="emergencyEnabled"
@@ -386,7 +386,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <div className="sticky bottom-3 z-10 flex items-center justify-end gap-4 rounded-2xl border-2 bg-background/95 px-4 py-4 shadow-lg backdrop-blur">
+          <div className="sticky bottom-[var(--phi-space-2)] z-10 flex items-center justify-end gap-[var(--phi-space-3)] rounded-[var(--phi-radius)] border-2 bg-background/95 px-[var(--phi-space-3)] py-[var(--phi-space-3)] shadow-lg backdrop-blur">
             <Button type="button" variant="outline" onClick={() => form.reset()} disabled={isSaving}>
               Discard Changes
             </Button>

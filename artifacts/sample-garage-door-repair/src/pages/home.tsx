@@ -103,7 +103,7 @@ export default function HomePage() {
       {/* HERO SECTION */}
       <section id="hero" className="relative overflow-hidden">
         {/* Mobile View */}
-        <div className="lg:hidden relative" style={{ minHeight: 'calc(100svh - 3.75rem)' }}>
+        <div className="phi-hero lg:hidden relative">
           <div className="absolute inset-0 w-full h-full">
             <img src={heroImage} alt="Three premium residential garage doors on a Georgia craftsman home" className="w-full h-full object-cover object-[62%_center]" />
           </div>
@@ -114,13 +114,13 @@ export default function HomePage() {
               <Shield className="w-3 h-3 shrink-0" />
               Fully Licensed & Insured
             </div>
-            <h1 className="font-display font-bold text-4xl leading-[1.1] tracking-tight text-white">
+            <h1 className="phi-hero-title text-white">
               Don't let a broken door <span className="text-primary">hold your day hostage.</span>
             </h1>
-            <p className="text-white/80 text-sm leading-relaxed">
+            <p className="pr-[var(--phi-space-4)] text-white/80 text-sm leading-relaxed">
               Fast, professional garage door repair and installation. We secure your home's largest moving object so you can get back to life.
             </p>
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-2 pr-[var(--phi-space-5)]">
               <Button asChild size="lg" className="flex-1 font-display font-bold shadow-xl glow-primary">
                 <a href="#booking">Book Now</a>
               </Button>
@@ -132,7 +132,7 @@ export default function HomePage() {
         </div>
 
         {/* Desktop View */}
-        <div className="relative hidden min-h-[720px] border-b lg:flex lg:items-center">
+        <div className="phi-hero relative hidden border-b lg:flex lg:items-center">
           <img
             src={heroImage}
             alt="Three premium residential garage doors on a Georgia craftsman home"
@@ -141,19 +141,19 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/72 to-slate-950/5" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-black/10" />
 
-          <div className="container relative z-10 mx-auto px-12 py-20">
+          <div className="phi-container relative z-10 py-[var(--phi-space-7)]">
             <div className="max-w-2xl reveal-on-scroll">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white backdrop-blur-md">
                 <Shield className="h-3.5 w-3.5 shrink-0 text-primary" />
                 Local & Trusted Experts
               </div>
-              <h1 className="mb-6 font-display text-6xl font-bold leading-[1.02] tracking-tight text-white xl:text-7xl">
+              <h1 className="phi-hero-title mb-6 text-white">
                 Don't let a broken door <br /><span className="text-primary">hold your day hostage.</span>
               </h1>
               <p className="mb-10 max-w-xl text-xl leading-relaxed text-white/78">
                 Fast, professional garage door repair and installation. We secure your home's largest moving object so you can get back to life.
               </p>
-              <div className="mb-10 flex gap-4">
+              <div className="mb-[var(--phi-space-5)] flex gap-[var(--phi-space-3)]">
                 <Button asChild size="lg" className="h-14 px-8 font-display text-lg font-bold shadow-2xl glow-primary hover-elevate">
                   <a href="#booking">Book Service Now</a>
                 </Button>
@@ -161,7 +161,7 @@ export default function HomePage() {
                   <a href="#services">Our Services</a>
                 </Button>
               </div>
-              <div className="grid max-w-xl grid-cols-2 gap-4 border-t border-white/25 pt-6 text-white">
+              <div className="grid max-w-xl grid-cols-2 gap-[var(--phi-space-3)] border-t border-white/25 pt-[var(--phi-space-4)] text-white">
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   <span className="text-sm font-semibold">Same-Day Service</span>
@@ -177,12 +177,12 @@ export default function HomePage() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="scroll-mt-[112px] py-24 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal-on-scroll">
+       <section id="services" className="scroll-mt-[112px] phi-section bg-muted/30">
+        <div className="phi-container">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--phi-space-4)] mb-[var(--phi-space-5)] reveal-on-scroll">
             <div>
-              <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">Our Core Services</h2>
-              <p className="text-muted-foreground text-lg max-w-2xl">Expert solutions for every component of your garage door system.</p>
+               <h2 className="phi-section-title mb-4">Our Core Services</h2>
+               <p className="phi-copy text-muted-foreground text-lg leading-relaxed">Expert solutions for every component of your garage door system.</p>
             </div>
             <Button
               type="button"
@@ -197,9 +197,9 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <div id="services-grid" className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           <div id="services-grid" className="grid grid-cols-1 md:grid-cols-3 gap-[var(--phi-space-4)]">
             {visibleServices.map((service, i) => (
-              <div key={service.id} className="group bg-card border rounded-2xl p-8 hover-elevate transition-all duration-300 flex flex-col h-full reveal-on-scroll" style={{ transitionDelay: `${i * 100}ms` }}>
+               <div key={service.id} className="phi-card phi-card-interactive group bg-card border p-[var(--phi-space-4)] flex flex-col h-full reveal-on-scroll" style={{ transitionDelay: `${i * 100}ms` }}>
                 <div className="bg-primary/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary transition-colors">
                   <Wrench className="h-7 w-7" />
                 </div>
@@ -218,11 +218,11 @@ export default function HomePage() {
       </section>
 
       {/* GALLERY TEASER */}
-       <section id="work" className="scroll-mt-[112px] py-24 border-y bg-background">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-            <div className="text-center max-w-2xl mx-auto mb-16 reveal-on-scroll">
-              <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Recent Field Work</p>
-              <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight">Doors we’re proud to stand behind</h2>
+        <section id="work" className="scroll-mt-[112px] phi-section border-y bg-background">
+           <div className="phi-container">
+             <div className="text-center phi-copy mx-auto mb-[var(--phi-space-6)] reveal-on-scroll">
+               <p className="phi-eyebrow text-primary mb-3">Recent Field Work</p>
+               <h2 className="phi-section-title mx-auto">Doors we’re proud to stand behind</h2>
             </div>
              <div id="full-gallery-grid" className="gallery-grid reveal-on-scroll">
                {visibleGalleryImages.map((img, i) => (
@@ -251,13 +251,13 @@ export default function HomePage() {
       </section>
 
       {/* BEFORE & AFTER */}
-       <section id="before-after" className="scroll-mt-[112px] py-24 bg-muted/20 border-b">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal-on-scroll">
+        <section id="before-after" className="scroll-mt-[112px] phi-section bg-muted/20 border-b">
+         <div className="phi-container">
+           <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--phi-space-4)] mb-[var(--phi-space-5)] reveal-on-scroll">
             <div className="max-w-2xl">
-              <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Real Transformations</p>
-              <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">See the difference a new door makes</h2>
-              <p className="text-muted-foreground text-lg">Matched photographs show the same properties before and after their garage-door upgrades.</p>
+               <p className="phi-eyebrow text-primary mb-3">Real Transformations</p>
+               <h2 className="phi-section-title mb-4">See the difference a new door makes</h2>
+               <p className="text-muted-foreground text-lg leading-relaxed">Matched photographs show the same properties before and after their garage-door upgrades.</p>
             </div>
              {tasks && tasks.length > 2 && (
                <Button
@@ -274,9 +274,9 @@ export default function HomePage() {
              )}
           </div>
 
-           <div id="full-before-after-grid" className="grid grid-cols-1 lg:grid-cols-2 gap-6 reveal-on-scroll">
+           <div id="full-before-after-grid" className="phi-grid-wide reveal-on-scroll">
              {visibleBeforeAfterTasks.map((task) => (
-              <article key={task.id} className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+              <article key={task.id} className="phi-card overflow-hidden border bg-card shadow-sm">
                 <div className="grid grid-cols-2 h-56 sm:h-72">
                   <figure className="relative border-r">
                     <img src={task.beforeImageUrl} alt={`${task.title} before`} className="h-full w-full object-cover" loading="lazy" />
@@ -287,7 +287,7 @@ export default function HomePage() {
                     <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">After</span>
                   </figure>
                 </div>
-                <div className="p-6">
+                <div className="p-[var(--phi-space-4)]">
                   <h3 className="font-display text-xl font-bold">{task.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{task.description}</p>
                 </div>
@@ -298,8 +298,8 @@ export default function HomePage() {
       </section>
 
       {/* BOOKING */}
-       <section className="scroll-mt-[112px] py-24 bg-muted/20 border-b relative overflow-hidden" id="booking">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
+        <section className="scroll-mt-[112px] phi-section-tight bg-muted/20 border-b relative overflow-hidden" id="booking">
+         <div className="phi-container relative z-10">
           <div className="max-w-2xl mx-auto reveal-on-scroll">
             <BookingForm />
           </div>
@@ -307,24 +307,24 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="hidden py-24 bg-background border-b md:block" id="testimonials">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="max-w-2xl mb-12 reveal-on-scroll">
-            <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Customer Stories</p>
-            <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight mb-8">What our neighbors say</h2>
+       <section className="hidden phi-section bg-background border-b md:block" id="testimonials">
+         <div className="phi-container">
+           <div className="phi-copy mb-[var(--phi-space-5)] reveal-on-scroll">
+             <p className="phi-eyebrow text-primary mb-3">Customer Stories</p>
+             <h2 className="phi-section-title mb-8">What our neighbors say</h2>
           </div>
           <GoogleReviewsPresentation feed={googleFeed} isLoading={isLoadingReviews} isError={isErrorReviews} fallbackTestimonials={testimonials} />
         </div>
       </section>
 
       {/* FAQ */}
-       <section className="scroll-mt-[112px] py-24 bg-muted/10" id="faq">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+        <section className="scroll-mt-[112px] phi-section bg-muted/10" id="faq">
+         <div className="phi-container">
           <div className="max-w-4xl mx-auto reveal-on-scroll">
             <div className="flex items-end justify-between gap-5 mb-10">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Helpful Answers</p>
-                <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight">Frequently Asked Questions</h2>
+                 <p className="phi-eyebrow text-primary mb-3">Helpful Answers</p>
+                 <h2 className="phi-section-title">Frequently Asked Questions</h2>
               </div>
               <button
                 type="button"
@@ -395,11 +395,11 @@ function GoogleReviewsPresentation({
 }) {
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <div className="h-32 w-full bg-muted/30 animate-pulse rounded-3xl border border-border/50"></div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-[var(--phi-space-5)]">
+        <div className="phi-card h-32 w-full bg-muted/30 animate-pulse border border-border/50"></div>
+        <div className="phi-grid-cards">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 bg-muted/20 animate-pulse rounded-3xl border border-border/50"></div>
+            <div key={i} className="phi-card h-48 bg-muted/20 animate-pulse border border-border/50"></div>
           ))}
         </div>
       </div>
@@ -408,7 +408,7 @@ function GoogleReviewsPresentation({
 
   if (isError) {
     return (
-      <div className="text-center p-12 bg-muted/10 rounded-3xl border border-border/50 text-muted-foreground">
+      <div className="phi-card text-center p-[var(--phi-space-5)] bg-muted/10 border border-border/50 text-muted-foreground">
         Unable to load reviews.
       </div>
     );
@@ -420,9 +420,9 @@ function GoogleReviewsPresentation({
   if (isDisconnected || hasNoReviews) {
     if (fallbackTestimonials && fallbackTestimonials.length > 0) {
       return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-on-scroll">
+        <div className="phi-grid-cards reveal-on-scroll">
           {fallbackTestimonials.slice(0, 4).map((review) => (
-            <div key={review.id} className="bg-card border rounded-2xl p-7 shadow-sm hover-elevate flex flex-col">
+            <div key={review.id} className="phi-card bg-card border p-[var(--phi-space-4)] shadow-sm hover-elevate flex flex-col">
               <div className="flex gap-1 mb-5 text-[#FBBC04]">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
@@ -444,16 +444,16 @@ function GoogleReviewsPresentation({
       );
     }
     return (
-      <div className="text-center p-12 bg-muted/10 rounded-3xl border border-border/50 text-muted-foreground">
+      <div className="phi-card text-center p-[var(--phi-space-5)] bg-muted/10 border border-border/50 text-muted-foreground">
         No reviews available at this time.
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 reveal-on-scroll">
+    <div className="space-y-[var(--phi-space-6)] reveal-on-scroll">
       {/* Aggregate Header */}
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between rounded-3xl bg-card border p-5 sm:gap-8 sm:p-8 lg:p-10 shadow-sm relative overflow-hidden">
+      <div className="phi-card flex flex-col gap-[var(--phi-space-4)] md:flex-row md:items-center md:justify-between bg-card border p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] shadow-sm relative overflow-hidden">
         {feed.mode === 'demo' && (
           <div className="absolute top-0 right-0 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 border-b border-l border-primary/20">
             Preview Data
@@ -485,9 +485,9 @@ function GoogleReviewsPresentation({
       </div>
 
       {/* Reviews Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="phi-grid-cards">
         {feed.reviews.map((review) => (
-          <div key={review.id} className="bg-card border rounded-3xl p-8 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover-elevate flex flex-col relative group transition-all duration-300 hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)]">
+          <div key={review.id} className="phi-card bg-card border p-[var(--phi-space-4)] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover-elevate flex flex-col relative group transition-all duration-300 hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)]">
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-4">
                 {review.reviewerPhotoUrl ? (

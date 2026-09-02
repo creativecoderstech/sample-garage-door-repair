@@ -51,16 +51,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/20 flex flex-col items-center justify-center p-4">
-      <div className="mb-8 flex flex-col items-center">
-         <div className="bg-primary text-primary-foreground p-3 rounded-xl shadow-sm mb-4">
+    <div className="min-h-screen bg-muted/20 flex flex-col items-center justify-center p-[var(--phi-space-3)]">
+      <div className="mb-[var(--phi-space-5)] flex flex-col items-center text-center">
+         <div className="bg-primary text-primary-foreground p-3 rounded-[var(--phi-radius)] shadow-sm mb-[var(--phi-space-3)]">
             <Lock className="h-8 w-8" />
          </div>
-         <h1 className="text-2xl font-display font-bold tracking-tight">Ops Center Login</h1>
+         <h1 className="phi-section-title">Ops Center Login</h1>
          <p className="text-muted-foreground mt-1">Staff portal for Sample Garage Door Repair</p>
       </div>
 
-      <div className="w-full max-w-md bg-card border rounded-2xl p-8 shadow-sm">
+      <div className="phi-card w-full max-w-md bg-card border p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -80,7 +80,7 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full h-12 text-md font-bold" disabled={isLoading}>
+            <Button type="submit" className="phi-control w-full text-md font-bold" disabled={isLoading}>
               {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Access Dashboard"}
             </Button>
           </form>

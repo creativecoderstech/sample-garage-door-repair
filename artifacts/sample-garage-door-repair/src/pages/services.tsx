@@ -7,18 +7,18 @@ export default function ServicesPage() {
   const { data: services } = useListGarageServices();
 
   return (
-    <div className="min-h-screen bg-background noise-overlay py-20 lg:py-32">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="max-w-3xl mb-16">
-          <h1 className="font-display font-bold text-5xl md:text-6xl mb-6 tracking-tight">Our Services</h1>
+    <div className="min-h-screen bg-background noise-overlay phi-section">
+      <div className="phi-container">
+        <div className="phi-copy mb-[var(--phi-space-6)]">
+          <h1 className="phi-page-title mb-6">Our Services</h1>
           <p className="text-xl text-muted-foreground leading-relaxed">
             Professional repair and installation for every part of your garage door system.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[var(--phi-space-4)]">
           {services?.map((service) => (
-            <div key={service.id} className="group bg-card border rounded-2xl p-8 hover-elevate transition-all duration-300 flex flex-col h-full">
+            <div key={service.id} className="phi-card phi-card-interactive group bg-card border p-[var(--phi-space-4)] flex flex-col h-full">
               <div className="bg-primary/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary transition-colors">
                 <Wrench className="h-7 w-7" />
               </div>

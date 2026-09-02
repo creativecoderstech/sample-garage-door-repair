@@ -24,20 +24,20 @@ export default function BeforeAfterPage() {
   }, [tasks]);
 
   return (
-    <div className="min-h-screen bg-background noise-overlay py-20 lg:py-32">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="max-w-3xl mb-12 reveal-on-scroll">
-          <h1 className="font-display font-bold text-5xl md:text-6xl mb-6 tracking-tight">Before & After</h1>
+    <div className="min-h-screen bg-background noise-overlay phi-section">
+      <div className="phi-container">
+        <div className="phi-copy mb-[var(--phi-space-5)] reveal-on-scroll">
+          <h1 className="phi-page-title mb-6">Before & After</h1>
           <p className="text-xl text-muted-foreground leading-relaxed">
             Explore matched garage-door transformations photographed at the same properties before and after installation.
           </p>
-          <p className="mt-5 inline-flex rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
+            <p className="phi-eyebrow mt-5 inline-flex rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-primary">
             Matched online project photography
           </p>
         </div>
 
         {(!tasks || tasks.length === 0) ? (
-          <div className="text-center py-20 bg-card border rounded-2xl reveal-on-scroll">
+          <div className="phi-card text-center py-[var(--phi-space-6)] bg-card border reveal-on-scroll">
             <p className="text-muted-foreground">No before & after tasks available yet.</p>
           </div>
         ) : (

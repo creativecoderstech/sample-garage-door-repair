@@ -38,7 +38,7 @@ function Router() {
   return (
     <RoutedErrorBoundary>
       <ScrollPositionManager />
-      <div className="flex flex-col min-h-[100dvh]">
+      <div className="phi-app-shell flex flex-col">
         {!isAdmin && <SiteHeader />}
         <main className="flex-1 flex flex-col">
           <Switch>

@@ -215,9 +215,28 @@
   --app-font-display: 'Manrope', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
-  --radius: 0.75rem;
+  --radius: 0.809rem;
 
   --tracking-normal: -0.01em;
+
+  /* Golden-ratio design system
+   * A compact scale keeps hierarchy related without forcing every dimension
+   * to be mathematically exact. The base unit grows by phi (1.618). */
+  --phi: 1.61803398875;
+  --phi-inverse: 0.61803398875;
+  --phi-space-1: 0.5rem;
+  --phi-space-2: 0.809rem;
+  --phi-space-3: 1.309rem;
+  --phi-space-4: 2.118rem;
+  --phi-space-5: 3.427rem;
+  --phi-space-6: 5.545rem;
+  --phi-space-7: 8.972rem;
+  --phi-content: 68rem;
+  --phi-copy: 42rem;
+  --phi-section: clamp(3.427rem, 7vw, 5.545rem);
+  --phi-section-tight: clamp(2.118rem, 4vw, 3.427rem);
+    --phi-control: 2.75rem;
+  --phi-radius: 0.809rem;
 }
 
 [data-theme="trust"] {
@@ -391,6 +410,163 @@
 }
 
 @layer utilities {
+  /* Shared proportional primitives */
+  .phi-container {
+    width: 100%;
+    max-width: var(--phi-content);
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3.427rem);
+  }
+
+  .phi-copy {
+    max-width: var(--phi-copy);
+  }
+
+  .phi-section {
+    padding-block: var(--phi-section);
+  }
+
+  .phi-section-tight {
+    padding-block: var(--phi-section-tight);
+  }
+
+  .phi-section-title {
+    max-width: var(--phi-copy);
+    font-family: var(--app-font-display);
+    font-size: clamp(2rem, 3.2vw, 2.618rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .phi-page-title {
+    max-width: var(--phi-copy);
+    font-family: var(--app-font-display);
+    font-size: clamp(2.618rem, 5vw, 4.236rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .phi-hero-title {
+    max-width: 42rem;
+    font-family: var(--app-font-display);
+    font-size: clamp(2.618rem, 6.2vw, 6.854rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.055em;
+    text-wrap: balance;
+  }
+
+  .phi-eyebrow {
+    font-size: 0.694rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .phi-card {
+    border-radius: var(--phi-radius);
+    box-shadow: 0 1px 0 hsl(var(--border)), 0 16px 34px -26px rgba(15, 23, 42, 0.42);
+  }
+
+  .phi-grid-wide,
+  .phi-grid-cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--phi-space-4);
+  }
+
+  .phi-card-interactive {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .phi-card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1px 0 hsl(var(--border)), 0 24px 44px -28px rgba(15, 23, 42, 0.5);
+  }
+
+  .phi-field-grid {
+    gap: var(--phi-space-3);
+  }
+
+  .phi-control {
+    min-height: var(--phi-control);
+  }
+
+  .phi-app-shell {
+    min-height: 100dvh;
+  }
+
+  .phi-site-header {
+    min-height: 4.236rem;
+  }
+
+  .phi-site-footer {
+    padding-block: var(--phi-space-6);
+  }
+
+  .phi-hero {
+    min-height: clamp(36rem, 72vh, 48rem);
+  }
+
+  .phi-booking-card {
+    border-radius: var(--phi-radius);
+  }
+
+  .phi-booking-header {
+    padding: var(--phi-space-4) var(--phi-space-5);
+  }
+
+  .phi-admin-shell {
+    --admin-sidebar-width: 16.18rem;
+  }
+
+  .phi-admin-sidebar {
+    width: var(--admin-sidebar-width);
+  }
+
+  .phi-admin-main {
+    padding: clamp(1rem, 3vw, 3.427rem);
+  }
+
+  .phi-admin-header {
+    margin-bottom: var(--phi-space-5);
+    padding-bottom: var(--phi-space-4);
+  }
+
+  .phi-admin-section {
+    gap: var(--phi-space-4);
+  }
+
+  .phi-admin-card {
+    border-radius: var(--phi-radius);
+    box-shadow: 0 1px 0 rgba(148, 163, 184, 0.22), 0 16px 34px -26px rgba(15, 23, 42, 0.3);
+  }
+
+  .phi-admin-section {
+    row-gap: var(--phi-space-5);
+  }
+
+  .phi-admin-section > * + * {
+    margin-block-start: var(--phi-space-5);
+  }
+
+  .phi-admin-section :is(input, textarea, button, [role="combobox"]) {
+    min-height: var(--phi-control);
+  }
+
+  .phi-admin-section :is(.rounded-lg, .rounded-xl, .rounded-2xl) {
+    border-radius: var(--phi-radius);
+  }
+
+  .phi-admin-settings form {
+    gap: var(--phi-space-5);
+  }
+
   input[type='search']::-webkit-search-cancel-button {
     @apply hidden;
   }
@@ -506,13 +682,13 @@
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: var(--phi-space-2);
   }
 
   @media (min-width: 768px) {
     .gallery-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1rem;
+      gap: var(--phi-space-3);
     }
   }
 
@@ -524,17 +700,17 @@
 
   .gallery-tile {
     position: relative;
-    height: 14rem;
+     aspect-ratio: 1.618 / 1;
     margin: 0;
     overflow: hidden;
-    border-radius: 1rem;
+     border-radius: var(--phi-radius);
     background: hsl(var(--muted));
     box-shadow: 0 1px 0 hsl(var(--border)), 0 10px 28px -18px rgba(0, 0, 0, 0.35);
   }
 
   @media (min-width: 768px) {
     .gallery-tile {
-      height: 16rem;
+       aspect-ratio: 1.618 / 1;
     }
   }
 
@@ -566,19 +742,19 @@
   .ba-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: var(--phi-space-3);
   }
 
   @media (min-width: 900px) {
     .ba-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.5rem;
+      gap: var(--phi-space-4);
     }
   }
 
   .ba-card {
     overflow: hidden;
-    border-radius: 1.15rem;
+    border-radius: var(--phi-radius);
     background: hsl(var(--card));
     border: 1px solid hsl(var(--card-border));
     box-shadow: 0 12px 32px -24px rgba(0, 0, 0, 0.35);
@@ -587,14 +763,14 @@
   .ba-compare {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    height: 16rem;
+    aspect-ratio: 1.618 / 1;
     gap: 2px;
     background: hsl(var(--border));
   }
 
   @media (min-width: 768px) {
     .ba-compare {
-      height: 20rem;
+      aspect-ratio: 1.618 / 1;
     }
   }
 
@@ -639,7 +815,7 @@
   }
 
   .ba-meta {
-    padding: 1rem 1.1rem 1.15rem;
+    padding: var(--phi-space-3) var(--phi-space-3) var(--phi-space-4);
   }
   
   /* Magnetic hover effect for buttons */
@@ -661,5 +837,42 @@
   .focus-ring:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
+  }
+}
+
+@media (max-width: 1023px) {
+  .phi-hero {
+    min-height: max(36rem, calc(100svh - 6.854rem));
+  }
+}
+
+@media (min-width: 768px) {
+  .phi-grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .phi-grid-wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .phi-grid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

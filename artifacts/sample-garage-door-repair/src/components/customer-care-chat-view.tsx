@@ -48,7 +48,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         </div>
       )}
       <div
-        className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${
+        className={`phi-card max-w-[85%] p-[var(--phi-space-2)] shadow-sm ${
           message.role === "user"
             ? "rounded-tr-sm bg-primary text-primary-foreground"
             : "rounded-tl-sm border border-border bg-card text-card-foreground"
@@ -69,11 +69,11 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
     <div
       className={
         isFloating
-          ? "fixed bottom-3 left-3 right-3 z-50 flex max-w-[400px] flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl sm:bottom-6 sm:left-auto sm:right-6 sm:w-full"
-          : "flex h-[500px] flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
+          ? "phi-card fixed bottom-[var(--phi-space-2)] left-[var(--phi-space-2)] right-[var(--phi-space-2)] z-50 flex max-w-[25.956rem] flex-col overflow-hidden border bg-card shadow-2xl sm:bottom-[var(--phi-space-4)] sm:left-auto sm:right-[var(--phi-space-4)] sm:w-full"
+          : "phi-card flex h-[500px] flex-col overflow-hidden border bg-card shadow-sm"
       }
     >
-      <div className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
+      <div className="flex items-center justify-between bg-primary p-[var(--phi-space-3)] text-primary-foreground">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-primary-foreground/20 p-2">
             <span className="text-sm font-bold" aria-hidden="true">M</span>
@@ -95,15 +95,15 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         )}
       </div>
 
-      <ScrollArea className={`p-4 ${isFloating ? "h-[380px] bg-muted/10" : "flex-1"}`} ref={scrollRef}>
-        <div className="space-y-4">
+      <ScrollArea className={`p-[var(--phi-space-3)] ${isFloating ? "h-[380px] bg-muted/10" : "flex-1"}`} ref={scrollRef}>
+        <div className="space-y-[var(--phi-space-3)]">
           {chat.messages.map(renderMessage)}
           {chat.isPending && (
             <div className="flex gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                 <span className="text-xs font-bold text-secondary-foreground" aria-hidden="true">M</span>
               </div>
-              <div className="flex items-center rounded-2xl rounded-tl-sm border bg-card p-4 shadow-sm">
+              <div className="flex items-center rounded-[var(--phi-radius)] rounded-tl-sm border bg-card p-[var(--phi-space-3)] shadow-sm">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             </div>
@@ -121,7 +121,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         </div>
       )}
 
-      <form onSubmit={chat.sendMessage} className="flex gap-2 border-t bg-card p-3">
+      <form onSubmit={chat.sendMessage} className="flex gap-[var(--phi-space-2)] border-t bg-card p-[var(--phi-space-2)]">
         <Input
           value={chat.input}
           onChange={(event) => chat.setInput(event.target.value)}

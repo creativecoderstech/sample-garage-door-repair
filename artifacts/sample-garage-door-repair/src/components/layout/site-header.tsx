@@ -79,11 +79,11 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-background/[0.97] backdrop-blur-xl border-b border-border shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-3 sm:py-4 flex items-center justify-between gap-3">
+      <header className="phi-site-header sticky top-0 z-50 bg-background/[0.97] backdrop-blur-xl border-b border-border shadow-sm">
+        <div className="phi-container flex items-center justify-between gap-3 py-3 sm:py-4">
           <div className="flex items-center group min-w-0">
             <Link href="/" className="flex items-center gap-2 lg:group-hover:scale-105 transition-transform">
-              <div className="bg-primary text-primary-foreground p-1.5 rounded-lg">
+              <div className="bg-primary text-primary-foreground p-2 rounded-[var(--phi-radius)]">
                 <Wrench className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <span className="font-display font-bold text-lg sm:text-xl truncate tracking-tight">
@@ -91,7 +91,7 @@ export function SiteHeader() {
               </span>
             </Link>
           </div>
-          <nav className="hidden lg:flex items-center gap-7">
+          <nav className="hidden lg:flex items-center gap-[var(--phi-space-4)]">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.id}
@@ -120,7 +120,7 @@ export function SiteHeader() {
             <Button
               asChild
               size="sm"
-              className="font-display font-bold h-10 px-3 sm:px-5 shadow-md glow-primary"
+               className="phi-control font-display font-bold px-3 sm:px-5 shadow-md glow-primary"
             >
               <Link
                 href={getPublicSectionRouterHref("booking")}
@@ -132,7 +132,7 @@ export function SiteHeader() {
             </Button>
             {/* Hamburger — mobile only */}
             <button
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-md border border-border bg-background/80 text-foreground hover:bg-muted transition-colors"
+              className="phi-control lg:hidden flex items-center justify-center w-[var(--phi-control)] rounded-[var(--phi-radius)] border border-border bg-background/80 text-foreground hover:bg-muted transition-colors"
               aria-label="Open navigation menu"
               aria-expanded={drawerOpen}
               aria-controls="mobile-nav-drawer"
@@ -149,7 +149,7 @@ export function SiteHeader() {
         <SheetContent
           id="mobile-nav-drawer"
           side="right"
-          className="flex flex-col pt-12 pb-8 px-6 w-72 sm:max-w-xs"
+           className="flex flex-col pt-12 pb-8 px-6 w-72 sm:max-w-xs"
         >
           <SheetTitle className="sr-only">Navigation</SheetTitle>
 

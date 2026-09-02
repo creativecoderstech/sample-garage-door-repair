@@ -79,7 +79,7 @@ const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> 
   users: { title: 'Users', description: 'Manage staff access and operating roles.' },
 };
 
-const adminCardClass = 'rounded-2xl border-2 border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900';
+const adminCardClass = 'phi-admin-card border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900';
 
 export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>(() => {
@@ -127,7 +127,7 @@ export default function AdminPage() {
 
   const SidebarContent = () => (
     <>
-      <div className="p-6 pb-5">
+      <div className="p-[var(--phi-space-4)] pb-[var(--phi-space-3)]">
         <div className="flex items-center gap-3">
           <div className="bg-primary text-primary-foreground p-2 rounded-full shadow-sm">
             <Building2 className="w-5 h-5" />
@@ -139,15 +139,15 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="px-4 mb-6">
-        <div className="bg-orange-50/70 dark:bg-orange-950/20 rounded-2xl p-4 border-2 border-orange-100 dark:border-orange-900/40">
+      <div className="px-[var(--phi-space-3)] mb-[var(--phi-space-4)]">
+        <div className="phi-admin-card bg-orange-50/70 dark:bg-orange-950/20 p-[var(--phi-space-3)] border-2 border-orange-100 dark:border-orange-900/40">
           <div className="text-[10px] font-bold uppercase text-slate-500 mb-1 tracking-wider">Owner Workspace</div>
           <div className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">Admin User</div>
           <div className="text-xs text-slate-500 truncate mt-0.5">admin@summitgaragedoor.demo</div>
         </div>
       </div>
 
-      <ScrollArea className="flex-1 px-4 pb-6">
+      <ScrollArea className="flex-1 px-[var(--phi-space-3)] pb-[var(--phi-space-4)]">
         {navGroups.map((group, idx) => (
           <div key={group.title} className={idx > 0 ? "mt-6" : ""}>
             <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-3">
@@ -202,7 +202,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-[100dvh] bg-[#f8fafc] dark:bg-slate-950 flex flex-col md:flex-row w-full font-sans">
+    <div className="phi-admin-shell min-h-[100dvh] bg-[#f8fafc] dark:bg-slate-950 flex flex-col md:flex-row w-full font-sans">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
         <div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ export default function AdminPage() {
       </div>
 
       {/* Sidebar (Desktop) */}
-      <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-[100dvh] sticky top-0 shrink-0">
+      <aside className="phi-admin-sidebar hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-[100dvh] sticky top-0 shrink-0">
         <SidebarContent />
       </aside>
 
@@ -225,7 +225,7 @@ export default function AdminPage() {
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-slate-900/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}>
           <aside 
-            className="w-64 bg-white dark:bg-slate-900 h-full border-r border-slate-200 dark:border-slate-800 shadow-xl flex flex-col" 
+             className="phi-admin-sidebar bg-white dark:bg-slate-900 h-full border-r border-slate-200 dark:border-slate-800 shadow-xl flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             <SidebarContent />
@@ -234,8 +234,8 @@ export default function AdminPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-x-hidden p-4 sm:p-7 lg:p-10">
-        <div className="max-w-6xl">
+      <main className="phi-admin-main flex-1 overflow-x-hidden">
+        <div className="w-full max-w-[var(--phi-content)]">
           <AdminPageHeader title={ADMIN_PAGE_COPY[tab].title} description={ADMIN_PAGE_COPY[tab].description} />
         {tab === 'overview' ? <OverviewTab setTab={setTab} pendingCount={pendingCount} dashboard={dashboard} /> :
          tab === 'settings' ? <AdminSettingsPage /> :
@@ -257,7 +257,7 @@ export default function AdminPage() {
 
 function AdminPageHeader({ title, description }: { title: string; description: string }) {
   return (
-    <header className="mb-8 flex flex-col gap-5 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+    <header className="phi-admin-header flex flex-col gap-[var(--phi-space-3)] border-b border-slate-200 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
       <div>
         <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Summit Garage Door Co.</p>
         <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">{title}</h1>
@@ -281,7 +281,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
   const recentChats = chats?.length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--phi-space-4)]">
       <AdminSectionHeader
         eyebrow="Today at Summit"
         title="Business pulse"
@@ -289,7 +289,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
         count={`${pendingCount} open request${pendingCount === 1 ? "" : "s"}`}
       />
       {/* Hero Banner */}
-      <div className="bg-[#1e293b] rounded-2xl p-8 sm:p-10 text-white relative overflow-hidden mb-8 shadow-sm">
+      <div className="phi-admin-card bg-[#1e293b] p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] text-white relative overflow-hidden mb-[var(--phi-space-5)]">
         <div className="relative z-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium text-white/90 mb-6 backdrop-blur-md uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Today at Summit
@@ -312,7 +312,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-[var(--phi-space-3)] mb-[var(--phi-space-5)]">
         <OverviewCard 
           icon={<Inbox className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />}
           iconBg="bg-emerald-50 dark:bg-emerald-950"
@@ -340,7 +340,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
       </div>
 
       {/* Lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--phi-space-3)]">
         {/* Needs a response list */}
         <ListCard 
           icon={<Inbox className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />}
@@ -387,7 +387,7 @@ function OverviewCard({ icon, iconBg, title, value, description, onClick }: any)
   return (
     <div 
       onClick={onClick}
-      className={`${adminCardClass} p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between min-h-[150px]`}
+      className={`${adminCardClass} phi-card-interactive p-[var(--phi-space-3)] cursor-pointer group flex flex-col justify-between min-h-[150px]`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className={`w-9 h-9 rounded-full flex items-center justify-center ${iconBg}`}>
@@ -442,7 +442,7 @@ function AdminSectionHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+    <div className="phi-admin-section flex flex-col border-b border-slate-200 pb-[var(--phi-space-3)] sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{eyebrow}</p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -458,9 +458,9 @@ function AdminSectionHeader({
 
 function AdminStatStrip({ stats }: { stats: { label: string; value: string | number; detail: string; tone?: "default" | "success" | "warning" }[] }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-[var(--phi-space-2)] sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
-        <div key={stat.label} className={`${adminCardClass} p-4`}>
+        <div key={stat.label} className={`${adminCardClass} p-[var(--phi-space-3)]`}>
           <div className="flex items-start justify-between gap-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{stat.label}</p>
             <span className={`h-2 w-2 rounded-full ${stat.tone === "success" ? "bg-emerald-500" : stat.tone === "warning" ? "bg-amber-500" : "bg-primary"}`} />
@@ -626,7 +626,7 @@ function ReviewsAdmin() {
   const [showConnectDialog, setShowConnectDialog] = useState(false);
 
   return (
-    <div className="space-y-8">
+    <div className="phi-admin-section">
       <AdminSectionHeader
         eyebrow="Reputation"
         title="Reviews"
@@ -873,7 +873,7 @@ function ContentModuleAdmin({
   const imageIndex = imageField ? fields.indexOf(imageField) : -1;
 
   return (
-    <section className="space-y-6">
+    <section className="phi-admin-section">
       <AdminSectionHeader
         eyebrow={eyebrow}
         title={title}
@@ -1070,7 +1070,7 @@ function ServiceRequestsAdmin() {
   }
 
   return (
-    <div className="space-y-7">
+    <div className="phi-admin-section">
       <AdminSectionHeader
         eyebrow="Today · Lead pipeline"
         title="Service requests"
@@ -1186,7 +1186,7 @@ function BookingsAdmin({ setTab }: { setTab: (tab: AdminTab) => void }) {
   const { data: bookings } = useListBookings();
   
   return (
-    <div className="space-y-6">
+    <div className="phi-admin-section">
       <AdminSectionHeader
         eyebrow="Today · Schedule"
         title="Confirmed appointments"
@@ -1269,7 +1269,7 @@ function FaqsAdmin() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="phi-admin-section">
       <AdminSectionHeader
         eyebrow="Website content · Safety answers"
         title="Published questions"
@@ -1384,7 +1384,7 @@ function TasksAdmin() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="phi-admin-section">
       <AdminSectionHeader
         eyebrow="Website content · Proof of work"
         title="Project transformations"

@@ -29,12 +29,12 @@ export function ThemeSwatch() {
   }, [isOpen]);
 
   return (
-    <div ref={panelRef} className="fixed bottom-24 right-4 z-[60] sm:right-6">
+    <div ref={panelRef} className="phi-theme-swatch fixed bottom-[calc(var(--phi-space-6)+var(--phi-space-3))] right-[var(--phi-space-3)] z-[60] sm:right-[var(--phi-space-4)]">
       {isOpen && (
         <div
           role="dialog"
           aria-label="Choose a website theme"
-          className="absolute bottom-14 right-0 w-[min(calc(100vw-2rem),22rem)] overflow-hidden rounded-2xl border bg-card p-3 text-card-foreground shadow-2xl"
+          className="phi-card absolute bottom-[var(--phi-space-5)] right-0 w-[min(calc(100vw-2rem),22rem)] overflow-hidden border bg-card p-[var(--phi-space-3)] text-card-foreground shadow-2xl"
         >
           <div className="flex items-start justify-between gap-4 border-b pb-3">
             <div>
@@ -62,7 +62,7 @@ export function ThemeSwatch() {
                   type="button"
                   onClick={() => setTheme(option.id)}
                   aria-pressed={isSelected}
-                  className={`flex w-full items-center gap-3 rounded-xl border p-2.5 text-left transition-colors ${
+                  className={`flex w-full items-center gap-3 rounded-[var(--phi-radius)] border p-[var(--phi-space-2)] text-left transition-colors ${
                     isSelected
                       ? "border-primary bg-primary/10"
                       : "border-transparent hover:border-border hover:bg-muted/60"
@@ -94,7 +94,7 @@ export function ThemeSwatch() {
         aria-expanded={isOpen}
         aria-label={isOpen ? "Close theme picker" : "Open theme picker"}
         title="Preview website themes"
-        className="flex h-11 w-11 items-center justify-center rounded-full border bg-background text-foreground shadow-lg transition-transform hover:scale-105 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="phi-control flex w-[var(--phi-control)] items-center justify-center rounded-full border bg-background text-foreground shadow-lg transition-transform hover:scale-105 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <Palette className="h-5 w-5" aria-hidden="true" />
       </button>
