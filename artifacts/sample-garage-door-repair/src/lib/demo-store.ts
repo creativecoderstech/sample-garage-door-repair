@@ -74,25 +74,42 @@ export interface Task {
 const defaultTasks: Task[] = [
   {
     id: "1",
+    title: "Modern Wood-Look Upgrade",
+    description: "The same garage transformed from a weathered white panel door to a warm contemporary wood-look design.",
+    beforeImageUrl: "/images/garage/before-after/modern-wood-before.jpg",
+    afterImageUrl: "/images/garage/before-after/modern-wood-after.jpg"
+  },
+  {
+    id: "2",
+    title: "Carriage-House Door Refresh",
+    description: "The same two-bay garage updated from dated red doors to bright carriage-house doors with decorative hardware.",
+    beforeImageUrl: "/images/garage/before-after/carriage-house-before.jpg",
+    afterImageUrl: "/images/garage/before-after/carriage-house-after.jpg"
+  }
+];
+
+const mismatchedDefaultTasks: Task[] = [
+  {
+    id: "1",
     title: "Classic to Contemporary",
     description: "A representative upgrade from a basic white door to a clean, modern glass-panel design.",
     beforeImageUrl: "/images/garage/classic-white-door.jpg",
-    afterImageUrl: "/images/garage/modern-white-home.jpg"
+    afterImageUrl: "/images/garage/modern-white-home.jpg",
   },
   {
     id: "2",
     title: "Curb Appeal Refresh",
     description: "A representative transformation from an aging single-bay door to a coordinated two-door exterior.",
     beforeImageUrl: "/images/garage/before-after/brick-brown-door.jpg",
-    afterImageUrl: "/images/garage/before-after/double-door-planters.jpg"
+    afterImageUrl: "/images/garage/before-after/double-door-planters.jpg",
   },
   {
     id: "3",
     title: "Modern Black Door Upgrade",
     description: "A representative style upgrade showing how a dark insulated door can sharpen a home's exterior.",
     beforeImageUrl: "/images/garage/evening-home.jpg",
-    afterImageUrl: "/images/garage/before-after/modern-dark-door.jpg"
-  }
+    afterImageUrl: "/images/garage/before-after/modern-dark-door.jpg",
+  },
 ];
 
 const previousDefaultTasks: Task[] = [
@@ -120,49 +137,36 @@ const legacyDefaultTask: Task = {
   afterImageUrl: "https://images.unsplash.com/photo-1622473590773-f58813470716?w=800&q=80",
 };
 
+const isSameTask = (task: Task, seed: Task) =>
+  task.id === seed.id &&
+  task.title === seed.title &&
+  task.description === seed.description &&
+  task.beforeImageUrl === seed.beforeImageUrl &&
+  task.afterImageUrl === seed.afterImageUrl;
+
 export function useListTasks() {
   return useQuery({
     queryKey: ["demo-tasks"],
     queryFn: () => {
       const tasks = getStorage<Task[]>("tasks", defaultTasks);
       let didUpgrade = false;
-      const upgraded = tasks.map((task) => {
-        if (
-          task.id === legacyDefaultTask.id &&
-          task.title === legacyDefaultTask.title &&
-          task.description === legacyDefaultTask.description &&
-          task.beforeImageUrl === legacyDefaultTask.beforeImageUrl &&
-          task.afterImageUrl === legacyDefaultTask.afterImageUrl
-        ) {
+      const upgraded = tasks.flatMap((task) => {
+        if (isSameTask(task, legacyDefaultTask)) {
           didUpgrade = true;
-          return defaultTasks[0];
+          return [defaultTasks[0]];
         }
-        const previousDefaultIndex = previousDefaultTasks.findIndex((previous) =>
-          task.id === previous.id &&
-          task.title === previous.title &&
-          task.description === previous.description &&
-          task.beforeImageUrl === previous.beforeImageUrl &&
-          task.afterImageUrl === previous.afterImageUrl
-        );
+        const previousDefaultIndex = previousDefaultTasks.findIndex((previous) => isSameTask(task, previous));
         if (previousDefaultIndex !== -1) {
           didUpgrade = true;
-          return defaultTasks[previousDefaultIndex];
+          return [defaultTasks[previousDefaultIndex]];
         }
-        return task;
+        const mismatchedDefaultIndex = mismatchedDefaultTasks.findIndex((previous) => isSameTask(task, previous));
+        if (mismatchedDefaultIndex !== -1) {
+          didUpgrade = true;
+          return mismatchedDefaultIndex < defaultTasks.length ? [defaultTasks[mismatchedDefaultIndex]] : [];
+        }
+        return [task];
       });
-      const containedAllPreviousDefaults = previousDefaultTasks.every((previous) =>
-        tasks.some((task) =>
-          task.id === previous.id &&
-          task.title === previous.title &&
-          task.description === previous.description &&
-          task.beforeImageUrl === previous.beforeImageUrl &&
-          task.afterImageUrl === previous.afterImageUrl
-        )
-      );
-      if (containedAllPreviousDefaults && !upgraded.some((task) => task.id === defaultTasks[2].id)) {
-        upgraded.push(defaultTasks[2]);
-        didUpgrade = true;
-      }
       if (didUpgrade) {
         setStorage("tasks", upgraded);
       }

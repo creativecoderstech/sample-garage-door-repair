@@ -29,10 +29,10 @@ export default function BeforeAfterPage() {
         <div className="max-w-3xl mb-12 reveal-on-scroll">
           <h1 className="font-display font-bold text-5xl md:text-6xl mb-6 tracking-tight">Before & After</h1>
           <p className="text-xl text-muted-foreground leading-relaxed">
-            Explore representative garage-door upgrades, from dated exteriors to clean, modern finishes.
+            Explore matched garage-door transformations photographed at the same properties before and after installation.
           </p>
           <p className="mt-5 inline-flex rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
-            Stock photography represents typical project outcomes
+            Matched online project photography
           </p>
         </div>
 
