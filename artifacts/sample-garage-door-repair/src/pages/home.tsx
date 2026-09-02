@@ -211,73 +211,77 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* BOOKING & FAQ GRID */}
-      <section className="py-24 bg-muted/10 relative overflow-hidden" id="booking-faq">
+      {/* BOOKING */}
+      <section className="py-24 bg-muted/20 border-b relative overflow-hidden" id="booking">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
-            
-            {/* Left: Booking Form */}
-            <div className="lg:col-span-5 xl:col-span-4" id="booking">
-              <div className="reveal-on-scroll sticky top-28">
-                <BookingForm />
-              </div>
-            </div>
+          <div className="max-w-2xl mx-auto reveal-on-scroll">
+            <BookingForm />
+          </div>
+        </div>
+      </section>
 
-            {/* Right: FAQ & Reviews */}
-            <div className="lg:col-span-7 xl:col-span-8 space-y-16">
-              
-              <div className="reveal-on-scroll" id="testimonials">
-                <h3 className="font-display font-bold text-3xl mb-8">What our neighbors say</h3>
-                <div className="grid sm:grid-cols-2 gap-6">
-                  {testimonials?.slice(0, 4).map((review) => (
-                    <div key={review.id} className="bg-card border rounded-2xl p-6 shadow-sm hover-elevate">
-                      <div className="flex gap-1 mb-4 text-primary">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-muted stroke-current'}`} />
-                        ))}
-                      </div>
-                      <p className="text-muted-foreground leading-relaxed mb-6">"{review.quote}"</p>
-                      <div className="mt-auto flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold font-display">
-                          {review.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm">{review.name}</p>
-                          <p className="text-xs text-muted-foreground">{review.city} • {review.service}</p>
-                        </div>
-                      </div>
-                    </div>
+      {/* TESTIMONIALS */}
+      <section className="py-24 bg-background border-b" id="testimonials">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="max-w-2xl mb-12 reveal-on-scroll">
+            <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Customer Stories</p>
+            <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight">What our neighbors say</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-on-scroll">
+            {testimonials?.slice(0, 4).map((review) => (
+              <div key={review.id} className="bg-card border rounded-2xl p-7 shadow-sm hover-elevate flex flex-col">
+                <div className="flex gap-1 mb-5 text-primary">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-muted stroke-current'}`} />
                   ))}
                 </div>
-              </div>
-
-              <div className="reveal-on-scroll" id="faq">
-                <div className="flex items-end justify-between gap-5 mb-8">
-                  <h3 className="font-display font-bold text-3xl">Frequently Asked Questions</h3>
-                  <Link href="/faqs" className="hidden sm:inline-flex text-sm font-bold text-primary hover:underline">View all FAQs</Link>
-                </div>
-                <div className="space-y-3">
-                  {faqs?.map((faq) => (
-                    <div 
-                      key={faq.id} 
-                      className={`border rounded-xl bg-card overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'shadow-md border-primary/30' : 'hover:border-border/80'}`}
-                    >
-                      <button
-                        className="w-full px-6 py-5 flex items-center justify-between text-left font-bold"
-                        onClick={() => setActiveFaq(activeFaq === faq.id ? null : faq.id)}
-                      >
-                        {faq.question}
-                        <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${activeFaq === faq.id ? 'rotate-180 text-primary' : ''}`} />
-                      </button>
-                      <div className={`px-6 overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
-                      </div>
-                    </div>
-                  ))}
+                <p className="text-muted-foreground leading-relaxed mb-7">"{review.quote}"</p>
+                <div className="mt-auto flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold font-display">
+                    {review.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">{review.name}</p>
+                    <p className="text-xs text-muted-foreground">{review.city} • {review.service}</p>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      {/* FAQ */}
+      <section className="py-24 bg-muted/10" id="faq">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="max-w-4xl mx-auto reveal-on-scroll">
+            <div className="flex items-end justify-between gap-5 mb-10">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Helpful Answers</p>
+                <h2 className="font-display font-bold text-4xl md:text-5xl tracking-tight">Frequently Asked Questions</h2>
+              </div>
+              <Link href="/faqs" className="hidden sm:inline-flex text-sm font-bold text-primary hover:underline shrink-0">View all FAQs</Link>
             </div>
+            <div className="space-y-3">
+              {faqs?.map((faq) => (
+                <div 
+                  key={faq.id} 
+                  className={`border rounded-xl bg-card overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'shadow-md border-primary/30' : 'hover:border-border/80'}`}
+                >
+                  <button
+                    className="w-full px-6 py-5 flex items-center justify-between text-left font-bold"
+                    onClick={() => setActiveFaq(activeFaq === faq.id ? null : faq.id)}
+                  >
+                    {faq.question}
+                    <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${activeFaq === faq.id ? 'rotate-180 text-primary' : ''}`} />
+                  </button>
+                  <div className={`px-6 overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/faqs" className="sm:hidden mt-7 inline-flex text-sm font-bold text-primary hover:underline">View all FAQs</Link>
           </div>
         </div>
       </section>
