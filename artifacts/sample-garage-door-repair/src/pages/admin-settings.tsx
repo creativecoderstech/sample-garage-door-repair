@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { ShieldAlert, Store, Palette, Save, Loader2, Images } from "lucide-react";
+import { ShieldAlert, Store, Palette, Save, Loader2, Images, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -45,12 +45,117 @@ const settingsSchema = z.object({
 type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 const THEMES = [
-  { id: "industrial", name: "Industrial", desc: "Bold orange & dark gray. Maximum contrast.", color: "bg-orange-500" },
-  { id: "trust", name: "Trust", desc: "Professional blue & clean white. Reassuring.", color: "bg-blue-600" },
-  { id: "eco", name: "Eco", desc: "Forest green & natural tones. Sustainable.", color: "bg-green-600" },
-  { id: "modern", name: "Modern", desc: "Stark black & white with red hits. Minimal.", color: "bg-black" },
-  { id: "classic", name: "Classic", desc: "Navy blue & gold. Traditional service.", color: "bg-slate-800" },
+  {
+    id: "industrial",
+    name: "Industrial",
+    desc: "Bold orange & dark gray. Maximum contrast.",
+    mood: "Confident and action-oriented",
+    preview: {
+      background: "hsl(40 10% 98%)",
+      foreground: "hsl(220 15% 15%)",
+      card: "hsl(0 0% 100%)",
+      primary: "hsl(24 95% 53%)",
+      secondary: "hsl(220 15% 15%)",
+      accent: "hsl(24 95% 53%)",
+      border: "hsl(220 10% 85%)",
+    },
+  },
+  {
+    id: "trust",
+    name: "Trust",
+    desc: "Professional blue & clean white. Reassuring.",
+    mood: "Clear and dependable",
+    preview: {
+      background: "hsl(210 20% 98%)",
+      foreground: "hsl(222 47% 11%)",
+      card: "hsl(0 0% 100%)",
+      primary: "hsl(221 83% 53%)",
+      secondary: "hsl(210 40% 96.1%)",
+      accent: "hsl(210 40% 96.1%)",
+      border: "hsl(214.3 31.8% 91.4%)",
+    },
+  },
+  {
+    id: "eco",
+    name: "Eco",
+    desc: "Forest green & natural tones. Sustainable.",
+    mood: "Warm and grounded",
+    preview: {
+      background: "hsl(120 10% 98%)",
+      foreground: "hsl(120 20% 15%)",
+      card: "hsl(0 0% 100%)",
+      primary: "hsl(142 40% 40%)",
+      secondary: "hsl(30 20% 92%)",
+      accent: "hsl(142 40% 40%)",
+      border: "hsl(120 10% 85%)",
+    },
+  },
+  {
+    id: "modern",
+    name: "Modern",
+    desc: "Stark black & white with red hits. Minimal.",
+    mood: "Sharp and contemporary",
+    preview: {
+      background: "hsl(0 0% 100%)",
+      foreground: "hsl(0 0% 0%)",
+      card: "hsl(0 0% 98%)",
+      primary: "hsl(0 0% 0%)",
+      secondary: "hsl(0 0% 90%)",
+      accent: "hsl(0 90% 50%)",
+      border: "hsl(0 0% 90%)",
+    },
+  },
+  {
+    id: "classic",
+    name: "Classic",
+    desc: "Navy blue & gold. Traditional service.",
+    mood: "Established and welcoming",
+    preview: {
+      background: "hsl(40 10% 98%)",
+      foreground: "hsl(220 30% 20%)",
+      card: "hsl(0 0% 100%)",
+      primary: "hsl(220 40% 25%)",
+      secondary: "hsl(45 90% 60%)",
+      accent: "hsl(45 90% 60%)",
+      border: "hsl(220 10% 85%)",
+    },
+  },
 ];
+
+type ThemeOption = (typeof THEMES)[number];
+
+function ThemePreview({ theme }: { theme: ThemeOption }) {
+  const { preview } = theme;
+  return (
+    <div
+      className="mt-4 overflow-hidden rounded-lg border shadow-sm"
+      style={{ backgroundColor: preview.background, color: preview.foreground, borderColor: preview.border }}
+      aria-label={`${theme.name} color preview`}
+    >
+      <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: preview.primary, color: "#fff" }}>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: preview.accent }} />
+          <span className="text-[10px] font-bold tracking-wide">YOUR BUSINESS</span>
+        </div>
+        <span className="text-[9px] font-medium opacity-80">Services · Contact</span>
+      </div>
+      <div className="grid grid-cols-[1.35fr_1fr] gap-2 p-3">
+        <div>
+          <div className="mb-1 h-1.5 w-4/5 rounded-full" style={{ backgroundColor: preview.foreground, opacity: 0.9 }} />
+          <div className="mb-2 h-1.5 w-3/5 rounded-full" style={{ backgroundColor: preview.foreground, opacity: 0.45 }} />
+          <span className="inline-flex rounded px-2 py-1 text-[9px] font-bold" style={{ backgroundColor: preview.primary, color: "#fff" }}>
+            Book Service
+          </span>
+        </div>
+        <div className="rounded border p-2" style={{ backgroundColor: preview.card, borderColor: preview.border }}>
+          <div className="mb-2 h-2 w-3/5 rounded-full" style={{ backgroundColor: preview.foreground, opacity: 0.75 }} />
+          <div className="h-1.5 w-full rounded-full" style={{ backgroundColor: preview.secondary }} />
+          <div className="mt-1.5 h-1.5 w-4/5 rounded-full" style={{ backgroundColor: preview.accent, opacity: 0.8 }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminSettingsPage() {
   const { data: settings, isLoading } = useGetBusinessSettings();
@@ -123,6 +228,8 @@ export default function AdminSettingsPage() {
       </div>
     );
   }
+
+  const selectedTheme = form.watch("theme");
 
   return (
     <div>
@@ -242,16 +349,35 @@ export default function AdminSettingsPage() {
                         className="grid grid-cols-1 md:grid-cols-2 gap-4"
                       >
                         {THEMES.map((theme) => (
-                          <FormItem key={theme.id} className="flex items-center space-x-0 space-y-0 relative">
+                          <FormItem key={theme.id} className="relative flex items-center space-x-0 space-y-0">
                             <FormControl>
-                              <RadioGroupItem value={theme.id} className="peer sr-only" />
+                              <RadioGroupItem
+                                value={theme.id}
+                                className="peer sr-only"
+                                aria-label={`Use ${theme.name} theme`}
+                              />
                             </FormControl>
-                            <FormLabel className="w-full flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 hover:bg-muted/50 transition-all">
-                              <div className={`w-6 h-6 rounded-full shrink-0 ${theme.color} shadow-sm border border-black/10`} />
-                              <div>
-                                <span className="font-bold block">{theme.name}</span>
-                                <span className="text-sm text-muted-foreground font-normal">{theme.desc}</span>
+                            <FormLabel className="w-full cursor-pointer rounded-xl border-2 p-4 transition-all hover:bg-muted/50 peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
+                              <div className="flex items-start gap-3">
+                                <div className="flex shrink-0 gap-1 rounded-full border border-black/10 bg-background p-1 shadow-sm" aria-hidden="true">
+                                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.preview.primary }} />
+                                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.preview.secondary }} />
+                                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.preview.accent }} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="font-bold">{theme.name}</span>
+                                    {selectedTheme === theme.id && (
+                                      <span className="inline-flex items-center gap-1 text-xs font-bold text-primary">
+                                        <CheckCircle2 className="h-3.5 w-3.5" /> Selected
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="mt-0.5 block text-sm font-normal text-muted-foreground">{theme.desc}</span>
+                                  <span className="mt-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">{theme.mood}</span>
+                                </div>
                               </div>
+                              <ThemePreview theme={theme} />
                             </FormLabel>
                           </FormItem>
                         ))}
