@@ -30,10 +30,21 @@ import AdminSettingsPage from './admin-settings';
 import { 
   useListFaqs, useSaveFaq, useDeleteFaq, 
   useListTasks, useSaveTask, useDeleteTask, 
-  useListBookings, useListChatInquiries 
+  useListBookings, useListChatInquiries,
+  type FAQ, type Task,
 } from '@/lib/demo-store';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const TIME_WINDOW_LABELS: Record<string, string> = {
   morning: 'Morning (8am - 12pm)',
@@ -548,6 +559,58 @@ type ContentRow = {
   values: string[];
 };
 
+function AdminImagePreview({ src, alt }: { src: string; alt: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-2 text-center text-[10px] font-medium text-slate-400 dark:border-slate-700 dark:bg-slate-950">
+        Image unavailable
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="h-16 w-24 shrink-0 rounded-lg border border-slate-200 bg-slate-100 object-cover dark:border-slate-700 dark:bg-slate-800"
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
+function DeleteConfirmationDialog({
+  open,
+  itemLabel,
+  onOpenChange,
+  onConfirm,
+}: {
+  open: boolean;
+  itemLabel: string;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this item?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently remove “{itemLabel}” from this browser’s demo state. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction className="bg-red-600 text-white hover:bg-red-700" onClick={onConfirm}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 function ContentModuleAdmin({
   storageKey,
   title,
@@ -568,6 +631,7 @@ function ContentModuleAdmin({
     return defaults.map((values, index) => ({ id: `${storageKey}-${index}`, values }));
   });
   const [draft, setDraft] = useState<string[] | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ContentRow | null>(null);
 
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(rows));
@@ -619,17 +683,35 @@ function ContentModuleAdmin({
               {row.values.map((value, index) => (
                 <div key={`${row.id}-${fields[index]}`}>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{fields[index]}</p>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white break-all">{value}</p>
+                  {fields[index].toLowerCase().includes('image') ? (
+                    <div className="flex min-w-0 items-center gap-3">
+                      <AdminImagePreview src={value} alt={`${row.values[0] || title} preview`} />
+                      <p className="min-w-0 text-sm font-medium text-slate-900 dark:text-white break-all">{value}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm font-medium text-slate-900 dark:text-white break-all">{value}</p>
+                  )}
                 </div>
               ))}
             </div>
-            <Button size="icon" variant="ghost" aria-label={`Delete ${title} item`} onClick={() => setRows((current) => current.filter((item) => item.id !== row.id))}>
+            <Button size="icon" variant="ghost" aria-label={`Delete ${title} item`} title={`Delete ${title} item`} onClick={() => setDeleteTarget(row)}>
               <Trash2 className="w-4 h-4 text-red-500" />
             </Button>
           </div>
         ))}
         {rows.length === 0 && <EmptyState title={`No ${title.toLowerCase()} yet`} description="Add your first item to get started." />}
       </div>
+      <DeleteConfirmationDialog
+        open={Boolean(deleteTarget)}
+        itemLabel={deleteTarget?.values[0] || title}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          setRows((current) => current.filter((item) => item.id !== deleteTarget.id));
+          setDeleteTarget(null);
+          toast({ title: `${title} item deleted` });
+        }}
+      />
     </section>
   );
 }
@@ -845,6 +927,7 @@ function FaqsAdmin() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [a, setA] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<FAQ | null>(null);
 
   const handleSave = () => {
     if (!q || !a) return;
@@ -888,18 +971,32 @@ function FaqsAdmin() {
               <p className="font-bold text-sm text-slate-900 dark:text-white mb-1.5">{faq.question}</p>
               <p className="text-sm text-slate-500">{faq.answer}</p>
             </div>
-            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => { setEditingId(faq.id); setQ(faq.question); setA(faq.answer); }}>
-                <Edit2 className="w-3.5 h-3.5" />
+             <div className="flex shrink-0 flex-col gap-2 opacity-100 transition-opacity sm:flex-row sm:opacity-0 sm:group-hover:opacity-100">
+               <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs" aria-label={`Edit FAQ: ${faq.question}`} title={`Edit FAQ: ${faq.question}`} onClick={() => { setEditingId(faq.id); setQ(faq.question); setA(faq.answer); }}>
+                 <Edit2 className="w-3.5 h-3.5" /> <span>Edit</span>
               </Button>
-              <Button size="icon" variant="outline" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => deleteFaq.mutate(faq.id)}>
-                <Trash2 className="w-3.5 h-3.5" />
+               <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs text-red-500 hover:text-red-600 hover:bg-red-50" aria-label={`Delete FAQ: ${faq.question}`} title={`Delete FAQ: ${faq.question}`} onClick={() => setDeleteTarget(faq)}>
+                 <Trash2 className="w-3.5 h-3.5" /> <span>Delete</span>
               </Button>
             </div>
           </div>
         ))}
         {(!faqs || faqs.length === 0) && <EmptyState title="No FAQs yet" description="Add the first customer question and answer." />}
       </div>
+       <DeleteConfirmationDialog
+         open={Boolean(deleteTarget)}
+         itemLabel={deleteTarget?.question || "FAQ"}
+         onOpenChange={(open) => !open && setDeleteTarget(null)}
+         onConfirm={() => {
+           if (!deleteTarget) return;
+           deleteFaq.mutate(deleteTarget.id, {
+             onSuccess: () => {
+               toast({ title: "FAQ deleted" });
+               setDeleteTarget(null);
+             },
+           });
+         }}
+       />
     </div>
   );
 }
@@ -915,6 +1012,7 @@ function TasksAdmin() {
   const [desc, setDesc] = useState("");
   const [beforeImg, setBeforeImg] = useState("");
   const [afterImg, setAfterImg] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Task | null>(null);
 
   const handleSave = () => {
     if (!title || !beforeImg || !afterImg) return;
@@ -964,11 +1062,11 @@ function TasksAdmin() {
             <div className="p-4 flex-1 flex flex-col">
               <h4 className="font-bold text-sm text-slate-900 dark:text-white">{task.title}</h4>
               <p className="text-xs text-slate-500 mt-1 mb-4 line-clamp-2">{task.description}</p>
-              <div className="mt-auto flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="mt-auto flex gap-2 justify-end opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                 <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { setEditingId(task.id); setTitle(task.title); setDesc(task.description); setBeforeImg(task.beforeImageUrl); setAfterImg(task.afterImageUrl); }}>
                   Edit
                 </Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 border-slate-200" onClick={() => deleteTask.mutate(task.id)}>
+                <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 border-slate-200" onClick={() => setDeleteTarget(task)}>
                   Delete
                 </Button>
               </div>
@@ -977,6 +1075,20 @@ function TasksAdmin() {
         ))}
         {(!tasks || tasks.length === 0) && <div className="md:col-span-2"><EmptyState title="No transformations yet" description="Add a before-and-after project to get started." /></div>}
       </div>
+       <DeleteConfirmationDialog
+         open={Boolean(deleteTarget)}
+         itemLabel={deleteTarget?.title || "project transformation"}
+         onOpenChange={(open) => !open && setDeleteTarget(null)}
+         onConfirm={() => {
+           if (!deleteTarget) return;
+           deleteTask.mutate(deleteTarget.id, {
+             onSuccess: () => {
+               toast({ title: "Project transformation deleted" });
+               setDeleteTarget(null);
+             },
+           });
+         }}
+       />
     </div>
   );
 }
