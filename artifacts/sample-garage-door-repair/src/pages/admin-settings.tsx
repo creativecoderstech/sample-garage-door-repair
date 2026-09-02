@@ -126,15 +126,10 @@ export default function AdminSettingsPage() {
 
   return (
     <div>
-      <div className="mb-8">
-         <h2 className="text-3xl font-display font-bold tracking-tight">Business Settings</h2>
-         <p className="text-muted-foreground mt-1">Configure your public storefront, theme, and operational flags.</p>
-      </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           
-          <Card>
+          <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display"><Store className="h-5 w-5 text-primary"/> Public Identity</CardTitle>
               <CardDescription>How your business appears to customers on the site.</CardDescription>
@@ -189,7 +184,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display"><Images className="h-5 w-5 text-primary"/> Website Photography</CardTitle>
               <CardDescription>Use licensed stock photos or your own hosted images. Changes appear on the customer website after saving.</CardDescription>
@@ -229,7 +224,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl border-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display"><Palette className="h-5 w-5 text-primary"/> Site Aesthetics</CardTitle>
               <CardDescription>Choose the visual identity for your public website.</CardDescription>
@@ -251,7 +246,7 @@ export default function AdminSettingsPage() {
                             <FormControl>
                               <RadioGroupItem value={theme.id} className="peer sr-only" />
                             </FormControl>
-                            <FormLabel className="w-full flex items-start gap-3 p-4 border rounded-xl cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 hover:bg-muted/50 transition-all">
+                            <FormLabel className="w-full flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 hover:bg-muted/50 transition-all">
                               <div className={`w-6 h-6 rounded-full shrink-0 ${theme.color} shadow-sm border border-black/10`} />
                               <div>
                                 <span className="font-bold block">{theme.name}</span>
@@ -269,7 +264,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-destructive/20">
+          <Card className="rounded-2xl border-2 border-destructive/20 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-display text-destructive"><ShieldAlert className="h-5 w-5"/> Operations & Safety</CardTitle>
               <CardDescription>Critical flags for your dispatch logic.</CardDescription>
@@ -312,7 +307,7 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <div className="flex items-center justify-end gap-4 pt-4 border-t sticky bottom-0 bg-background/95 backdrop-blur py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="sticky bottom-3 z-10 flex items-center justify-end gap-4 rounded-2xl border-2 bg-background/95 px-4 py-4 shadow-lg backdrop-blur">
             <Button type="button" variant="outline" onClick={() => form.reset()} disabled={isSaving}>
               Discard Changes
             </Button>

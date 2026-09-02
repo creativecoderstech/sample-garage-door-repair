@@ -12,11 +12,11 @@ import { format } from "date-fns";
 import { Link, useLocation } from "wouter";
 import { 
   LogOut, AlertTriangle, CheckCircle2, Clock, Calendar, 
-  Search, ArrowRight, User, Trash2, Plus, Edit2, Check,
+  Search, User, Trash2, Plus, Edit2, Check,
   LayoutGrid, Inbox, CalendarDays, MessageCircle, 
   Wrench, Image as ImageIcon, SplitSquareHorizontal, 
   HelpCircle, Star, Settings, Users, ChevronRight, 
-  ExternalLink, Sparkles, Building2, Menu, X, MapPin
+  ExternalLink, Sparkles, Building2, Menu, X, MapPin, Mail, Phone
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +53,22 @@ type AdminTab =
   | 'reviews'
   | 'settings'
   | 'users';
+
+const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> = {
+  overview: { title: 'Welcome back', description: 'Your business at a glance.' },
+  'service-requests': { title: 'Service requests', description: 'Review new leads, confirm job details, and keep every request moving.' },
+  bookings: { title: 'Bookings', description: 'See confirmed appointments and the work coming up next.' },
+  chats: { title: 'Chat inquiries', description: 'Review conversations captured by the diagnostic assistant.' },
+  tasks: { title: 'Before & after', description: 'Manage the project transformations shown on your website.' },
+  gallery: { title: 'Gallery', description: 'Curate the garage-door project photography customers see online.' },
+  faqs: { title: 'FAQs', description: 'Keep customer answers accurate, useful, and safety focused.' },
+  services: { title: 'Services', description: 'Maintain your service catalog, starting prices, and publishing status.' },
+  reviews: { title: 'Reviews', description: 'Manage Google review previews and testimonials collected on your site.' },
+  settings: { title: 'Site settings', description: 'Configure your storefront, photography, and operational preferences.' },
+  users: { title: 'Users', description: 'Manage staff access and operating roles.' },
+};
+
+const adminCardClass = 'rounded-2xl border-2 border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900';
 
 export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>(() => {
@@ -113,7 +129,7 @@ export default function AdminPage() {
       </div>
 
       <div className="px-4 mb-6">
-        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
+        <div className="bg-orange-50/70 dark:bg-orange-950/20 rounded-2xl p-4 border-2 border-orange-100 dark:border-orange-900/40">
           <div className="text-[10px] font-bold uppercase text-slate-500 mb-1 tracking-wider">Owner Workspace</div>
           <div className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">Admin User</div>
           <div className="text-xs text-slate-500 truncate mt-0.5">admin@summitgaragedoor.demo</div>
@@ -139,12 +155,12 @@ export default function AdminPage() {
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive 
-                        ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-sm' 
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-slate-900' : 'text-slate-400'}`} />
+                      <item.icon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : 'text-slate-400'}`} />
                       {item.label}
                     </div>
                     {'badge' in item && item.badge ? (
@@ -207,7 +223,9 @@ export default function AdminPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-10 max-w-7xl">
+      <main className="flex-1 overflow-x-hidden p-4 sm:p-7 lg:p-10">
+        <div className="max-w-6xl">
+          <AdminPageHeader title={ADMIN_PAGE_COPY[tab].title} description={ADMIN_PAGE_COPY[tab].description} />
         {tab === 'overview' ? <OverviewTab setTab={setTab} pendingCount={pendingCount} dashboard={dashboard} /> :
          tab === 'settings' ? <AdminSettingsPage /> :
          tab === 'service-requests' ? <ServiceRequestsAdmin /> :
@@ -220,9 +238,28 @@ export default function AdminPage() {
          tab === 'reviews' ? <ReviewsAdmin /> :
          <UsersAdmin />
         }
+        </div>
       </main>
     </div>
   )
+}
+
+function AdminPageHeader({ title, description }: { title: string; description: string }) {
+  return (
+    <header className="mb-8 flex flex-col gap-5 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+      <div>
+        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Summit Garage Door Co.</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">{title}</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-xs text-slate-500">admin@summitgaragedoor.demo</span>
+        <Button variant="outline" className="h-10 rounded-xl border-2 bg-white font-semibold shadow-sm dark:bg-slate-900" asChild>
+          <Link href="/"><ExternalLink className="mr-2 h-4 w-4" /> View site</Link>
+        </Button>
+      </div>
+    </header>
+  );
 }
 
 function OverviewTab({ setTab, pendingCount, dashboard }: any) {
@@ -233,23 +270,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
   const recentChats = chats?.length || 0;
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Summit Garage Door Co.</p>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Welcome back</h1>
-          <p className="text-slate-500 mt-1">Your business at a glance.</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-500 hidden sm:inline-block">admin@summitgaragedoor.demo</span>
-          <Button variant="outline" className="bg-white dark:bg-slate-900 rounded-lg shadow-sm font-medium border-slate-200 dark:border-slate-800" asChild>
-            <Link href="/">
-              <ExternalLink className="w-4 h-4 mr-2" /> View site
-            </Link>
-          </Button>
-        </div>
-      </header>
-
+    <div className="space-y-6">
       {/* Hero Banner */}
       <div className="bg-[#1e293b] rounded-2xl p-8 sm:p-10 text-white relative overflow-hidden mb-8 shadow-sm">
         <div className="relative z-10">
@@ -349,7 +370,7 @@ function OverviewCard({ icon, iconBg, title, value, description, onClick }: any)
   return (
     <div 
       onClick={onClick}
-      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between min-h-[150px]"
+      className={`${adminCardClass} p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between min-h-[150px]`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className={`w-9 h-9 rounded-full flex items-center justify-center ${iconBg}`}>
@@ -368,7 +389,7 @@ function OverviewCard({ icon, iconBg, title, value, description, onClick }: any)
 
 function ListCard({ icon, title, description, linkText, onLinkClick, children }: any) {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
+    <div className={`${adminCardClass} overflow-hidden flex flex-col`}>
       <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="flex justify-between items-start mb-1">
           <div className="flex items-center gap-2">
@@ -417,9 +438,9 @@ function ReviewsAdmin() {
   const [showConnectDialog, setShowConnectDialog] = useState(false);
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-8">
       {/* Google Business Profile Connection Panel */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div className={`${adminCardClass} overflow-hidden`}>
         <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
           <div className="flex items-center gap-4">
              <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
@@ -560,10 +581,10 @@ function ContentModuleAdmin({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden max-w-5xl">
-      <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+    <section className="space-y-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h3>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{description}</p>
         </div>
         <Button onClick={() => setDraft(fields.map(() => ''))} size="sm" className="shadow-sm">
@@ -572,7 +593,7 @@ function ContentModuleAdmin({
       </div>
 
       {draft && (
-        <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className={`${adminCardClass} p-5 sm:p-6`}>
           <div className="grid gap-3 md:grid-cols-3">
             {fields.map((field, index) => (
               <Input
@@ -591,9 +612,9 @@ function ContentModuleAdmin({
         </div>
       )}
 
-      <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="grid gap-4">
         {rows.map((row) => (
-          <div key={row.id} className="p-5 grid grid-cols-[1fr_auto] gap-5 items-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+          <div key={row.id} className={`${adminCardClass} p-5 grid grid-cols-[1fr_auto] gap-5 items-center hover:shadow-md transition-shadow`}>
             <div className="grid sm:grid-cols-3 gap-3">
               {row.values.map((value, index) => (
                 <div key={`${row.id}-${fields[index]}`}>
@@ -607,8 +628,17 @@ function ContentModuleAdmin({
             </Button>
           </div>
         ))}
-        {rows.length === 0 && <p className="p-12 text-center text-sm text-slate-500">No items yet.</p>}
+        {rows.length === 0 && <EmptyState title={`No ${title.toLowerCase()} yet`} description="Add your first item to get started." />}
       </div>
+    </section>
+  );
+}
+
+function EmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <div className={`${adminCardClass} border-dashed px-6 py-14 text-center`}>
+      <p className="font-semibold text-slate-900 dark:text-white">{title}</p>
+      <p className="mt-1 text-sm text-slate-500">{description}</p>
     </div>
   );
 }
@@ -667,30 +697,30 @@ function ServiceRequestsAdmin() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-7">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <div className={`${adminCardClass} p-5`}>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-slate-500">New Requests</h4>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <p className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{dashboard?.newRequests || 0}</p>
         </div>
-        <div className={`bg-white dark:bg-slate-900 border ${dashboard?.emergencyCalls ? 'border-red-200 bg-red-50/30' : 'border-slate-200 dark:border-slate-800'} rounded-xl p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]`}>
+        <div className={`${adminCardClass} p-5 ${dashboard?.emergencyCalls ? '!border-red-200 !bg-red-50/30' : ''}`}>
           <div className="flex items-center justify-between mb-3">
             <h4 className={`text-sm font-medium ${dashboard?.emergencyCalls ? 'text-red-600 font-bold' : 'text-slate-500'}`}>Emergencies</h4>
             <AlertTriangle className={`h-4 w-4 ${dashboard?.emergencyCalls ? 'text-red-500' : 'text-slate-400'}`} />
           </div>
           <p className={`text-3xl font-bold tracking-tight ${dashboard?.emergencyCalls ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>{dashboard?.emergencyCalls || 0}</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <div className={`${adminCardClass} p-5`}>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-slate-500">Scheduled</h4>
             <Calendar className="h-4 w-4 text-blue-500" />
           </div>
           <p className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{dashboard?.scheduledToday || 0}</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <div className={`${adminCardClass} p-5`}>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-slate-500">Pipeline Rev</h4>
             <Clock className="h-4 w-4 text-purple-500" />
@@ -699,9 +729,12 @@ function ServiceRequestsAdmin() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col">
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
           <h3 className="font-bold text-lg text-slate-900 dark:text-white">Active Service Requests</h3>
+            <p className="mt-1 text-sm text-slate-500">Each card includes the contact, location, schedule, and dispatch status.</p>
+          </div>
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
@@ -712,76 +745,60 @@ function ServiceRequestsAdmin() {
             />
           </div>
         </div>
-        
-        <ScrollArea className="h-[600px] w-full">
           {filteredRequests.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-16 text-center">
-              <p className="text-sm text-slate-500">No requests found</p>
-            </div>
+            <EmptyState title="No requests found" description="Try a different search or wait for a new customer request." />
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="grid gap-5">
               {filteredRequests.map((req) => (
-                <div key={req.id} className="p-5 flex flex-col lg:flex-row gap-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <article key={req.id} className={`${adminCardClass} overflow-hidden`}>
+                  <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6 dark:border-slate-800">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        {getUrgencyIcon(req.urgency)}
-                        <h3 className="font-bold text-base text-slate-900 dark:text-white">{req.customerName}</h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg font-bold text-slate-950 dark:text-white">{req.customerName}</h3>
+                        <Badge variant="outline" className="gap-1 capitalize">{getUrgencyIcon(req.urgency)}{req.urgency}</Badge>
+                        <Badge variant="outline" className={`capitalize ${getStatusColor(req.status)}`}>{req.status}</Badge>
                       </div>
-                      <div className="space-y-1 text-sm text-slate-500 mt-2">
-                        <p className="flex items-center gap-2"><User className="h-3.5 w-3.5" /> {req.phone}</p>
-                        <p>{req.email}</p>
-                        <p className="flex items-start gap-2">
-                          <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                          <span className="font-medium text-slate-700 dark:text-slate-300">
-                            {[req.streetAddress, req.city, req.state, req.zip].filter(Boolean).join(', ')}
-                          </span>
-                        </p>
-                      </div>
+                      <p className="mt-1 text-xs text-slate-400">Request #{req.id} · {format(new Date(req.createdAt), 'MMM d, yyyy h:mm a')}</p>
                     </div>
-                    <div>
-                      <p className="font-semibold mb-1 text-[10px] uppercase tracking-wider text-slate-400">Service Required</p>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">{req.service}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Preferred: {req.preferredDate || 'No date'}{req.preferredTime ? ` · ${TIME_WINDOW_LABELS[req.preferredTime] ?? req.preferredTime}` : ' · Any time'}
-                      </p>
-                      <p className="text-sm text-slate-500 mt-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-3 rounded-lg line-clamp-3">
-                        {req.details || "No additional details provided."}
-                      </p>
-                      <div className="mt-3 text-[11px] text-slate-400 font-mono">
-                         {format(new Date(req.createdAt), 'MMM d, yyyy h:mm a')}
+                    <Select value={req.status} onValueChange={(val) => handleStatusChange(req.id, val as ServiceRequestUpdateStatus)}>
+                      <SelectTrigger className="w-full sm:w-52 h-10 rounded-xl border-2 bg-white font-semibold dark:bg-slate-900"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">New / Unassigned</SelectItem>
+                        <SelectItem value="scheduled">Scheduled</SelectItem>
+                        <SelectItem value="dispatched">Dispatched</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_1fr]">
+                    <div className="space-y-4">
+                      <MetadataRow icon={<Phone />} label="Phone"><a className="font-semibold text-slate-900 hover:text-primary dark:text-white" href={`tel:${req.phone}`}>{req.phone}</a></MetadataRow>
+                      <MetadataRow icon={<Mail />} label="Email"><a className="break-all font-semibold text-slate-900 hover:text-primary dark:text-white" href={`mailto:${req.email}`}>{req.email}</a></MetadataRow>
+                      <MetadataRow icon={<MapPin />} label="Job location">{[req.streetAddress, req.city, req.state, req.zip].filter(Boolean).join(', ')}</MetadataRow>
+                    </div>
+                    <div className="space-y-4">
+                      <MetadataRow icon={<Wrench />} label="Service">{req.service}</MetadataRow>
+                      <MetadataRow icon={<CalendarDays />} label="Preferred schedule">{req.preferredDate || 'No date'}{req.preferredTime ? ` · ${TIME_WINDOW_LABELS[req.preferredTime] ?? req.preferredTime}` : ' · Any time'}</MetadataRow>
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Job description</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{req.details || 'No additional details provided.'}</p>
                       </div>
                     </div>
                   </div>
-
-                  <div className="lg:w-64 flex flex-col justify-between gap-4 lg:border-l lg:border-slate-100 lg:dark:border-slate-800 lg:pl-6">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Status</p>
-                      <Select 
-                        value={req.status} 
-                        onValueChange={(val) => handleStatusChange(req.id, val as ServiceRequestUpdateStatus)}
-                      >
-                        <SelectTrigger className={`w-full font-medium ${getStatusColor(req.status)} border h-9 text-sm`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="new">New / Unassigned</SelectItem>
-                          <SelectItem value="scheduled">Scheduled</SelectItem>
-                          <SelectItem value="dispatched">Dispatched</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full font-medium text-xs border-slate-200">
-                       Full Details <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
+                </article>
               ))}
             </div>
           )}
-        </ScrollArea>
-      </div>
+      </section>
+    </div>
+  );
+}
+
+function MetadataRow({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex gap-3 text-sm text-slate-600 dark:text-slate-300">
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-primary [&>svg]:h-4 [&>svg]:w-4 dark:bg-orange-950/30">{icon}</span>
+      <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p><div className="mt-0.5 font-medium">{children}</div></div>
     </div>
   );
 }
@@ -790,22 +807,20 @@ function BookingsAdmin() {
   const { data: bookings } = useListBookings();
   
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-5 sm:p-6 max-w-5xl">
-      <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Bookings</h3>
-          <p className="text-sm text-slate-500 mt-1">Confirmed calendar appointments (localStorage demo state).</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Confirmed appointments</h2>
+          <p className="text-sm text-slate-500 mt-1">Local demo schedule, ordered for quick dispatch review.</p>
         </div>
       </div>
       
       {(!bookings || bookings.length === 0) ? (
-        <div className="py-12 text-center text-sm text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-          No bookings scheduled yet.
-        </div>
+        <EmptyState title="No bookings scheduled yet" description="Confirmed customer appointments will appear here." />
       ) : (
         <div className="space-y-3">
            {bookings.map(b => (
-             <div key={b.id} className="p-4 border border-slate-100 dark:border-slate-800 rounded-xl flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+             <div key={b.id} className={`${adminCardClass} p-5 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center`}>
                <div>
                  <p className="font-bold text-sm text-slate-900 dark:text-white">{b.title}</p>
                  <p className="text-xs text-slate-500 mt-0.5">{b.customer}</p>
@@ -844,11 +859,11 @@ function FaqsAdmin() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-5 sm:p-6 max-w-5xl">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Manage FAQs</h3>
-          <p className="text-sm text-slate-500 mt-1">Demo state persisted in localStorage.</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Published questions</h2>
+          <p className="text-sm text-slate-500 mt-1">Changes are saved in this browser’s demo state.</p>
         </div>
         <Button size="sm" onClick={() => { setEditingId(""); setQ(""); setA(""); }}>
           <Plus className="w-4 h-4 mr-2" /> Add FAQ
@@ -856,7 +871,7 @@ function FaqsAdmin() {
       </div>
 
       {editingId !== null && (
-        <div className="mb-6 p-5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/50 space-y-4">
+        <div className={`${adminCardClass} p-5 space-y-4`}>
           <Input placeholder="Question" value={q} onChange={e => setQ(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
           <Textarea placeholder="Answer" value={a} onChange={e => setA(e.target.value)} rows={3} className="bg-white dark:bg-slate-900" />
           <div className="flex gap-2 justify-end pt-2">
@@ -868,7 +883,7 @@ function FaqsAdmin() {
 
       <div className="space-y-3">
         {faqs?.map(faq => (
-          <div key={faq.id} className="p-5 border border-slate-100 dark:border-slate-800 rounded-xl flex justify-between gap-4 group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+          <div key={faq.id} className={`${adminCardClass} p-5 flex justify-between gap-4 group hover:shadow-md transition-shadow`}>
             <div>
               <p className="font-bold text-sm text-slate-900 dark:text-white mb-1.5">{faq.question}</p>
               <p className="text-sm text-slate-500">{faq.answer}</p>
@@ -883,6 +898,7 @@ function FaqsAdmin() {
             </div>
           </div>
         ))}
+        {(!faqs || faqs.length === 0) && <EmptyState title="No FAQs yet" description="Add the first customer question and answer." />}
       </div>
     </div>
   );
@@ -912,11 +928,11 @@ function TasksAdmin() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-5 sm:p-6 max-w-5xl">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Before & After Tasks</h3>
-          <p className="text-sm text-slate-500 mt-1">Manage project transformations (localStorage demo state).</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Project transformations</h2>
+          <p className="text-sm text-slate-500 mt-1">Pair before and after images to show the quality of your work.</p>
         </div>
         <Button size="sm" onClick={() => { setEditingId(""); setTitle(""); setDesc(""); setBeforeImg(""); setAfterImg(""); }}>
           <Plus className="w-4 h-4 mr-2" /> Add Task
@@ -924,7 +940,7 @@ function TasksAdmin() {
       </div>
 
       {editingId !== null && (
-        <div className="mb-6 p-5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/50 space-y-4">
+        <div className={`${adminCardClass} p-5 space-y-4`}>
           <Input placeholder="Project Title" value={title} onChange={e => setTitle(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
           <Textarea placeholder="Description (Optional)" value={desc} onChange={e => setDesc(e.target.value)} rows={2} className="bg-white dark:bg-slate-900" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -940,7 +956,7 @@ function TasksAdmin() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {tasks?.map(task => (
-          <div key={task.id} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden flex flex-col group bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
+          <div key={task.id} className={`${adminCardClass} overflow-hidden flex flex-col group hover:shadow-lg transition-shadow`}>
             <div className="grid grid-cols-2 h-32 border-b border-slate-100 dark:border-slate-800">
               <img src={task.beforeImageUrl} className="w-full h-full object-cover" alt="Before" />
               <img src={task.afterImageUrl} className="w-full h-full object-cover border-l border-slate-100 dark:border-slate-800" alt="After" />
@@ -959,6 +975,7 @@ function TasksAdmin() {
             </div>
           </div>
         ))}
+        {(!tasks || tasks.length === 0) && <div className="md:col-span-2"><EmptyState title="No transformations yet" description="Add a before-and-after project to get started." /></div>}
       </div>
     </div>
   );
