@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, Headset, Info, Loader2, Send, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ChevronDown, Headset, Info, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,22 +11,19 @@ type CustomerCareChatViewProps = {
 };
 
 function SafetyBadge({ level }: { level: CustomerCareMessage["safety"] }) {
-  if (!level) return null;
+  if (!level || level === "safe") return null;
   const isUrgent = level === "urgent";
-  const isCaution = level === "caution";
   return (
     <div
       className={`mb-2 flex items-center gap-2 border-b pb-2 text-xs font-bold ${
         isUrgent
           ? "border-destructive/20 text-destructive"
-          : isCaution
-            ? "border-amber-500/20 text-amber-600"
-            : "border-emerald-500/20 text-emerald-600"
+          : "border-amber-500/20 text-amber-600"
       }`}
     >
-      {isUrgent ? <AlertTriangle className="h-5 w-5" /> : isCaution ? <Info className="h-5 w-5" /> : <ShieldCheck className="h-5 w-5" />}
+      {isUrgent ? <AlertTriangle className="h-5 w-5" /> : <Info className="h-5 w-5" />}
       <span className="uppercase tracking-wider">
-        {isUrgent ? "Do not operate door" : isCaution ? "Use caution" : "General information"}
+        {isUrgent ? "Do not operate door" : "Use caution"}
       </span>
     </div>
   );
