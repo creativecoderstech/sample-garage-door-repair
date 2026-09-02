@@ -34,16 +34,45 @@ const defaultSettings = {
   phone: "(888) 555-0142",
   email: "service@summitgaragedoor.com",
   serviceArea: "Serving Dallas–Fort Worth and nearby communities",
-  theme: "summit",
+  theme: "industrial",
   serviceId: "garage-door-repair",
   emergencyEnabled: true,
-  heroImage: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=2000&q=85",
+  heroImage: "/images/garage/hero-modern-garage.jpg",
   galleryImages: [
-    "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80",
+    "/images/garage/modern-white-home.jpg",
+    "/images/garage/classic-white-door.jpg",
+    "/images/garage/evening-home.jpg",
+    "/images/garage/double-garage-home.jpg",
   ],
 };
+
+const legacyHeroImage =
+  "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=2000&q=85";
+
+const legacyGalleryImageReplacements = new Map([
+  [
+    "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80",
+    "/images/garage/modern-white-home.jpg",
+  ],
+  [
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
+    "/images/garage/classic-white-door.jpg",
+  ],
+  [
+    "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80",
+    "/images/garage/evening-home.jpg",
+  ],
+]);
+
+const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect) => ({
+  ...settings,
+  heroImage: settings.heroImage === legacyHeroImage
+    ? defaultSettings.heroImage
+    : settings.heroImage,
+  galleryImages: settings.galleryImages.map((image) =>
+    legacyGalleryImageReplacements.get(image) ?? image,
+  ),
+});
 
 const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
   ...row,
@@ -100,7 +129,8 @@ router.get("/garage/dashboard", async (_req, res) => {
 
 router.get("/garage/settings", async (_req, res) => {
   const [settings] = await db.select().from(businessSettings).limit(1);
-  res.json(settings ?? defaultSettings);
+  if (!settings) return res.json(defaultSettings);
+  return res.json(withRefreshedSeedImages(settings));
 });
 
 router.patch("/garage/settings", async (req, res) => {

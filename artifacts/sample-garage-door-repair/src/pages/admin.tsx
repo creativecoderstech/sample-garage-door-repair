@@ -110,9 +110,9 @@ export default function AdminPage() {
             ['Jordan Lee', '(972) 555-0134', 'Replied'],
           ]} />
         ) : tab === 'gallery' ? (
-          <ContentModuleAdmin storageKey="garage-admin-gallery" title="Gallery" description="Manage the project photographs shown throughout the customer website." fields={['Project', 'Image URL', 'Status']} defaults={[
-            ['Modern insulated door', 'https://images.unsplash.com/photo-1558002038-1055907df827?w=1200&q=80', 'Published'],
-            ['Quiet opener upgrade', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80', 'Published'],
+          <ContentModuleAdmin storageKey="garage-admin-gallery-v2" title="Gallery" description="Manage the project photographs shown throughout the customer website." fields={['Project', 'Image URL', 'Status']} defaults={[
+            ['Modern insulated door', '/images/garage/modern-white-home.jpg', 'Published'],
+            ['Classic residential door', '/images/garage/classic-white-door.jpg', 'Published'],
           ]} />
         ) : tab === 'services' ? (
           <ContentModuleAdmin storageKey="garage-admin-services" title="Services" description="Maintain the service catalog and customer-facing starting prices." fields={['Service', 'Starting Price', 'Status']} defaults={[

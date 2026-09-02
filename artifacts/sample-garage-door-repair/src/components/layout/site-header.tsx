@@ -7,8 +7,9 @@ import { useState, useEffect } from "react";
 
 const NAV_LINKS = [
   { id: 'services', label: 'Services', href: '/services' },
-  { id: 'work', label: 'Our Work', href: '/gallery' },
+  { id: 'gallery', label: 'Gallery', href: '/gallery' },
   { id: 'before-after', label: 'Before & After', href: '/before-after' },
+  { id: 'faqs', label: 'FAQs', href: '/faqs' },
 ] as const;
 
 export function SiteHeader() {

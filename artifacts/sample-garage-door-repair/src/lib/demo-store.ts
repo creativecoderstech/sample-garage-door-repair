@@ -74,17 +74,52 @@ export interface Task {
 const defaultTasks: Task[] = [
   {
     id: "1",
-    title: "Broken Spring Replacement",
-    description: "Replaced a snapped torsion spring with a heavy-duty cycle spring.",
-    beforeImageUrl: "https://images.unsplash.com/photo-1622473590773-f58813470716?w=800&q=80",
-    afterImageUrl: "https://images.unsplash.com/photo-1622473590773-f58813470716?w=800&q=80"
+    title: "Damaged Door Transformation",
+    description: "Replaced a worn residential door with a quiet, insulated modern system.",
+    beforeImageUrl: "/images/garage/classic-white-door.jpg",
+    afterImageUrl: "/images/garage/modern-white-home.jpg"
+  },
+  {
+    id: "2",
+    title: "Premium Curb Appeal Upgrade",
+    description: "Upgraded the original entry to a warm contemporary door matched to the home.",
+    beforeImageUrl: "/images/garage/evening-home.jpg",
+    afterImageUrl: "/images/garage/double-garage-home.jpg"
   }
 ];
+
+const legacyDefaultTask: Task = {
+  id: "1",
+  title: "Broken Spring Replacement",
+  description: "Replaced a snapped torsion spring with a heavy-duty cycle spring.",
+  beforeImageUrl: "https://images.unsplash.com/photo-1622473590773-f58813470716?w=800&q=80",
+  afterImageUrl: "https://images.unsplash.com/photo-1622473590773-f58813470716?w=800&q=80",
+};
 
 export function useListTasks() {
   return useQuery({
     queryKey: ["demo-tasks"],
-    queryFn: () => getStorage<Task[]>("tasks", defaultTasks),
+    queryFn: () => {
+      const tasks = getStorage<Task[]>("tasks", defaultTasks);
+      let didUpgrade = false;
+      const upgraded = tasks.map((task) => {
+        if (
+          task.id === legacyDefaultTask.id &&
+          task.title === legacyDefaultTask.title &&
+          task.description === legacyDefaultTask.description &&
+          task.beforeImageUrl === legacyDefaultTask.beforeImageUrl &&
+          task.afterImageUrl === legacyDefaultTask.afterImageUrl
+        ) {
+          didUpgrade = true;
+          return defaultTasks[0];
+        }
+        return task;
+      });
+      if (didUpgrade) {
+        setStorage("tasks", upgraded);
+      }
+      return upgraded;
+    },
   });
 }
 

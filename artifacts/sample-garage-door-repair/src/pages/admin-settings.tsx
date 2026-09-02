@@ -13,6 +13,11 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 
+const imageLocation = z.string().refine(
+  (value) => value.startsWith("/") || z.string().url().safeParse(value).success,
+  "Enter a full image URL or a same-site path beginning with /",
+);
+
 const settingsSchema = z.object({
   businessName: z.string().min(2, "Business name is required"),
   phone: z.string().min(10, "Valid phone is required"),
@@ -21,8 +26,20 @@ const settingsSchema = z.object({
   theme: z.string(),
   serviceId: z.string().min(1, "Service ID is required"),
   emergencyEnabled: z.boolean(),
-  heroImage: z.string().url("Enter a valid image URL"),
-  galleryImagesText: z.string(),
+  heroImage: imageLocation,
+  galleryImagesText: z.string().superRefine((value, context) => {
+    const invalid = value
+      .split("\n")
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+      .find((entry) => !imageLocation.safeParse(entry).success);
+    if (invalid) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Each line must be a full image URL or a same-site path beginning with /",
+      });
+    }
+  }),
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;

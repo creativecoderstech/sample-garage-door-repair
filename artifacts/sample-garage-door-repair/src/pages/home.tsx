@@ -71,7 +71,7 @@ export default function HomePage() {
     };
   }, []);
 
-  const heroImage = settings?.heroImage || "https://images.unsplash.com/photo-1622473590773-f58813470716?w=1600&q=80";
+  const heroImage = settings?.heroImage || "/images/garage/hero-modern-garage.jpg";
   const galleryImages = settings?.galleryImages || [];
   const topServices = services?.slice(0, 3) || [];
   
@@ -252,7 +252,10 @@ export default function HomePage() {
               </div>
 
               <div className="reveal-on-scroll" id="faq">
-                <h3 className="font-display font-bold text-3xl mb-8">Frequently Asked Questions</h3>
+                <div className="flex items-end justify-between gap-5 mb-8">
+                  <h3 className="font-display font-bold text-3xl">Frequently Asked Questions</h3>
+                  <Link href="/faqs" className="hidden sm:inline-flex text-sm font-bold text-primary hover:underline">View all FAQs</Link>
+                </div>
                 <div className="space-y-3">
                   {faqs?.map((faq) => (
                     <div 

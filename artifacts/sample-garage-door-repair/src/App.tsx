@@ -20,6 +20,7 @@ import HomePage from '@/pages/home';
 import ServicesPage from '@/pages/services';
 import GalleryPage from '@/pages/gallery';
 import BeforeAfterPage from '@/pages/before-after';
+import FaqsPage from '@/pages/faqs';
 import BookPage from '@/pages/book';
 import LoginPage from '@/pages/login';
 import AdminPage from '@/pages/admin';
@@ -47,6 +48,7 @@ function Router() {
             <Route path="/services" component={ServicesPage} />
             <Route path="/gallery" component={GalleryPage} />
             <Route path="/before-after" component={BeforeAfterPage} />
+            <Route path="/faqs" component={FaqsPage} />
             <Route path="/book" component={BookPage} />
             <Route path="/login" component={LoginPage} />
             
