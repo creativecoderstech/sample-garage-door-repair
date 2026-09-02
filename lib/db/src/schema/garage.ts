@@ -30,3 +30,16 @@ export const businessSettings = pgTable("garage_business_settings", {
   heroImage: text("hero_image").notNull(),
   galleryImages: jsonb("gallery_images").$type<string[]>().notNull().default([]),
 });
+
+export const googleReviews = pgTable("garage_google_reviews", {
+  id: serial("id").primaryKey(),
+  googleReviewId: text("google_review_id").notNull().unique(),
+  reviewerName: text("reviewer_name").notNull(),
+  reviewerPhotoUrl: text("reviewer_photo_url"),
+  rating: integer("rating").notNull(),
+  comment: text("comment").notNull(),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
+  relativeTime: text("relative_time").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
+  syncedAt: timestamp("synced_at", { withTimezone: true }).notNull().defaultNow(),
+});

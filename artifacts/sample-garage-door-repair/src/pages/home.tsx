@@ -271,7 +271,7 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-24 bg-background border-b" id="testimonials">
+      <section className="hidden py-24 bg-background border-b md:block" id="testimonials">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12">
           <div className="max-w-2xl mb-12 reveal-on-scroll">
             <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Customer Stories</p>

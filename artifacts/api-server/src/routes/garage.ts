@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { desc, eq, sql } from "drizzle-orm";
-import { db, businessSettings, serviceRequests } from "@workspace/db";
+import { db, businessSettings, googleReviews, serviceRequests } from "@workspace/db";
 import {
   AskGarageAssistantBody,
   CreateServiceRequestBody,
@@ -28,47 +28,152 @@ const testimonials = [
   { id: 3, name: "Jordan T.", city: "Frisco", rating: 5, quote: "No pressure and no mystery fees. They repaired the cable instead of trying to sell us a whole new door.", service: "Cable repair" },
 ];
 
-const googleReviewFeed = {
-  mode: "demo" as const,
-  connectionStatus: "disconnected" as const,
-  locationName: "Summit Garage Door Co.",
-  aggregateRating: 4.9,
-  totalReviewCount: 127,
-  lastSyncedAt: null,
-  profileUrl: null,
-  reviews: [
-    {
-      id: "demo-google-1",
-      reviewerName: "Melissa R.",
-      reviewerPhotoUrl: null,
-      rating: 5,
-      comment: "Our spring broke before school drop-off. Summit arrived quickly, explained every option, and left the door quieter than it has been in years.",
-      publishedAt: "2026-08-26T14:00:00.000Z",
-      relativeTime: "1 week ago",
-      source: "google" as const,
-    },
-    {
-      id: "demo-google-2",
-      reviewerName: "David K.",
-      reviewerPhotoUrl: null,
-      rating: 5,
-      comment: "Straightforward estimate and a very clean opener installation. The technician connected the remotes, keypad, and our phones before leaving.",
-      publishedAt: "2026-08-18T16:30:00.000Z",
-      relativeTime: "2 weeks ago",
-      source: "google" as const,
-    },
-    {
-      id: "demo-google-3",
-      reviewerName: "Jordan T.",
-      reviewerPhotoUrl: null,
-      rating: 5,
-      comment: "No pressure and no mystery fees. They repaired the damaged cable and rollers instead of trying to sell us a whole new door.",
-      publishedAt: "2026-08-05T19:10:00.000Z",
-      relativeTime: "4 weeks ago",
-      source: "google" as const,
-    },
-  ],
+const defaultGoogleReviews = [
+  {
+    googleReviewId: "default-google-1",
+    reviewerName: "Melissa R.",
+    reviewerPhotoUrl: null,
+    rating: 5,
+    comment: "Our spring broke before school drop-off. Summit arrived quickly, explained every option, and left the door quieter than it has been in years.",
+    publishedAt: new Date("2026-08-26T14:00:00.000Z"),
+    relativeTime: "1 week ago",
+    isDefault: true,
+  },
+  {
+    googleReviewId: "default-google-2",
+    reviewerName: "David K.",
+    reviewerPhotoUrl: null,
+    rating: 5,
+    comment: "Straightforward estimate and a very clean opener installation. The technician connected the remotes, keypad, and our phones before leaving.",
+    publishedAt: new Date("2026-08-18T16:30:00.000Z"),
+    relativeTime: "2 weeks ago",
+    isDefault: true,
+  },
+  {
+    googleReviewId: "default-google-3",
+    reviewerName: "Jordan T.",
+    reviewerPhotoUrl: null,
+    rating: 5,
+    comment: "No pressure and no mystery fees. They repaired the damaged cable and rollers instead of trying to sell us a whole new door.",
+    publishedAt: new Date("2026-08-05T19:10:00.000Z"),
+    relativeTime: "4 weeks ago",
+    isDefault: true,
+  },
+];
+
+const googlePlaceId = () => process.env.GOOGLE_PLACE_ID?.trim();
+const googlePlacesApiKey = () => process.env.GOOGLE_PLACES_API_KEY?.trim();
+let lastGoogleSyncAt = 0;
+let googleSyncPromise: Promise<void> | null = null;
+
+const isExcellentGoogleReview = (review: { rating: number; comment: string }) =>
+  review.rating === 5 && review.comment.trim().length >= 40;
+
+const relativeGoogleTime = (publishedAt: Date) => {
+  const days = Math.max(1, Math.floor((Date.now() - publishedAt.getTime()) / 86_400_000));
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months === 1 ? "" : "s"} ago`;
 };
+
+async function ensureDefaultGoogleReviews() {
+  await db.insert(googleReviews).values(defaultGoogleReviews).onConflictDoNothing({
+    target: googleReviews.googleReviewId,
+  });
+}
+
+async function syncGoogleReviews() {
+  const placeId = googlePlaceId();
+  const apiKey = googlePlacesApiKey();
+  if (!placeId || !apiKey || Date.now() - lastGoogleSyncAt < 15 * 60 * 1000) return;
+  if (googleSyncPromise) return googleSyncPromise;
+
+  googleSyncPromise = (async () => {
+    try {
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=reviews&key=${encodeURIComponent(apiKey)}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Google Places returned ${response.status}`);
+      const payload = (await response.json()) as {
+        status?: string;
+        result?: {
+          reviews?: Array<{
+            author_name?: string;
+            profile_photo_url?: string;
+            rating?: number;
+            text?: string;
+            time?: number;
+          }>;
+        };
+      };
+      if (payload.status !== "OK" || !payload.result) throw new Error(`Google Places status: ${payload.status}`);
+
+      const syncedAt = new Date();
+      const rows = (payload.result.reviews ?? [])
+        .filter((review) => review.author_name && review.text && review.time && review.rating)
+        .map((review) => {
+          const publishedAt = new Date(review.time! * 1000);
+          return {
+            googleReviewId: `${review.author_name}:${review.time}`,
+            reviewerName: review.author_name!,
+            reviewerPhotoUrl: review.profile_photo_url ?? null,
+            rating: Math.min(5, Math.max(1, Math.round(review.rating!))),
+            comment: review.text!.trim(),
+            publishedAt,
+            relativeTime: relativeGoogleTime(publishedAt),
+            isDefault: false,
+            syncedAt,
+          };
+        });
+
+      await db.transaction(async (transaction) => {
+        await transaction.delete(googleReviews).where(eq(googleReviews.isDefault, false));
+        if (rows.length > 0) await transaction.insert(googleReviews).values(rows);
+      });
+      lastGoogleSyncAt = Date.now();
+    } catch (error) {
+      console.error("Google review sync failed:", error);
+    } finally {
+      googleSyncPromise = null;
+    }
+  })();
+
+  return googleSyncPromise;
+}
+
+async function getGoogleReviewFeed() {
+  await ensureDefaultGoogleReviews();
+  await syncGoogleReviews();
+
+  const connected = Boolean(googlePlaceId() && googlePlacesApiKey());
+  const stored = await db
+    .select()
+    .from(googleReviews)
+    .orderBy(desc(googleReviews.rating), desc(googleReviews.publishedAt));
+  const liveReviews = stored.filter((review) => !review.isDefault && isExcellentGoogleReview(review));
+  const selected = (liveReviews.length > 0 ? liveReviews : connected ? [] : stored.filter((review) => review.isDefault)).slice(0, 3);
+
+  return {
+    mode: liveReviews.length > 0 ? "live" as const : "demo" as const,
+    connectionStatus: connected ? "connected" as const : "disconnected" as const,
+    locationName: "Summit Garage Door Co.",
+    aggregateRating: selected.length > 0 ? selected.reduce((sum, review) => sum + review.rating, 0) / selected.length : 0,
+    totalReviewCount: selected.length,
+    lastSyncedAt: liveReviews[0]?.syncedAt?.toISOString() ?? null,
+    profileUrl: null,
+    reviews: selected.map((review) => ({
+      id: review.googleReviewId,
+      reviewerName: review.reviewerName,
+      reviewerPhotoUrl: review.reviewerPhotoUrl,
+      rating: review.rating,
+      comment: review.comment,
+      publishedAt: review.publishedAt.toISOString(),
+      relativeTime: review.relativeTime,
+      source: "google" as const,
+    })),
+  };
+}
 
 const defaultSettings = {
   id: 1,
@@ -128,9 +233,9 @@ const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
 
 router.get("/garage/services", (_req, res) => res.json(services));
 router.get("/garage/testimonials", (_req, res) => res.json(testimonials));
-router.get("/garage/reviews", (_req, res) => {
+router.get("/garage/reviews", async (_req, res) => {
   res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
-  res.json(googleReviewFeed);
+  res.json(await getGoogleReviewFeed());
 });
 
 router.get("/garage/availability", (req, res) => {
