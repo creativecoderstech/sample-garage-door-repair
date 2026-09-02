@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Summit Garage Door Co. — The Business Lifecycle, Simplified</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e8edf4; color: #101827; font-family: Inter, Arial, sans-serif; }
+    .page {
+      width: 210mm; height: 296.8mm; margin: 0 auto; padding: 17mm 16mm 15mm;
+      background: #f8fafc; position: relative; overflow: hidden; page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .dark { background: #111c2f; color: white; }
+    .orange { color: #ff6b0b; }
+    .eyebrow { color: #ff6b0b; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; font-size: 9pt; }
+    h1 { font-size: 34pt; line-height: 1.03; margin: 4mm 0; letter-spacing: -.035em; }
+    h2 { font-size: 24pt; line-height: 1.08; margin: 3mm 0 5mm; letter-spacing: -.025em; }
+    h3 { font-size: 13pt; margin: 0 0 2mm; }
+    p { font-size: 10.5pt; line-height: 1.55; margin: 0 0 3mm; color: #445268; }
+    .dark p { color: #cbd5e1; }
+    .lead { font-size: 15pt; line-height: 1.45; max-width: 165mm; }
+    .hero {
+      width: 100%; height: 118mm; object-fit: cover; border-radius: 7mm;
+      box-shadow: 0 8mm 18mm rgba(15,23,42,.22); margin-top: 9mm;
+    }
+    .screen {
+      width: 100%; max-height: 155mm; object-fit: contain; object-position: top;
+      border: .4mm solid #d9e1ec; border-radius: 4mm; background: white;
+      box-shadow: 0 3mm 9mm rgba(15,23,42,.10); margin: 5mm 0 4mm;
+    }
+    .screen.short { max-height: 103mm; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+    .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 4mm; }
+    .card { background: white; border: .4mm solid #dbe3ee; border-radius: 4mm; padding: 5mm; }
+    .dark .card { background: #1b2940; border-color: #314158; }
+    .metric { font-size: 23pt; font-weight: 850; line-height: 1; color: #ff6b0b; }
+    .step { display: grid; grid-template-columns: 13mm 1fr; gap: 4mm; margin-bottom: 5mm; }
+    .step-num {
+      width: 11mm; height: 11mm; border-radius: 50%; background: #ff6b0b; color: white;
+      display: flex; align-items: center; justify-content: center; font-weight: 850;
+    }
+    .quote {
+      border-left: 1.5mm solid #ff6b0b; padding: 4mm 0 4mm 6mm; margin: 6mm 0;
+      font-size: 16pt; line-height: 1.35; font-weight: 720; color: #152238;
+    }
+    .dark .quote { color: white; }
+    .callout { background: #fff3e9; border: .4mm solid #ffd8bb; border-radius: 4mm; padding: 5mm; }
+    .callout strong { color: #c84400; }
+    .note { font-size: 8pt; line-height: 1.4; color: #64748b; }
+    .badge { display: inline-block; padding: 1.5mm 3mm; background: #ff6b0b; color: white; border-radius: 99px; font-size: 8pt; font-weight: 800; }
+    .footer { position: absolute; left: 16mm; right: 16mm; bottom: 7mm; border-top: .3mm solid #d8e0ea; padding-top: 2mm; display:flex; justify-content:space-between; font-size:7.5pt; color:#718096; }
+    .dark .footer { border-color:#334155; color:#94a3b8; }
+    .lifecycle { display:grid; grid-template-columns: repeat(4,1fr); gap:3mm; margin:8mm 0; }
+    .lifecycle .card { min-height: 34mm; }
+    .thumb { width:100%; height:29mm; object-fit:cover; object-position:top; border-radius:2.5mm; border:.3mm solid #d9e1ec; }
+    .inventory { font-size:8pt; line-height:1.35; margin-top:1.5mm; color:#536176; }
+    ul { margin: 2mm 0 3mm 5mm; padding-left: 4mm; }
+    li { margin-bottom: 2mm; font-size: 10pt; line-height: 1.4; color: #445268; }
+    .dark li { color:#cbd5e1; }
+  </style>
+</head>
+<body>
+  <section class="page dark">
+    <div class="eyebrow">Summit Garage Door Co. · Business Story</div>
+    <h1>From “my door is broken”<br/>to <span class="orange">a business that runs itself.</span></h1>
+    <p class="lead">A sales narrative for the complete customer and owner lifecycle—marketing, trust, conversation, booking, dispatch, fulfillment, reputation, and repeat growth in one connected operating system.</p>
+    <img class="hero" src="report-screens/customer-home.png" alt="Summit customer homepage" />
+    <div class="footer"><span>Captured from the live website with Playwright · September 2026</span><span>01</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">The sales pitch</div>
+    <h2>Customers do not buy a repair. They buy their day back.</h2>
+    <p class="lead">A garage-door problem arrives as stress: a trapped car, an exposed home, a strange noise, or a decision the homeowner does not know how to make. The application turns that uncertainty into a clear, safe, trackable journey.</p>
+    <div class="lifecycle">
+      <div class="card"><div class="metric">01</div><h3>Attract</h3><p>Local positioning, strong imagery, services, pricing anchors, reviews and proof.</p></div>
+      <div class="card"><div class="metric">02</div><h3>Convert</h3><p>Maya, FAQs and a guided request form reduce uncertainty and collect the right details.</p></div>
+      <div class="card"><div class="metric">03</div><h3>Operate</h3><p>Requests, chats, bookings and urgent jobs arrive in one owner workspace.</p></div>
+      <div class="card"><div class="metric">04</div><h3>Grow</h3><p>Services, photos, transformations and reviews become the next wave of trust.</p></div>
+    </div>
+    <div class="quote">“One promise, one customer journey, one place to run the business.”</div>
+    <div class="grid3">
+      <div class="card"><h3>Marketing expert view</h3><p>Every section answers a buying objection and keeps a clear service CTA within reach.</p></div>
+      <div class="card"><h3>Product expert view</h3><p>The interface moves from discovery to action without making the customer learn the business.</p></div>
+      <div class="card"><h3>Business expert view</h3><p>The owner gets a single operating loop from lead intake through schedule, proof and retention.</p></div>
+    </div>
+    <div class="footer"><span>Executive lifecycle</span><span>02</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act I · Discovery</div>
+    <h2>The website meets the homeowner at the moment of need.</h2>
+    <p>The opening message names the real pain—lost time—and pairs it with strong local trust signals, emergency availability, direct calling and a prominent booking path. Service cards translate technical work into recognizable outcomes with starting prices that make the next step feel concrete.</p>
+    <img class="screen short" src="report-screens/customer-services.png" alt="Customer services" />
+    <div class="grid2">
+      <div class="card"><h3>Conversion strategy</h3><ul><li>Urgency without panic</li><li>Local and insured positioning</li><li>Choice between calling, exploring and booking</li></ul></div>
+      <div class="card"><h3>Commercial strategy</h3><ul><li>Starting prices qualify expectations</li><li>Service entities improve lead routing</li><li>Expandable catalog supports cross-sell</li></ul></div>
+    </div>
+    <div class="footer"><span>Customer screen: Services and price anchors</span><span>03</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act II · Trust</div>
+    <h2>Proof replaces hesitation.</h2>
+    <p>Homeowners can see the quality of the work before sharing their phone number. The gallery proves range. Before-and-after comparisons make value visible. Reviews answer the question every local-service buyer asks: “Did people like me trust this company and feel good afterward?”</p>
+    <div class="grid2">
+      <img class="screen short" src="report-screens/admin-before-after.png" alt="Before and after management" />
+      <img class="screen short" src="report-screens/customer-reviews.png" alt="Customer reviews" />
+    </div>
+    <div class="quote">Trust is not a paragraph. It is a system of photographs, transformations, reviews and consistent answers.</div>
+    <div class="footer"><span>Customer proof + owner-managed transformation library</span><span>04</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act III · Conversation</div>
+    <h2>Maya turns uncertainty into a safe next step.</h2>
+    <p>Maya speaks like a calm local coordinator—not a generic diagnostic bot. She can acknowledge casual conversation, explain services and pricing, understand Metro Atlanta coverage, collect context and move the customer toward a request without pressuring them.</p>
+    <img class="screen short" src="report-screens/customer-faq.png" alt="FAQ and customer-care context" />
+    <div class="grid2">
+      <div class="card"><span class="badge">Playwright verified</span><h3 style="margin-top:3mm">Human small talk</h3><p>Customer: “hru?”</p><p><strong>Maya:</strong> “I’m doing well, thanks for asking. I’m here to help you get your garage door sorted out—what’s it doing today: stuck, noisy, slow, or refusing to open?”</p></div>
+      <div class="card"><h3>Safety remains non-negotiable</h3><p>Broken springs, cables, crooked doors and off-track situations trigger firm stop-use guidance. Maya never coaches a homeowner through high-tension repairs.</p></div>
+    </div>
+    <p class="note">Interactive Playwright evidence: welcome state 7w7ky5; natural-response state w3v8np.</p>
+    <div class="footer"><span>Customer screens: FAQ + Maya customer care</span><span>05</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act IV · Request</div>
+    <h2>The form collects what dispatch actually needs.</h2>
+    <p>The customer provides identity, contact details, job location, service category, urgency, preferred date and time, and a description. Voice input reduces typing. Photo and video options help customers prepare context while keeping media local until they choose to share it.</p>
+    <img class="screen" src="report-screens/customer-booking.png" alt="Customer service request form" />
+    <div class="callout"><strong>Immediate reassurance:</strong> After submission, the application shows “Request Received!” and explains that the team will be in touch to confirm the appointment.</div>
+    <div class="footer"><span>Customer screen: Guided service request</span><span>06</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">The notification contract</div>
+    <h2>Every important moment goes to the right inbox.</h2>
+    <p class="lead">The operating rule is simple: service-request alerts, request confirmations and booking confirmations are communicated by default to the user-specified email address.</p>
+    <img class="screen short" src="report-screens/admin-settings.png" alt="Admin settings with public email" />
+    <div class="step"><div class="step-num">1</div><div><h3>The owner chooses the email</h3><p>Admin → Site settings → Public Email is the control point for the business address.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>The system uses it by default</h3><p>New request alerts, confirmation alerts and booking confirmation alerts route to the configured address.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>The owner can change it anytime</h3><p>Update and save the email in Admin Settings; subsequent alerts use the new address.</p></div></div>
+    <p class="note"><strong>Current demo note:</strong> The live demo includes the editable Public Email field and in-app request confirmation. Production outbound email delivery must be connected to an email provider for these messages to be sent externally.</p>
+    <div class="footer"><span>Admin screen: Site settings and owner-controlled email</span><span>07</span></div>
+  </section>
+
+  <section class="page dark">
+    <div class="eyebrow">Act V · The owner wakes up to clarity</div>
+    <h2>One dashboard answers: What needs attention now?</h2>
+    <p>The overview prioritizes open requests, upcoming bookings and recent conversations. Instead of checking form tools, inboxes, spreadsheets and website editors, the owner starts with one queue and one schedule.</p>
+    <img class="screen" src="report-screens/admin-overview-final.png" alt="Admin overview" />
+    <div class="grid3">
+      <div class="card"><h3>Revenue protection</h3><p>New leads stay visible until they are worked.</p></div>
+      <div class="card"><h3>Operational focus</h3><p>Urgent and upcoming work is separated from content administration.</p></div>
+      <div class="card"><h3>Team confidence</h3><p>Everyone sees the same operating picture.</p></div>
+    </div>
+    <div class="footer"><span>Admin screen: Overview</span><span>08</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act VI · Lead control</div>
+    <h2>Every request becomes a managed opportunity.</h2>
+    <p>The service-request workspace organizes new requests, emergencies, scheduled work and pipeline value. Contact details, location, timing and status remain attached to the request, making follow-up faster and reducing the cost of forgotten leads.</p>
+    <img class="screen" src="report-screens/admin-service-requests.png" alt="Service request operations" />
+    <div class="quote">Fewer missed calls. Faster confirmation. A visible pipeline instead of inbox archaeology.</div>
+    <div class="footer"><span>Admin screen: Service requests</span><span>09</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act VII · Conversations become work</div>
+    <h2>Maya does not create a dead-end chat transcript.</h2>
+    <p>Customer-care conversations flow into a visible inquiry queue. The owner can see who is new, who has received a reply and which conversation should become a service request. The result is a clean bridge from questions to revenue.</p>
+    <img class="screen" src="report-screens/admin-chats.png" alt="Chat inquiries" />
+    <div class="grid2">
+      <div class="card"><h3>For the customer</h3><p>No need to repeat the whole story when moving from Maya to the request form.</p></div>
+      <div class="card"><h3>For the business</h3><p>Conversation status gives the team a shared follow-up language.</p></div>
+    </div>
+    <div class="footer"><span>Admin screen: Chat inquiries</span><span>10</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act VIII · Confirmation and dispatch</div>
+    <h2>A request becomes a real commitment on the schedule.</h2>
+    <p>Once the team confirms timing, the booking appears in the Bookings workspace. This separates requested preferences from confirmed appointments—a small product decision that prevents accidental promises and protects customer trust.</p>
+    <img class="screen" src="report-screens/admin-bookings-final.png" alt="Bookings workspace" />
+    <div class="callout"><strong>Email moments in this stage:</strong> the business receives the booking alert at the configured email, and the customer receives the appropriate booking confirmation through the connected production email workflow.</div>
+    <div class="footer"><span>Admin screen: Bookings</span><span>11</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act IX · The website stays commercially current</div>
+    <h2>The owner controls the offer without rebuilding the site.</h2>
+    <div class="grid2">
+      <div><img class="screen short" src="report-screens/admin-services.png" alt="Admin services" /><h3>Service catalog</h3><p>Keep offers, starting prices and publishing status aligned with the real business.</p></div>
+      <div><img class="screen short" src="report-screens/admin-gallery.png" alt="Admin gallery" /><h3>Project photography</h3><p>Turn completed jobs into evidence for tomorrow’s customer.</p></div>
+    </div>
+    <div class="quote">Fulfillment feeds marketing: every completed job can become a service story, image, transformation and review.</div>
+    <div class="footer"><span>Admin screens: Services + Gallery</span><span>12</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act X · Knowledge and reputation compound</div>
+    <h2>The business gets smarter and more trusted over time.</h2>
+    <div class="grid2">
+      <div><img class="screen short" src="report-screens/admin-faqs.png" alt="FAQ management" /><h3>Safety-focused FAQs</h3><p>Update recurring answers once; customers and Maya benefit everywhere.</p></div>
+      <div><img class="screen short" src="report-screens/admin-reviews.png" alt="Review management" /><h3>Review operations</h3><p>Preview Google Business Profile content and manage manual testimonials.</p></div>
+    </div>
+    <p>Marketing is no longer separate from operations. The questions customers ask improve the FAQ library. The jobs the team completes improve the photo library. The experiences the business delivers improve the review library.</p>
+    <div class="footer"><span>Admin screens: FAQs + Reviews</span><span>13</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Act XI · People and permissions</div>
+    <h2>The business can grow beyond one owner.</h2>
+    <p>Staff users and roles establish the foundation for delegation. A dispatcher can focus on requests and bookings while an administrator manages the offer, website and business configuration.</p>
+    <img class="screen" src="report-screens/admin-users.png" alt="Admin users and roles" />
+    <div class="grid3">
+      <div class="card"><h3>Owner</h3><p>Strategy, configuration and visibility.</p></div>
+      <div class="card"><h3>Dispatcher</h3><p>Lead response, confirmation and schedule.</p></div>
+      <div class="card"><h3>Marketing</h3><p>Services, photos, transformations, FAQs and reviews.</p></div>
+    </div>
+    <div class="footer"><span>Admin screen: Users</span><span>14</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Complete screen inventory</div>
+    <h2>Customer and admin experience captured end to end.</h2>
+    <div class="grid3">
+      <div><img class="thumb" src="report-screens/customer-home.png"/><div class="inventory">Customer · Hero and primary CTA</div></div>
+      <div><img class="thumb" src="report-screens/customer-services.png"/><div class="inventory">Customer · Services</div></div>
+      <div><img class="thumb" src="report-screens/customer-gallery.png"/><div class="inventory">Customer · Gallery</div></div>
+      <div><img class="thumb" src="report-screens/customer-before-after.png"/><div class="inventory">Customer · Before & after</div></div>
+      <div><img class="thumb" src="report-screens/customer-booking.png"/><div class="inventory">Customer · Booking form</div></div>
+      <div><img class="thumb" src="report-screens/customer-reviews.png"/><div class="inventory">Customer · Reviews and trust</div></div>
+      <div><img class="thumb" src="report-screens/admin-login.png"/><div class="inventory">Admin · Login</div></div>
+      <div><img class="thumb" src="report-screens/admin-overview-final.png"/><div class="inventory">Admin · Overview</div></div>
+      <div><img class="thumb" src="report-screens/admin-service-requests.png"/><div class="inventory">Admin · Service requests</div></div>
+      <div><img class="thumb" src="report-screens/admin-bookings-final.png"/><div class="inventory">Admin · Bookings</div></div>
+      <div><img class="thumb" src="report-screens/admin-chats.png"/><div class="inventory">Admin · Chat inquiries</div></div>
+      <div><img class="thumb" src="report-screens/admin-services.png"/><div class="inventory">Admin · Services</div></div>
+      <div><img class="thumb" src="report-screens/admin-gallery.png"/><div class="inventory">Admin · Gallery</div></div>
+      <div><img class="thumb" src="report-screens/admin-before-after.png"/><div class="inventory">Admin · Before & after</div></div>
+      <div><img class="thumb" src="report-screens/admin-faqs.png"/><div class="inventory">Admin · FAQs</div></div>
+      <div><img class="thumb" src="report-screens/admin-reviews.png"/><div class="inventory">Admin · Reviews</div></div>
+      <div><img class="thumb" src="report-screens/admin-settings.png"/><div class="inventory">Admin · Site settings</div></div>
+      <div><img class="thumb" src="report-screens/admin-users.png"/><div class="inventory">Admin · Users</div></div>
+    </div>
+    <p class="note">Additional interactive Playwright evidence captured: expanded service catalog e07kqk; expanded gallery u6w47z; booking 01v7dg; expanded FAQ cy1eou; Maya welcome 7w7ky5; Maya response w3v8np.</p>
+    <div class="footer"><span>Playwright capture index</span><span>15</span></div>
+  </section>
+
+  <section class="page dark">
+    <div class="eyebrow">The close</div>
+    <h1>Do not just build a website.<br/><span class="orange">Build the operating system for trust.</span></h1>
+    <p class="lead">Summit’s application makes the business lifecycle simple because the customer journey and the owner workflow are the same connected story.</p>
+    <div style="margin-top:12mm">
+      <div class="step"><div class="step-num">1</div><div><h3>Win attention</h3><p>Local value, proof and a confident offer.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h3>Earn the conversation</h3><p>Human customer care with strong safety boundaries.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h3>Capture and confirm demand</h3><p>Structured requests, owner-selected email alerts and confirmed bookings.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div><h3>Run the day</h3><p>One dashboard for requests, conversations, schedule and responsibilities.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div><h3>Turn work into growth</h3><p>Every job strengthens services, proof, FAQs and reputation.</p></div></div>
+    </div>
+    <div class="quote">“The result is not more software. It is fewer dropped balls, faster customer confidence, and a business that becomes easier to operate as it grows.”</div>
+    <p><strong>Live experience:</strong> https://sample-garage-door-repair.samples.creativecoders.tech/</p>
+    <div class="footer"><span>Summit Garage Door Co. · Business lifecycle sales narrative</span><span>16</span></div>
+  </section>
+</body>
+</html>

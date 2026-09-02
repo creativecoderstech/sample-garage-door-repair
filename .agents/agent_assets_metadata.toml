@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "ldkejyUc0xB4_CKthpCeY"
+uri = "file://artifacts/sample-garage-door-repair/Summit-Garage-Door-Business-Lifecycle-Sales-Story.pdf"
+type = "pdf"
+title = "Summit Garage Door — Business Lifecycle Sales Story"
+description = "A polished 16-page sales-pitch PDF showing the complete customer and owner lifecycle, with Playwright-captured customer/admin screens, Maya customer care, booking operations, configurable email-alert rules, and an accurate production-email integration note."
+logical_id = "d4af6423-7879-4dc3-983c-60949bb27e68"
+content_hash = "sha256:11ff61ca6f05263ad46f5e7f7a9c322bb2b67edc416565e9a5fef5e17765ed68"
+size = 26650383
+mtime_ms = 1788373476344
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:bbcee3e9-bfe2-48ef-9001-c80eec8904ed/d4af6423-7879-4dc3-983c-60949bb27e68/b33e1dbb-03a9-4e39-b3c1-da2eebb940b4"
+storage_version_token = "1788373498978721"
+content_type = "application/pdf"
