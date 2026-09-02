@@ -74,18 +74,42 @@ export interface Task {
 const defaultTasks: Task[] = [
   {
     id: "1",
+    title: "Classic to Contemporary",
+    description: "A representative upgrade from a basic white door to a clean, modern glass-panel design.",
+    beforeImageUrl: "/images/garage/classic-white-door.jpg",
+    afterImageUrl: "/images/garage/modern-white-home.jpg"
+  },
+  {
+    id: "2",
+    title: "Curb Appeal Refresh",
+    description: "A representative transformation from an aging single-bay door to a coordinated two-door exterior.",
+    beforeImageUrl: "/images/garage/before-after/brick-brown-door.jpg",
+    afterImageUrl: "/images/garage/before-after/double-door-planters.jpg"
+  },
+  {
+    id: "3",
+    title: "Modern Black Door Upgrade",
+    description: "A representative style upgrade showing how a dark insulated door can sharpen a home's exterior.",
+    beforeImageUrl: "/images/garage/evening-home.jpg",
+    afterImageUrl: "/images/garage/before-after/modern-dark-door.jpg"
+  }
+];
+
+const previousDefaultTasks: Task[] = [
+  {
+    id: "1",
     title: "Damaged Door Transformation",
     description: "Replaced a worn residential door with a quiet, insulated modern system.",
     beforeImageUrl: "/images/garage/classic-white-door.jpg",
-    afterImageUrl: "/images/garage/modern-white-home.jpg"
+    afterImageUrl: "/images/garage/modern-white-home.jpg",
   },
   {
     id: "2",
     title: "Premium Curb Appeal Upgrade",
     description: "Upgraded the original entry to a warm contemporary door matched to the home.",
     beforeImageUrl: "/images/garage/evening-home.jpg",
-    afterImageUrl: "/images/garage/double-garage-home.jpg"
-  }
+    afterImageUrl: "/images/garage/double-garage-home.jpg",
+  },
 ];
 
 const legacyDefaultTask: Task = {
@@ -113,8 +137,32 @@ export function useListTasks() {
           didUpgrade = true;
           return defaultTasks[0];
         }
+        const previousDefaultIndex = previousDefaultTasks.findIndex((previous) =>
+          task.id === previous.id &&
+          task.title === previous.title &&
+          task.description === previous.description &&
+          task.beforeImageUrl === previous.beforeImageUrl &&
+          task.afterImageUrl === previous.afterImageUrl
+        );
+        if (previousDefaultIndex !== -1) {
+          didUpgrade = true;
+          return defaultTasks[previousDefaultIndex];
+        }
         return task;
       });
+      const containedAllPreviousDefaults = previousDefaultTasks.every((previous) =>
+        tasks.some((task) =>
+          task.id === previous.id &&
+          task.title === previous.title &&
+          task.description === previous.description &&
+          task.beforeImageUrl === previous.beforeImageUrl &&
+          task.afterImageUrl === previous.afterImageUrl
+        )
+      );
+      if (containedAllPreviousDefaults && !upgraded.some((task) => task.id === defaultTasks[2].id)) {
+        upgraded.push(defaultTasks[2]);
+        didUpgrade = true;
+      }
       if (didUpgrade) {
         setStorage("tasks", upgraded);
       }

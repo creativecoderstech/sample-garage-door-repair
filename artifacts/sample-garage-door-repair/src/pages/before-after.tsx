@@ -26,10 +26,13 @@ export default function BeforeAfterPage() {
   return (
     <div className="min-h-screen bg-background noise-overlay py-20 lg:py-32">
       <div className="container mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="max-w-3xl mb-16 reveal-on-scroll">
+        <div className="max-w-3xl mb-12 reveal-on-scroll">
           <h1 className="font-display font-bold text-5xl md:text-6xl mb-6 tracking-tight">Before & After</h1>
           <p className="text-xl text-muted-foreground leading-relaxed">
-            See the transformation. From broken springs to complete panel replacements, we bring garage doors back to life.
+            Explore representative garage-door upgrades, from dated exteriors to clean, modern finishes.
+          </p>
+          <p className="mt-5 inline-flex rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
+            Stock photography represents typical project outcomes
           </p>
         </div>
 
@@ -40,7 +43,7 @@ export default function BeforeAfterPage() {
         ) : (
           <div className="ba-grid reveal-on-scroll">
             {tasks.map((task) => (
-              <div key={task.id} className="ba-card flex flex-col group">
+              <article key={task.id} className="ba-card flex flex-col group">
                 <div className="ba-compare">
                   <div className="ba-pane">
                     <span className="ba-tag ba-tag-before shadow-sm">Before</span>
@@ -55,7 +58,7 @@ export default function BeforeAfterPage() {
                   <h3 className="font-display font-bold text-xl mb-2 group-hover:text-primary transition-colors">{task.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{task.description}</p>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
