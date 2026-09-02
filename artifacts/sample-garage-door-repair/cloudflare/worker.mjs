@@ -65,7 +65,7 @@ function suggestedServiceFor(message) {
   if (/off.?track|track|roller/i.test(message)) return "Off-Track Door Rescue";
   if (/cable|hinge/i.test(message)) return "Cable, Roller & Hinge Repair";
   if (/opener|remote|keypad|sensor|motor/i.test(message)) return "Opener Repair & Installation";
-  if (/new door|replace|replacement|install|insulated|carriage|glass/i.test(message)) return "New Garage Door Installation";
+  if (/new (?:garage )?door|replace|replacement|install|insulated|carriage|glass/i.test(message)) return "New Garage Door Installation";
   if (/maint|inspect|tune|lubricat|annual|slow|noisy|noise|squeak|grind/i.test(message)) return "Safety Tune-Up";
   return "Service assessment";
 }

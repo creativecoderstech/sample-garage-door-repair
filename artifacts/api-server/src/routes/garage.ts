@@ -282,7 +282,7 @@ function suggestedServiceFor(message: string) {
   if (/off.?track|track|roller/.test(normalized)) return "Off-Track Door Rescue";
   if (/cable|hinge/.test(normalized)) return "Cable, Roller & Hinge Repair";
   if (/opener|remote|keypad|sensor|motor/.test(normalized)) return "Opener Repair & Installation";
-  if (/new door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "New Garage Door Installation";
+  if (/new (?:garage )?door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "New Garage Door Installation";
   if (/maint|inspect|tune|lubricat|annual|slow|noisy|noise|squeak|grind/.test(normalized)) return "Safety Tune-Up";
   if (/price|cost|quote|estimate/.test(normalized)) return "Service assessment";
   return "Service assessment";
