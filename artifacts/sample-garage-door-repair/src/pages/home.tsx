@@ -16,6 +16,17 @@ import {
   Phone
 } from 'lucide-react';
 
+const defaultGalleryImages = [
+  "/images/garage/modern-white-home.jpg",
+  "/images/garage/classic-white-door.jpg",
+  "/images/garage/evening-home.jpg",
+  "/images/garage/double-garage-home.jpg",
+  "/images/garage/gallery/garage-modern-building.jpg",
+  "/images/garage/gallery/garage-white-house.jpg",
+  "/images/garage/gallery/garage-wood-panel.jpg",
+  "/images/garage/gallery/garage-interior-ev.jpg",
+];
+
 export default function HomePage() {
   const { data: settings } = useGetBusinessSettings();
   const { data: services } = useListGarageServices();
@@ -72,7 +83,9 @@ export default function HomePage() {
   }, []);
 
   const heroImage = settings?.heroImage || "/images/garage/hero-modern-garage.jpg";
-  const galleryImages = settings?.galleryImages || [];
+  const galleryImages = settings?.galleryImages?.length
+    ? settings.galleryImages
+    : defaultGalleryImages;
   const topServices = services?.slice(0, 3) || [];
   
   return (
@@ -188,8 +201,7 @@ export default function HomePage() {
       </section>
 
       {/* GALLERY TEASER */}
-      {galleryImages.length > 0 && (
-        <section id="work" className="py-24 border-y bg-background">
+      <section id="work" className="py-24 border-y bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-12">
             <div className="text-center max-w-2xl mx-auto mb-16 reveal-on-scroll">
               <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Recent Field Work</p>
@@ -208,8 +220,7 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
-        </section>
-      )}
+      </section>
 
       {/* BEFORE & AFTER */}
       <section id="before-after" className="py-24 bg-muted/20 border-b">
