@@ -13,11 +13,15 @@ export interface ServiceRequest {
   customerName: string;
   phone: string;
   email: string;
+  streetAddress: string;
+  city: string;
+  state: string;
   zip: string;
   service: string;
   urgency: ServiceRequestUrgency;
   status: ServiceRequestStatus;
   preferredDate: string;
+  preferredTime: string;
   details?: string;
   createdAt: string;
 }

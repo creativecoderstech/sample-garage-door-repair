@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CalendarCheck, ShieldCheck, MapPin, Upload, Camera, Video, X, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VoiceInput } from "@/components/voice-input";
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -58,12 +59,15 @@ const bookingSchema = z.object({
   customerName: z.string().min(2, "Name is required"),
   phone: z.string().min(7, "Valid phone is required"),
   email: z.string().email("Valid email is required").optional().or(z.literal('')),
+  streetAddress: z.string().min(3, "Street address is required"),
+  city: z.string().min(2, "City is required"),
+  state: z.string().length(2, "Enter a two-letter state"),
   zip: z.string().min(5, "ZIP code is required"),
   service: z.string().min(2, "Service type is required"),
   urgency: z.enum(["emergency", "soon", "flexible"]),
   preferredDate: z.string().optional(),
   preferredTime: z.string().optional(),
-  details: z.string().optional(),
+  details: z.string().min(10, "Please briefly describe the garage door issue"),
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
@@ -78,6 +82,9 @@ export function BookingForm({ className = "" }: { className?: string }) {
       customerName: "",
       phone: "",
       email: "",
+      streetAddress: "",
+      city: "",
+      state: "TX",
       zip: "",
       service: "repair",
       urgency: "flexible",
@@ -184,11 +191,6 @@ export function BookingForm({ className = "" }: { className?: string }) {
   const onSubmit = (values: BookingFormValues) => {
     let combinedDetails = values.details || "";
 
-    if (values.preferredTime) {
-      const timeLabel = TIME_WINDOW_LABELS[values.preferredTime as keyof typeof TIME_WINDOW_LABELS] || values.preferredTime;
-      combinedDetails = `Preferred Time: ${timeLabel}\n\n${combinedDetails}`.trim();
-    }
-
     if (photos.length > 0 || videos.length > 0) {
       combinedDetails = `${combinedDetails}\n\n[Note: Customer has ${photos.length} photo(s) and ${videos.length} video(s) saved locally to share upon request.]`.trim();
     }
@@ -197,10 +199,14 @@ export function BookingForm({ className = "" }: { className?: string }) {
       customerName: values.customerName,
       phone: values.phone,
       email: values.email || "",
+      streetAddress: values.streetAddress,
+      city: values.city,
+      state: values.state.toUpperCase(),
       zip: values.zip,
       service: values.service,
       urgency: values.urgency,
       preferredDate: values.preferredDate || new Date().toISOString().split('T')[0],
+      preferredTime: values.preferredTime || "",
       details: combinedDetails,
     }}, {
       onSuccess: () => {
@@ -258,12 +264,55 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField control={form.control} name="zip" render={({ field }) => (
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-bold text-foreground flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                Job Location *
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                We need the address to route the technician and confirm service availability.
+              </p>
+            </div>
+            <FormField control={form.control} name="streetAddress" render={({ field }) => (
               <FormItem>
-                <FormLabel>ZIP Code *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Street address" autoComplete="street-address" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <div className="grid grid-cols-[minmax(0,1fr)_72px_96px] gap-2">
+              <FormField control={form.control} name="city" render={({ field }) => (
+                <FormItem>
+                  <FormControl><Input placeholder="City" autoComplete="address-level2" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="state" render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      aria-label="State"
+                      autoComplete="address-level1"
+                      maxLength={2}
+                      className="text-center uppercase"
+                      {...field}
+                      onChange={(event) => field.onChange(event.target.value.replace(/[^a-z]/gi, '').toUpperCase())}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="zip" render={({ field }) => (
+              <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="12345"
+                    placeholder="ZIP"
+                    aria-label="ZIP code"
+                    autoComplete="postal-code"
                     {...field}
                     maxLength={5}
                     onChange={(e) => field.onChange(e.target.value.replace(/\D/g, '').slice(0, 5))}
@@ -277,7 +326,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 )}
                 <FormMessage />
               </FormItem>
-            )} />
+              )} />
+            </div>
           </div>
 
           <FormField control={form.control} name="service" render={({ field }) => (
@@ -373,10 +423,24 @@ export function BookingForm({ className = "" }: { className?: string }) {
 
           <FormField control={form.control} name="details" render={({ field }) => (
             <FormItem>
-              <FormLabel>Additional Details</FormLabel>
+              <FormLabel>Job Description *</FormLabel>
               <FormControl>
-                <Textarea placeholder="Briefly describe the issue..." className="resize-none min-h-[100px]" {...field} />
+                <Textarea
+                  placeholder="Describe what you need done. The more detail, the better!"
+                  className="resize-none min-h-[120px]"
+                  {...field}
+                />
               </FormControl>
+              <VoiceInput
+                onTranscript={(text) => {
+                  const current = form.getValues('details');
+                  form.setValue(
+                    'details',
+                    current ? `${current.trim()} ${text}` : text,
+                    { shouldDirty: true, shouldValidate: true },
+                  );
+                }}
+              />
               <FormMessage />
             </FormItem>
           )} />

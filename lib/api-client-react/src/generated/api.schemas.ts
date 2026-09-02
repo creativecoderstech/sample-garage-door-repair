@@ -113,11 +113,15 @@ export interface ServiceRequest {
   customerName: string;
   phone: string;
   email: string;
+  streetAddress: string;
+  city: string;
+  state: string;
   zip: string;
   service: string;
   urgency: ServiceRequestUrgency;
   status: ServiceRequestStatus;
   preferredDate: string;
+  preferredTime: string;
   details?: string;
   createdAt: string;
 }
@@ -137,11 +141,21 @@ export interface ServiceRequestInput {
   /** @minLength 7 */
   phone: string;
   email: string;
+  /** @minLength 3 */
+  streetAddress: string;
+  /** @minLength 2 */
+  city: string;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  state: string;
   /** @minLength 5 */
   zip: string;
   service: string;
   urgency: ServiceRequestInputUrgency;
   preferredDate: string;
+  preferredTime?: string;
   details?: string;
 }
 
@@ -158,6 +172,7 @@ export const ServiceRequestUpdateStatus = {
 export interface ServiceRequestUpdate {
   status?: ServiceRequestUpdateStatus;
   preferredDate?: string;
+  preferredTime?: string;
   details?: string;
 }
 

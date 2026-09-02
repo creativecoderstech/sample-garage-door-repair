@@ -13,10 +13,20 @@ export interface ServiceRequestInput {
   /** @minLength 7 */
   phone: string;
   email: string;
+  /** @minLength 3 */
+  streetAddress: string;
+  /** @minLength 2 */
+  city: string;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  state: string;
   /** @minLength 5 */
   zip: string;
   service: string;
   urgency: ServiceRequestInputUrgency;
   preferredDate: string;
+  preferredTime?: string;
   details?: string;
 }

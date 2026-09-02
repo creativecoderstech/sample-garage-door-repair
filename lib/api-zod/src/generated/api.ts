@@ -83,11 +83,15 @@ export const ListServiceRequestsResponseItem = zod.object({
   "customerName": zod.string(),
   "phone": zod.string(),
   "email": zod.string(),
+  "streetAddress": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
   "zip": zod.string(),
   "service": zod.string(),
   "urgency": zod.enum(['emergency', 'soon', 'flexible']),
   "status": zod.enum(['new', 'scheduled', 'dispatched', 'completed']),
   "preferredDate": zod.string(),
+  "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
 })
@@ -98,6 +102,13 @@ export const createServiceRequestBodyCustomerNameMin = 2;
 
 export const createServiceRequestBodyPhoneMin = 7;
 
+export const createServiceRequestBodyStreetAddressMin = 3;
+
+export const createServiceRequestBodyCityMin = 2;
+
+export const createServiceRequestBodyStateMin = 2;
+export const createServiceRequestBodyStateMax = 2;
+
 export const createServiceRequestBodyZipMin = 5;
 
 
@@ -106,10 +117,14 @@ export const CreateServiceRequestBody = zod.object({
   "customerName": zod.string().min(createServiceRequestBodyCustomerNameMin),
   "phone": zod.string().min(createServiceRequestBodyPhoneMin),
   "email": zod.string(),
+  "streetAddress": zod.string().min(createServiceRequestBodyStreetAddressMin),
+  "city": zod.string().min(createServiceRequestBodyCityMin),
+  "state": zod.string().min(createServiceRequestBodyStateMin).max(createServiceRequestBodyStateMax),
   "zip": zod.string().min(createServiceRequestBodyZipMin),
   "service": zod.string(),
   "urgency": zod.enum(['emergency', 'soon', 'flexible']),
   "preferredDate": zod.string(),
+  "preferredTime": zod.string().optional(),
   "details": zod.string().optional()
 })
 
@@ -118,11 +133,15 @@ export const CreateServiceRequestResponse = zod.object({
   "customerName": zod.string(),
   "phone": zod.string(),
   "email": zod.string(),
+  "streetAddress": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
   "zip": zod.string(),
   "service": zod.string(),
   "urgency": zod.enum(['emergency', 'soon', 'flexible']),
   "status": zod.enum(['new', 'scheduled', 'dispatched', 'completed']),
   "preferredDate": zod.string(),
+  "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
 })
@@ -135,6 +154,7 @@ export const UpdateServiceRequestParams = zod.object({
 export const UpdateServiceRequestBody = zod.object({
   "status": zod.enum(['new', 'scheduled', 'dispatched', 'completed']).optional(),
   "preferredDate": zod.string().optional(),
+  "preferredTime": zod.string().optional(),
   "details": zod.string().optional()
 })
 
@@ -143,11 +163,15 @@ export const UpdateServiceRequestResponse = zod.object({
   "customerName": zod.string(),
   "phone": zod.string(),
   "email": zod.string(),
+  "streetAddress": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
   "zip": zod.string(),
   "service": zod.string(),
   "urgency": zod.enum(['emergency', 'soon', 'flexible']),
   "status": zod.enum(['new', 'scheduled', 'dispatched', 'completed']),
   "preferredDate": zod.string(),
+  "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
 })
@@ -164,11 +188,15 @@ export const GetGarageDashboardResponse = zod.object({
   "customerName": zod.string(),
   "phone": zod.string(),
   "email": zod.string(),
+  "streetAddress": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
   "zip": zod.string(),
   "service": zod.string(),
   "urgency": zod.enum(['emergency', 'soon', 'flexible']),
   "status": zod.enum(['new', 'scheduled', 'dispatched', 'completed']),
   "preferredDate": zod.string(),
+  "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
 }))

@@ -16,7 +16,7 @@ import {
   LayoutGrid, Inbox, CalendarDays, MessageCircle, 
   Wrench, Image as ImageIcon, SplitSquareHorizontal, 
   HelpCircle, Star, Settings, Users, ChevronRight, 
-  ExternalLink, Sparkles, Building2, Menu, X
+  ExternalLink, Sparkles, Building2, Menu, X, MapPin
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,12 @@ import {
 } from '@/lib/demo-store';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+
+const TIME_WINDOW_LABELS: Record<string, string> = {
+  morning: 'Morning (8am - 12pm)',
+  afternoon: 'Afternoon (12pm - 4pm)',
+  evening: 'Evening (4pm - 8pm)',
+};
 
 type AdminTab =
   | 'overview'
@@ -619,6 +625,8 @@ function ServiceRequestsAdmin() {
   const filteredRequests = requests.filter(req => 
     req.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     req.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.streetAddress.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
     req.zip.includes(searchTerm)
   );
 
@@ -723,12 +731,20 @@ function ServiceRequestsAdmin() {
                       <div className="space-y-1 text-sm text-slate-500 mt-2">
                         <p className="flex items-center gap-2"><User className="h-3.5 w-3.5" /> {req.phone}</p>
                         <p>{req.email}</p>
-                        <p>ZIP: <span className="font-medium text-slate-700 dark:text-slate-300">{req.zip}</span></p>
+                        <p className="flex items-start gap-2">
+                          <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            {[req.streetAddress, req.city, req.state, req.zip].filter(Boolean).join(', ')}
+                          </span>
+                        </p>
                       </div>
                     </div>
                     <div>
                       <p className="font-semibold mb-1 text-[10px] uppercase tracking-wider text-slate-400">Service Required</p>
                       <p className="text-sm font-medium text-slate-900 dark:text-white">{req.service}</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Preferred: {req.preferredDate || 'No date'}{req.preferredTime ? ` · ${TIME_WINDOW_LABELS[req.preferredTime] ?? req.preferredTime}` : ' · Any time'}
+                      </p>
                       <p className="text-sm text-slate-500 mt-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-3 rounded-lg line-clamp-3">
                         {req.details || "No additional details provided."}
                       </p>

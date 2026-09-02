@@ -10,5 +10,6 @@ import type { ServiceRequestUpdateStatus } from './serviceRequestUpdateStatus';
 export interface ServiceRequestUpdate {
   status?: ServiceRequestUpdateStatus;
   preferredDate?: string;
+  preferredTime?: string;
   details?: string;
 }

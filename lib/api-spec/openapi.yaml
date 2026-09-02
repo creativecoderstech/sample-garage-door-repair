@@ -231,36 +231,45 @@ components:
         message: { type: string }
     ServiceRequest:
       type: object
-      required: [id, customerName, phone, email, zip, service, urgency, status, preferredDate, createdAt]
+      required: [id, customerName, phone, email, streetAddress, city, state, zip, service, urgency, status, preferredDate, preferredTime, createdAt]
       properties:
         id: { type: number }
         customerName: { type: string }
         phone: { type: string }
         email: { type: string }
+        streetAddress: { type: string }
+        city: { type: string }
+        state: { type: string }
         zip: { type: string }
         service: { type: string }
         urgency: { type: string, enum: [emergency, soon, flexible] }
         status: { type: string, enum: [new, scheduled, dispatched, completed] }
         preferredDate: { type: string }
+        preferredTime: { type: string }
         details: { type: string }
         createdAt: { type: string }
     ServiceRequestInput:
       type: object
-      required: [customerName, phone, email, zip, service, urgency, preferredDate]
+      required: [customerName, phone, email, streetAddress, city, state, zip, service, urgency, preferredDate]
       properties:
         customerName: { type: string, minLength: 2 }
         phone: { type: string, minLength: 7 }
         email: { type: string }
+        streetAddress: { type: string, minLength: 3 }
+        city: { type: string, minLength: 2 }
+        state: { type: string, minLength: 2, maxLength: 2 }
         zip: { type: string, minLength: 5 }
         service: { type: string }
         urgency: { type: string, enum: [emergency, soon, flexible] }
         preferredDate: { type: string }
+        preferredTime: { type: string }
         details: { type: string }
     ServiceRequestUpdate:
       type: object
       properties:
         status: { type: string, enum: [new, scheduled, dispatched, completed] }
         preferredDate: { type: string }
+        preferredTime: { type: string }
         details: { type: string }
     DashboardSummary:
       type: object
