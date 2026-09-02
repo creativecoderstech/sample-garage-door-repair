@@ -8,7 +8,7 @@ export default function BookPage() {
           <h1 className="font-display font-bold text-4xl md:text-5xl mb-4 tracking-tight">Schedule Service</h1>
           <p className="text-muted-foreground text-lg">We'll be there when you need us.</p>
         </div>
-        <BookingForm className="max-w-2xl mx-auto" />
+        <BookingForm className="max-w-4xl mx-auto" />
       </div>
     </div>
   );
