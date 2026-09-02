@@ -1,0 +1,141 @@
+import { useEffect, useRef, type ReactNode } from "react";
+import { AlertTriangle, Bot, ChevronDown, Info, Loader2, Send, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCustomerCareChat, type CustomerCareMessage } from "@/components/customer-care-chat";
+
+type CustomerCareChatViewProps = {
+  variant: "floating" | "page";
+  onClose?: () => void;
+};
+
+function SafetyBadge({ level }: { level: CustomerCareMessage["safety"] }) {
+  if (!level) return null;
+  const isUrgent = level === "urgent";
+  const isCaution = level === "caution";
+  return (
+    <div
+      className={`mb-2 flex items-center gap-2 border-b pb-2 text-xs font-bold ${
+        isUrgent
+          ? "border-destructive/20 text-destructive"
+          : isCaution
+            ? "border-amber-500/20 text-amber-600"
+            : "border-emerald-500/20 text-emerald-600"
+      }`}
+    >
+      {isUrgent ? <AlertTriangle className="h-5 w-5" /> : isCaution ? <Info className="h-5 w-5" /> : <ShieldCheck className="h-5 w-5" />}
+      <span className="uppercase tracking-wider">
+        {isUrgent ? "Do not operate door" : isCaution ? "Use caution" : "General information"}
+      </span>
+    </div>
+  );
+}
+
+export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  const chat = useCustomerCareChat();
+  const isFloating = variant === "floating";
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: "nearest" });
+  }, [chat.messages, chat.isPending]);
+
+  const renderMessage = (message: CustomerCareMessage, index: number): ReactNode => (
+    <div key={`${message.role}-${index}`} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+      {message.role === "assistant" && (
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
+          <Bot className="h-4 w-4 text-secondary-foreground" />
+        </div>
+      )}
+      <div
+        className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${
+          message.role === "user"
+            ? "rounded-tr-sm bg-primary text-primary-foreground"
+            : "rounded-tl-sm border border-border bg-card text-card-foreground"
+        }`}
+      >
+        {message.role === "assistant" && <SafetyBadge level={message.safety} />}
+        <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+        {message.service && message.role === "assistant" && (
+          <div className="mt-3 border-t border-border/50 pt-2 text-xs font-semibold text-muted-foreground">
+            Relevant service: <span className="text-foreground">{message.service}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      className={
+        isFloating
+          ? "fixed bottom-3 left-3 right-3 z-50 flex max-w-[400px] flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl sm:bottom-6 sm:left-auto sm:right-6 sm:w-full"
+          : "flex h-[500px] flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
+      }
+    >
+      <div className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary-foreground/20 p-2">
+            <Bot className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold">Customer Care</h3>
+            <p className="text-xs text-primary-foreground/80">Friendly answers &amp; safe next steps</p>
+          </div>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close customer care chat"
+            className="p-1 text-primary-foreground/70 transition-colors hover:text-primary-foreground"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      <ScrollArea className={`p-4 ${isFloating ? "h-[380px] bg-muted/10" : "flex-1"}`} ref={scrollRef}>
+        <div className="space-y-4">
+          {chat.messages.map(renderMessage)}
+          {chat.isPending && (
+            <div className="flex gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
+                <Bot className="h-4 w-4 text-secondary-foreground" />
+              </div>
+              <div className="flex items-center rounded-2xl rounded-tl-sm border bg-card p-4 shadow-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          )}
+          <div ref={endRef} />
+        </div>
+      </ScrollArea>
+
+      {chat.hasUserMessages && !chat.isPending && (
+        <div className="border-t bg-card px-3 py-3">
+          <Button type="button" onClick={chat.startServiceRequest} className="w-full font-bold">
+            Start a service request
+          </Button>
+          <p className="mt-1.5 text-center text-[11px] text-muted-foreground">We’ll carry this conversation into the request form.</p>
+        </div>
+      )}
+
+      <form onSubmit={chat.sendMessage} className="flex gap-2 border-t bg-card p-3">
+        <Input
+          value={chat.input}
+          onChange={(event) => chat.setInput(event.target.value)}
+          placeholder={isFloating ? "Ask about service or next steps..." : "Tell us what you need help with..."}
+          className="flex-1 bg-muted focus-visible:bg-background"
+          disabled={chat.isPending}
+          aria-label="Message customer care"
+        />
+        <Button type="submit" size="icon" disabled={!chat.input.trim() || chat.isPending} className="shrink-0 rounded-full" aria-label="Send message">
+          <Send className="h-4 w-4" />
+        </Button>
+      </form>
+    </div>
+  );
+}

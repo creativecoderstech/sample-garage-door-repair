@@ -7,6 +7,8 @@
  */
 
 export * from './assistantInput';
+export * from './assistantMessage';
+export * from './assistantMessageRole';
 export * from './assistantReply';
 export * from './assistantReplySafetyLevel';
 export * from './availability';

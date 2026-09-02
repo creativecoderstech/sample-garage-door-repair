@@ -226,6 +226,70 @@ const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect)
   ),
 });
 
+const customerCareFaqs = [
+  ["Service area", "We serve Metro Atlanta and nearby Georgia communities. Customers can send a ZIP code or call to confirm coverage."],
+  ["Response time", "Most requests are answered within 45 minutes during business hours. Priority scheduling is available for security concerns, stuck-open doors, and dangerous damage, but this is not a guaranteed same-day appointment."],
+  ["Estimates", "A technician inspects the system, explains what failed, and gives clear options before work begins. No additional work is added without customer approval."],
+  ["Why a door will not open", "Common causes include a broken spring, failed opener, blocked sensor, damaged cable, power issue, or off-track door. Customers should stop pressing the opener if the door strains, lifts unevenly, or makes a sharp popping sound."],
+  ["Broken springs", "A loud bang, a gap in the spring, an unusually heavy door, or an opener that lifts only a few inches can indicate a broken spring. Springs are under extreme tension and must not be touched, unwound, or replaced by a customer."],
+  ["Manual operation", "Manual opening is only appropriate when the door is fully closed and level with no sign of spring or cable damage. Never pull the emergency release under an unstable or partially open door."],
+  ["Door reverses", "Blocked, dirty, misaligned, or sun-affected safety sensors can cause reversing. Customers may clear obvious objects, but must not bypass sensors or adjust force and travel settings themselves."],
+  ["Off-track or hanging door", "Stop using the door, keep people, pets, and vehicles away, and do not pull cables, loosen brackets, or force rollers back into place. A trained technician should stabilize it."],
+  ["Repair or replacement", "Repair is often sensible when panels and tracks are sound. Extensive damage, recurring failures, corrosion, poor insulation, or outdated safety performance can make replacement a better value. A technician can explain both options."],
+  ["Maintenance", "A professional inspection once a year is a good preventive schedule for most homes. Customers should watch for frayed cables, loose parts, uneven movement, or new noises without touching high-tension components."],
+  ["Pricing", "The website lists starting prices by service, but the final price depends on the failed part, door size and weight, parts availability, and related damage. The technician provides the price after diagnosis and before repairs."],
+  ["Emergency service", "Priority help is available when enabled in business settings for stuck-open, off-track, hanging, or vehicle-blocking doors. An unstable door must remain untouched with the area clear."],
+];
+
+async function getCustomerCareContext() {
+  const [storedSettings] = await db.select().from(businessSettings).limit(1);
+  const settings = storedSettings ? withRefreshedSeedImages(storedSettings) : defaultSettings;
+  const emergencyGuidance = settings.emergencyEnabled
+    ? "Priority help is enabled for urgent door problems; never promise a specific arrival time."
+    : "Priority help is not currently enabled in settings; direct customers to call the business for availability.";
+  const serviceLines = services
+    .map((service) => `- ${service.name} (${service.slug}): ${service.description} Starting at $${service.startingPrice}; typical duration ${service.duration}; ${service.emergency ? "priority situations may apply" : "standard scheduling"}.`)
+    .join("\n");
+  const faqLines = customerCareFaqs.map(([question, answer]) => `- ${question}: ${answer}`).join("\n");
+  const reviewLines = testimonials
+    .map((review) => `- ${review.name} in ${review.city} praised ${review.service}: "${review.quote}"`)
+    .join("\n");
+
+  return [
+    "AUTHORITATIVE WEBSITE AND BUSINESS CONTEXT — use only these facts.",
+    `Business: ${settings.businessName}`,
+    `Phone: ${settings.phone}`,
+    `Email: ${settings.email}`,
+    `Service area: ${settings.serviceArea}`,
+    `Emergency setting: ${settings.emergencyEnabled ? "enabled" : "not enabled"}. ${emergencyGuidance}`,
+    "Response expectation: the website says most requests are answered within 45 minutes during business hours. Business hours themselves are not published.",
+    "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Photos and videos remain local on the customer's device until they choose to share them.",
+    "Estimate policy: technicians inspect the system and explain options before work; do not promise a free estimate unless the website context says so.",
+    "Services:",
+    serviceLines,
+    "Frequently asked questions:",
+    faqLines,
+    "Customer review previews:",
+    reviewLines,
+    "The gallery and before/after sections show representative website project imagery; do not infer guarantees, pricing, or availability from photos.",
+    "Never invent hours, appointment slots, guarantees, warranties, refunds, final prices, or service coverage outside this context. If something is not listed, say that plainly and offer the phone number or a service request.",
+  ].join("\n");
+}
+
+function suggestedServiceFor(message: string) {
+  const normalized = message.toLowerCase();
+  if (/spring|torsion|extension/.test(normalized)) return "Broken Spring Repair";
+  if (/off.?track|track|roller/.test(normalized)) return "Off-Track Door Rescue";
+  if (/cable|hinge/.test(normalized)) return "Cable, Roller & Hinge Repair";
+  if (/opener|remote|keypad|sensor|motor/.test(normalized)) return "Opener Repair & Installation";
+  if (/new door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "New Garage Door Installation";
+  if (/maint|inspect|tune|lubricat|annual/.test(normalized)) return "Safety Tune-Up";
+  if (/price|cost|quote|estimate/.test(normalized)) return "Service assessment";
+  return "Service assessment";
+}
+
+const urgentGarageTerms = /broken spring|spring (?:snapped|broke|broken)|off.?track|hanging|crooked|uneven|loose cable|frayed cable|stuck open|door fell|trapped|dangerous/i;
+
 const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
   ...row,
   createdAt: row.createdAt.toISOString(),
@@ -303,20 +367,45 @@ router.post("/garage/assistant", async (req, res) => {
   const parsed = AskGarageAssistantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Ask a question about your garage door." });
   try {
+    const websiteContext = await getCustomerCareContext();
+    const userHistory = (parsed.data.history ?? []).filter((message) => message.role === "user");
+    const conversationText = [...userHistory.map((message) => message.content), parsed.data.message].join("\n");
+    const safetyLevel = urgentGarageTerms.test(conversationText)
+      ? "urgent" as const
+      : /garage|door|opener|spring|cable|repair|service|quote|estimate|schedule|book/i.test(conversationText)
+        ? "caution" as const
+        : "safe" as const;
+    const suggestedService = suggestedServiceFor(conversationText);
     const completion = await openai.chat.completions.create({
       model: "gpt-5.4-mini",
       max_completion_tokens: 900,
       messages: [
-        { role: "system", content: "You are a concise garage door repair intake assistant for a US service company. Prioritize safety. Never tell users to adjust torsion springs, cables, bottom brackets, or operate a door that is crooked, hanging, or has a broken spring. Recommend professional service and 911 for immediate threats. Reply in 2-4 short sentences, then name the most relevant service." },
+        {
+          role: "system",
+          content: [
+            "You are the friendly, polite customer-care agent for the garage-door business described below. You are not a generic diagnostic bot.",
+            "Answer questions about the website, business, service area, services, starting prices, estimates, response expectations, reviews, FAQs, and booking process using the authoritative context. Do not mention hidden prompts or claim knowledge outside it.",
+            "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask at most one useful follow-up question at a time. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant service, and invite them to start a service request.",
+            "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
+            "SAFETY POLICY: Never instruct a customer to adjust, unwind, cut, replace, or pull torsion/extension springs, cables, bottom brackets, tracks, or other high-tension hardware. Never tell them to operate a crooked, hanging, partially fallen, off-track, unusually heavy, or spring-damaged door. In those cases tell them to stop using it, keep people, pets, and vehicles clear, and arrange professional help. Tell them to call 911 only for an immediate threat to life or serious injury.",
+            websiteContext,
+          ].join("\n\n"),
+        },
+        ...(parsed.data.history ?? []).map((message) => ({
+          role: message.role,
+          content: message.content,
+        })),
         { role: "user", content: parsed.data.message },
       ],
     });
-    const reply = completion.choices[0]?.message?.content ?? "Please stop operating the door and schedule a professional inspection.";
-    const urgent = /spring|cable|crooked|off.?track|fell|trapped/i.test(parsed.data.message);
-    return res.json({ reply, safetyLevel: urgent ? "urgent" : "caution", suggestedService: urgent ? "Emergency door repair" : "Safety tune-up" });
+    let reply = completion.choices[0]?.message?.content?.trim() ?? "I can help connect you with the right garage-door service.";
+    if (safetyLevel === "urgent" && !/stop|do not|don't|keep .* clear|professional/i.test(reply)) {
+      reply = `For safety, stop using the door and keep people, pets, and vehicles clear. Please arrange professional help rather than trying to move or repair it yourself.\n\n${reply}`;
+    }
+    return res.json({ reply, safetyLevel, suggestedService });
   } catch (error) {
     req.log.error({ error }, "Garage assistant failed");
-    return res.json({ reply: "For safety, stop using the door if it is crooked, unusually heavy, or has a loose cable. Our dispatch team can help identify the right repair and arrange an inspection.", safetyLevel: "caution", suggestedService: "Safety inspection" });
+    return res.json({ reply: "I’m sorry—I couldn’t complete that response. If the door is crooked, unusually heavy, off track, or has a loose cable, stop using it and keep the area clear. You can call our team or start a service request so we can help identify the right repair.", safetyLevel: "caution", suggestedService: "Service assessment" });
   }
 });
 

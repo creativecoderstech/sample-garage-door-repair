@@ -5,14 +5,13 @@
  * Garage door repair customer and operations API
  * OpenAPI spec version: 0.1.0
  */
-import type { AssistantMessage } from './assistantMessage';
+import type { AssistantMessageRole } from './assistantMessageRole';
 
-export interface AssistantInput {
+export interface AssistantMessage {
+  role: AssistantMessageRole;
   /**
      * @minLength 1
      * @maxLength 1000
      */
-  message: string;
-  /** @maxItems 12 */
-  history?: AssistantMessage[];
+  content: string;
 }

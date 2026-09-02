@@ -243,10 +243,18 @@ export const UpdateBusinessSettingsResponse = zod.object({
 
 export const askGarageAssistantBodyMessageMax = 1000;
 
+export const askGarageAssistantBodyHistoryItemContentMax = 1000;
+
+export const askGarageAssistantBodyHistoryMax = 12;
+
 
 
 export const AskGarageAssistantBody = zod.object({
-  "message": zod.string().min(1).max(askGarageAssistantBodyMessageMax)
+  "message": zod.string().min(1).max(askGarageAssistantBodyMessageMax),
+  "history": zod.array(zod.object({
+  "role": zod.enum(['user', 'assistant']),
+  "content": zod.string().min(1).max(askGarageAssistantBodyHistoryItemContentMax)
+})).max(askGarageAssistantBodyHistoryMax).optional()
 })
 
 export const AskGarageAssistantResponse = zod.object({

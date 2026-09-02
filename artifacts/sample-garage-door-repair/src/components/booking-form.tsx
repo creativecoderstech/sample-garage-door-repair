@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, CalendarCheck, ShieldCheck, MapPin, Upload, Camera, Video, X, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceInput } from "@/components/voice-input";
+import { consumeServiceRequestDraft } from "@/components/customer-care-chat";
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -75,6 +76,7 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 export function BookingForm({ className = "" }: { className?: string }) {
   const { toast } = useToast();
   const createRequest = useCreateServiceRequest();
+  const [assistantDraft] = useState(() => consumeServiceRequestDraft());
   
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -86,11 +88,11 @@ export function BookingForm({ className = "" }: { className?: string }) {
       city: "",
       state: "GA",
       zip: "",
-      service: "repair",
-      urgency: "flexible",
+      service: assistantDraft?.service || "repair",
+      urgency: assistantDraft?.urgency || "flexible",
       preferredDate: "",
       preferredTime: "",
-      details: "",
+      details: assistantDraft?.details || "",
     }
   });
 
@@ -237,6 +239,12 @@ export function BookingForm({ className = "" }: { className?: string }) {
         </h3>
         <p className="text-primary-foreground/80 mt-2 text-sm">Most requests are answered within 45 minutes.</p>
       </div>
+      {assistantDraft && (
+        <div className="mx-6 mt-6 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+          <span className="font-bold text-foreground">Customer care notes added.</span>{" "}
+          We carried your conversation into the request so you can review it and add your contact details.
+        </div>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

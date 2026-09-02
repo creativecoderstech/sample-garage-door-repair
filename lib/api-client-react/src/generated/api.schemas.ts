@@ -209,12 +209,31 @@ export interface BusinessSettingsInput {
   galleryImages?: string[];
 }
 
+export type AssistantMessageRole = typeof AssistantMessageRole[keyof typeof AssistantMessageRole];
+
+
+export const AssistantMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+} as const;
+
+export interface AssistantMessage {
+  role: AssistantMessageRole;
+  /**
+     * @minLength 1
+     * @maxLength 1000
+     */
+  content: string;
+}
+
 export interface AssistantInput {
   /**
      * @minLength 1
      * @maxLength 1000
      */
   message: string;
+  /** @maxItems 12 */
+  history?: AssistantMessage[];
 }
 
 export type AssistantReplySafetyLevel = typeof AssistantReplySafetyLevel[keyof typeof AssistantReplySafetyLevel];
