@@ -85,6 +85,34 @@ const defaultTasks: Task[] = [
     description: "The same two-bay garage updated from dated red doors to bright carriage-house doors with decorative hardware.",
     beforeImageUrl: "/images/garage/before-after/carriage-house-before.jpg",
     afterImageUrl: "/images/garage/before-after/carriage-house-after.jpg"
+  },
+  {
+    id: "3",
+    title: "Traditional Curb Appeal Upgrade",
+    description: "A plain white garage door gains windows and carriage-style hardware while preserving the home's classic exterior.",
+    beforeImageUrl: "/images/garage/before-after/project-02-before.jpg",
+    afterImageUrl: "/images/garage/before-after/project-02-after.jpg"
+  },
+  {
+    id: "4",
+    title: "Contemporary Woodland Refresh",
+    description: "The same wooded property receives a dark modern garage door that complements its natural surroundings.",
+    beforeImageUrl: "/images/garage/before-after/project-04-before.jpg",
+    afterImageUrl: "/images/garage/before-after/project-04-after.jpg"
+  },
+  {
+    id: "5",
+    title: "Three-Bay Exterior Transformation",
+    description: "A full exterior renovation pairs new garage doors with windows for a brighter, more coordinated façade.",
+    beforeImageUrl: "/images/garage/before-after/project-05-before.jpg",
+    afterImageUrl: "/images/garage/before-after/project-05-after.jpg"
+  },
+  {
+    id: "6",
+    title: "Warm Carriage-Style Update",
+    description: "The same stucco home is refreshed with a warm-toned carriage-style door and decorative upper windows.",
+    beforeImageUrl: "/images/garage/before-after/project-06-before.jpg",
+    afterImageUrl: "/images/garage/before-after/project-06-after.jpg"
   }
 ];
 
@@ -167,6 +195,20 @@ export function useListTasks() {
         }
         return [task];
       });
+      if (getStorage<number>("tasks-seed-version", 0) < 3) {
+        const retainedOriginalPairs = defaultTasks
+          .slice(0, 2)
+          .every((seed) => upgraded.some((task) => isSameTask(task, seed)));
+        if (retainedOriginalPairs) {
+          for (const seed of defaultTasks.slice(2)) {
+            if (!upgraded.some((task) => task.id === seed.id)) {
+              upgraded.push(seed);
+              didUpgrade = true;
+            }
+          }
+        }
+        setStorage("tasks-seed-version", 3);
+      }
       if (didUpgrade) {
         setStorage("tasks", upgraded);
       }

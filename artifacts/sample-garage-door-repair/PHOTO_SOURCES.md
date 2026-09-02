@@ -4,6 +4,10 @@ The Before & After page uses locally bundled copies of matched online project ph
 
 - Modern wood-look transformation: https://www.clopaydoor.com/blog/post/garage-door-before-and-after
 - Carriage-house transformation: https://www.clopaydoor.com/blog/post/garage-door-before-and-after
+- Traditional curb-appeal transformation: https://www.clopaydoor.com/blog/post/garage-door-before-and-after
+- Contemporary woodland transformation: https://www.clopaydoor.com/blog/post/garage-door-before-and-after
+- Three-bay exterior transformation: https://www.clopaydoor.com/blog/post/garage-door-before-and-after
+- Warm carriage-style transformation: https://www.clopaydoor.com/blog/post/garage-door-before-and-after
 
 Other site photography is sourced from Unsplash:
 
