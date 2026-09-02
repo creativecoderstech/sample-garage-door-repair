@@ -16,14 +16,37 @@ export function SiteHeader() {
   const { data: settings } = useGetBusinessSettings();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [location, setLocation] = useLocation();
+  const [activeSection, setActiveSection] = useState(() =>
+    typeof window === 'undefined' ? '' : window.location.hash.slice(1),
+  );
 
   const phoneDisplay = settings?.phone?.trim() || '(555) 123-4567';
+
+  useEffect(() => {
+    const syncActiveSection = () => {
+      setActiveSection(location === '/' ? window.location.hash.slice(1) : '');
+    };
+
+    syncActiveSection();
+    window.addEventListener('hashchange', syncActiveSection);
+    window.addEventListener('popstate', syncActiveSection);
+    return () => {
+      window.removeEventListener('hashchange', syncActiveSection);
+      window.removeEventListener('popstate', syncActiveSection);
+    };
+  }, [location]);
+
+  const isLinkActive = (href: string) => {
+    if (!href.startsWith('/#')) return location === href;
+    return location === '/' && activeSection === href.replace('/#', '');
+  };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (!href.startsWith('/#')) return;
 
     e.preventDefault();
     const id = href.replace('/#', '');
+    setActiveSection(id);
     if (location !== '/') {
       setLocation(href);
       return;
@@ -58,14 +81,14 @@ export function SiteHeader() {
                 key={link.id}
                 href={link.href}
                 className={`text-sm font-semibold transition-colors relative ${
-                  location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))
+                  isLinkActive(link.href)
                     ? 'text-primary'
                     : 'text-foreground/70 hover:text-foreground'
                 }`}
                 onClick={(e) => handleNavClick(e, link.href)}
               >
                 {link.label}
-                {(location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))) && (
+                {isLinkActive(link.href) && (
                   <span className="absolute -bottom-5 left-0 right-0 h-0.5 bg-primary" />
                 )}
               </Link>
@@ -133,14 +156,14 @@ export function SiteHeader() {
                 <Link
                   href={link.href}
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${
-                    location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))
+                    isLinkActive(link.href)
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground/80 hover:bg-muted hover:text-foreground'
                   }`}
                   onClick={(e) => handleNavClick(e, link.href)}
                 >
                   {link.label}
-                  {(location === link.href || (link.href.startsWith('/#') && location === '/' && window.location.hash === link.href.slice(1))) && (
+                  {isLinkActive(link.href) && (
                     <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
                   )}
                 </Link>
