@@ -40,6 +40,8 @@ export default function HomePage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [showQuickRequest, setShowQuickRequest] = useState(false);
+  const [showAllGallery, setShowAllGallery] = useState(false);
+  const [showAllBeforeAfter, setShowAllBeforeAfter] = useState(false);
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -90,6 +92,8 @@ export default function HomePage() {
     ? settings.galleryImages
     : defaultGalleryImages;
   const topServices = services?.slice(0, 3) || [];
+  const visibleGalleryImages = showAllGallery ? galleryImages : galleryImages.slice(0, 4);
+  const visibleBeforeAfterTasks = showAllBeforeAfter ? (tasks || []) : (tasks || []).slice(0, 2);
   
   return (
     <div className="min-h-screen bg-background noise-overlay" id="main-content">
@@ -209,18 +213,29 @@ export default function HomePage() {
               <p className="text-sm uppercase tracking-[0.2em] font-bold text-primary mb-3">Recent Field Work</p>
               <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight">Doors we’re proud to stand behind</h2>
             </div>
-            <div className="gallery-grid reveal-on-scroll">
-              {galleryImages.slice(0, 4).map((img, i) => (
+             <div id="full-gallery-grid" className="gallery-grid reveal-on-scroll">
+               {visibleGalleryImages.map((img, i) => (
                 <figure key={i} className="gallery-tile">
                   <img src={img} alt={`Garage door project ${i + 1}`} loading="lazy" />
                 </figure>
               ))}
             </div>
-            <div className="mt-12 text-center reveal-on-scroll">
-              <Button asChild variant="outline" size="lg" className="font-display font-bold hover-elevate">
-                <Link href="/gallery">View Full Gallery</Link>
-              </Button>
-            </div>
+             {galleryImages.length > 4 && (
+               <div className="mt-12 text-center reveal-on-scroll">
+                 <Button
+                   type="button"
+                   variant="outline"
+                   size="lg"
+                   className="font-display font-bold hover-elevate"
+                   aria-expanded={showAllGallery}
+                   aria-controls="full-gallery-grid"
+                   onClick={() => setShowAllGallery((expanded) => !expanded)}
+                 >
+                   {showAllGallery ? 'Show Featured Gallery' : 'View Full Gallery'}
+                   <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${showAllGallery ? 'rotate-180' : ''}`} />
+                 </Button>
+               </div>
+             )}
           </div>
       </section>
 
@@ -233,13 +248,23 @@ export default function HomePage() {
               <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">See the difference a new door makes</h2>
               <p className="text-muted-foreground text-lg">Matched photographs show the same properties before and after their garage-door upgrades.</p>
             </div>
-            <Button variant="outline" asChild className="font-display font-bold shrink-0">
-              <Link href="/before-after">View All Transformations <ArrowRight className="h-4 w-4 ml-2" /></Link>
-            </Button>
+             {tasks && tasks.length > 2 && (
+               <Button
+                 type="button"
+                 variant="outline"
+                 className="font-display font-bold shrink-0"
+                 aria-expanded={showAllBeforeAfter}
+                 aria-controls="full-before-after-grid"
+                 onClick={() => setShowAllBeforeAfter((expanded) => !expanded)}
+               >
+                 {showAllBeforeAfter ? 'Show Featured Transformations' : 'View All Transformations'}
+                 <ArrowRight className={`ml-2 h-4 w-4 transition-transform ${showAllBeforeAfter ? 'rotate-90' : ''}`} />
+               </Button>
+             )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 reveal-on-scroll">
-            {tasks?.slice(0, 2).map((task) => (
+           <div id="full-before-after-grid" className="grid grid-cols-1 lg:grid-cols-2 gap-6 reveal-on-scroll">
+             {visibleBeforeAfterTasks.map((task) => (
               <article key={task.id} className="overflow-hidden rounded-2xl border bg-card shadow-sm">
                 <div className="grid grid-cols-2 h-56 sm:h-72">
                   <figure className="relative border-r">
