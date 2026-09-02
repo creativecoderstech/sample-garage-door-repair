@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, Headset, Info, Loader2, Send } from "lucide-react";
+import { AlertTriangle, ChevronDown, Info, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -42,8 +42,9 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
   const renderMessage = (message: CustomerCareMessage, index: number): ReactNode => (
     <div key={`${message.role}-${index}`} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
       {message.role === "assistant" && (
-        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
-          <Headset className="h-4 w-4 text-secondary-foreground" aria-hidden="true" />
+        <div className="relative mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
+          M
+          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-emerald-500" aria-label="Maya is available" />
         </div>
       )}
       <div
@@ -55,9 +56,9 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       >
         {message.role === "assistant" && <SafetyBadge level={message.safety} />}
         <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
-        {message.service && message.role === "assistant" && (
+        {message.service && message.role === "assistant" && message.service !== "Service assessment" && (
           <div className="mt-3 border-t border-border/50 pt-2 text-xs font-semibold text-muted-foreground">
-            Relevant service: <span className="text-foreground">{message.service}</span>
+            I’d start with: <span className="text-foreground">{message.service}</span>
           </div>
         )}
       </div>
@@ -75,11 +76,11 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       <div className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-primary-foreground/20 p-2">
-            <Headset className="h-5 w-5" aria-hidden="true" />
+            <span className="text-sm font-bold" aria-hidden="true">M</span>
           </div>
           <div>
-            <h3 className="text-sm font-bold">{CUSTOMER_CARE_NAME} from {chat.businessName}</h3>
-            <p className="text-xs text-primary-foreground/80">Friendly help from our team</p>
+            <h3 className="text-sm font-bold">{CUSTOMER_CARE_NAME}</h3>
+            <p className="text-xs text-primary-foreground/80">Customer care at {chat.businessName}</p>
           </div>
         </div>
         {onClose && (
@@ -100,7 +101,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
           {chat.isPending && (
             <div className="flex gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
-                <Headset className="h-4 w-4 text-secondary-foreground" aria-hidden="true" />
+                <span className="text-xs font-bold text-secondary-foreground" aria-hidden="true">M</span>
               </div>
               <div className="flex items-center rounded-2xl rounded-tl-sm border bg-card p-4 shadow-sm">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -114,9 +115,9 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       {chat.hasUserMessages && !chat.isPending && (
         <div className="border-t bg-card px-3 py-3">
           <Button type="button" onClick={chat.startServiceRequest} className="w-full font-bold">
-            Start a service request
+             Share details with our team
           </Button>
-          <p className="mt-1.5 text-center text-[11px] text-muted-foreground">We’ll carry this conversation into the request form.</p>
+           <p className="mt-1.5 text-center text-[11px] text-muted-foreground">I’ll carry this conversation into the request form.</p>
         </div>
       )}
 
@@ -124,7 +125,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         <Input
           value={chat.input}
           onChange={(event) => chat.setInput(event.target.value)}
-          placeholder={isFloating ? "Ask about service or next steps..." : "Tell us what you need help with..."}
+           placeholder={isFloating ? "Tell Maya what’s happening..." : "Tell Maya what’s happening..."}
           className="flex-1 bg-muted focus-visible:bg-background"
           disabled={chat.isPending}
           aria-label="Message customer care"

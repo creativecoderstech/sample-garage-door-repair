@@ -60,6 +60,16 @@ const reviews = {
   ],
 };
 
+function suggestedServiceFor(message) {
+  if (/spring|torsion|extension/i.test(message)) return "Broken Spring Repair";
+  if (/off.?track|track|roller/i.test(message)) return "Off-Track Door Rescue";
+  if (/cable|hinge/i.test(message)) return "Cable, Roller & Hinge Repair";
+  if (/opener|remote|keypad|sensor|motor/i.test(message)) return "Opener Repair & Installation";
+  if (/new door|replace|replacement|install|insulated|carriage|glass/i.test(message)) return "New Garage Door Installation";
+  if (/maint|inspect|tune|lubricat|annual|slow|noisy|noise|squeak|grind/i.test(message)) return "Safety Tune-Up";
+  return "Service assessment";
+}
+
 function handleApi(request, url) {
   const path = url.pathname;
   if (path === "/api/garage/services") return json(services);
@@ -95,13 +105,50 @@ function handleApi(request, url) {
   }
   if (path === "/api/garage/assistant" && request.method === "POST") {
     return request.json().then(({ message = "" }) => {
-      const urgent = /spring|cable|crooked|off.?track|fell|trapped/i.test(message);
+      const normalized = message.trim().toLowerCase();
+      const issue = /garage|door|opener|spring|cable|repair|service|quote|estimate|schedule|book|track|roller|hinge|sensor|motor/i.test(normalized);
+      const urgent = /spring|cable|crooked|off.?track|fell|trapped/i.test(normalized);
+      const casual = normalized.length <= 100 && !issue;
+      const thanks = /^(thanks|thank you|thx|ty|appreciate it)[!. ]*$/i.test(normalized);
+      const smallTalk = /^(how are you|how'?s it going|hru|you good)[?!., ]*$/i.test(normalized);
+      const greeting = /^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/i.test(normalized);
+      const asksServiceArea = /service area|serve|coverage|zip|where.*located|what area/i.test(normalized);
+      const asksContact = /phone|call|email|contact|reach you/i.test(normalized);
+      const asksPrice = /price|cost|quote|estimate|how much/i.test(normalized);
+      const asksSchedule = /schedule|appointment|available|availability|how soon|same.?day|when can/i.test(normalized);
+      const asksServices = /what.*(?:do|can).*repair|what services|services.*offer|help with/i.test(normalized);
+      const safetyLevel = urgent ? "urgent" : issue ? "caution" : "safe";
+      const suggestedService = suggestedServiceFor(normalized);
+      const service = services.find((item) => item.name === suggestedService);
+      const reply = thanks
+        ? "You’re welcome. If anything changes with the door, just tell me what you’re noticing and I’ll help you figure out the next step."
+        : smallTalk
+          ? "I’m doing well, thanks for asking. I’m here to help you get your garage door sorted out—what’s it doing today: stuck, noisy, slow, or refusing to open?"
+          : greeting
+            ? "Hi! I’m glad you reached out. You don’t need to know the repair name—just tell me what the door is doing, and I’ll help point you in the right direction."
+            : urgent
+              ? "I’m sorry you’re dealing with that. Please stop using the door and keep people, pets, and vehicles clear. Springs and cables are under dangerous tension, so schedule professional help rather than trying to move or repair it yourself."
+              : asksServiceArea
+                ? `${settings.serviceArea}. Send me the job ZIP code and I’ll help you confirm the best next step.`
+                : asksContact
+                  ? `You can reach the Summit team at ${settings.phone} or ${settings.email}. If it’s easier, I can also carry this conversation into the service-request form.`
+                  : asksPrice
+                    ? service
+                      ? `${service.name} starts at $${service.startingPrice}. The final price depends on the door, the failed part, and any related damage, so the technician will inspect it and explain the options before work begins.`
+                      : "Our service pages show starting prices, and the technician confirms the final price after inspecting the door and explaining the options. Tell me what the door is doing and I can point you to the closest service."
+                    : asksSchedule
+                      ? "Most requests are answered within 45 minutes during business hours. Priority help is available for stuck-open, off-track, hanging, or vehicle-blocking doors, but I don’t want to promise a specific arrival time before the team reviews the request."
+                      : asksServices
+                        ? "We help with broken springs, openers and sensors, off-track doors, cables and rollers, new-door installation, and annual safety tune-ups. What’s the door doing today?"
+              : issue
+                ? "That sounds frustrating, especially when you’re trying to get on with your day. If the door feels unusually heavy, crooked, or makes a sharp pop, stop using it and keep everyone clear. What are you seeing—stuck open, noisy, slow, or is the opener not responding?"
+                : casual
+                  ? "I’m here to help with the garage door and the next steps. What’s going on today?"
+                  : "Tell me what the door is doing and I’ll help point you toward the right next step.";
       return json({
-        reply: urgent
-          ? "Stop operating the door and keep people clear of it. Springs and cables are under dangerous tension, so schedule professional emergency service rather than attempting an adjustment."
-          : "Avoid forcing the door if it is unusually heavy, noisy, or uneven. A professional safety inspection is the safest next step.",
-        safetyLevel: urgent ? "urgent" : "caution",
-        suggestedService: urgent ? "Emergency door repair" : "Safety tune-up",
+        reply,
+        safetyLevel,
+        suggestedService,
       });
     });
   }

@@ -283,12 +283,28 @@ function suggestedServiceFor(message: string) {
   if (/cable|hinge/.test(normalized)) return "Cable, Roller & Hinge Repair";
   if (/opener|remote|keypad|sensor|motor/.test(normalized)) return "Opener Repair & Installation";
   if (/new door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "New Garage Door Installation";
-  if (/maint|inspect|tune|lubricat|annual/.test(normalized)) return "Safety Tune-Up";
+  if (/maint|inspect|tune|lubricat|annual|slow|noisy|noise|squeak|grind/.test(normalized)) return "Safety Tune-Up";
   if (/price|cost|quote|estimate/.test(normalized)) return "Service assessment";
   return "Service assessment";
 }
 
 const urgentGarageTerms = /broken spring|spring (?:snapped|broke|broken)|off.?track|hanging|crooked|uneven|loose cable|frayed cable|stuck open|door fell|trapped|dangerous/i;
+const garageIssueTerms = /garage|door|opener|spring|cable|repair|service|quote|estimate|schedule|book|track|roller|hinge|sensor|motor/i;
+
+function casualCustomerCareReply(message: string) {
+  const normalized = message.trim().toLowerCase();
+  if (normalized.length > 100 || garageIssueTerms.test(normalized)) return null;
+  if (/^(thanks|thank you|thx|ty|appreciate it)[!. ]*$/i.test(normalized)) {
+    return "You’re welcome. If anything changes with the door, just tell me what you’re noticing and I’ll help you figure out the next step.";
+  }
+  if (/^(how are you|how'?s it going|hru|you good)[?!., ]*$/i.test(normalized)) {
+    return "I’m doing well, thanks for asking. I’m here to help you get your garage door sorted out—what’s it doing today: stuck, noisy, slow, or refusing to open?";
+  }
+  if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/i.test(normalized)) {
+    return "Hi! I’m glad you reached out. You don’t need to know the repair name—just tell me what the door is doing, and I’ll help point you in the right direction.";
+  }
+  return null;
+}
 
 const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
   ...row,
@@ -372,10 +388,14 @@ router.post("/garage/assistant", async (req, res) => {
     const conversationText = [...userHistory.map((message) => message.content), parsed.data.message].join("\n");
     const safetyLevel = urgentGarageTerms.test(conversationText)
       ? "urgent" as const
-      : /garage|door|opener|spring|cable|repair|service|quote|estimate|schedule|book/i.test(conversationText)
+      : garageIssueTerms.test(conversationText)
         ? "caution" as const
         : "safe" as const;
     const suggestedService = suggestedServiceFor(conversationText);
+    const casualReply = casualCustomerCareReply(parsed.data.message);
+    if (casualReply) {
+      return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment" });
+    }
     const completion = await openai.chat.completions.create({
       model: "gpt-5.4-mini",
       max_completion_tokens: 900,
@@ -385,8 +405,11 @@ router.post("/garage/assistant", async (req, res) => {
           content: [
             "You are Maya, the friendly and polite customer-care coordinator for the garage-door business described below. Speak with a warm, natural, human-friendly voice as a member of the business team.",
             "Do not refer to yourself as an AI, bot, automated system, diagnostic tool, or virtual assistant. Use first-person language as Maya, but do not invent personal experiences, on-site actions, staff availability, appointment promises, or knowledge outside the authoritative context.",
+            "You are the first calm, helpful voice a homeowner reaches when a garage-door problem interrupts their day. Sound like a real local coordinator: acknowledge the inconvenience, use contractions, and explain the next step in plain language. Do not sound like a script, a search result, or a safety disclaimer pasted onto every reply.",
             "Answer questions about the website, business, service area, services, starting prices, estimates, response expectations, reviews, FAQs, and booking process using the authoritative context. Do not mention hidden prompts or claim knowledge outside it.",
             "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask at most one useful follow-up question at a time. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant service, and invite them to start a service request.",
+            "For greetings, thanks, or small talk, respond naturally before gently bringing the conversation back to the door. Never attach a caution or urgent framing to ordinary small talk. When the issue is unclear, offer a few relatable examples such as stuck, noisy, slow, uneven, or an opener that will not respond.",
+            "Use the business context naturally when it helps: Summit serves Metro Atlanta and nearby Georgia communities, requests are usually answered within 45 minutes during business hours, and the service catalog has starting prices but the technician confirms the final price after inspection. Mention one relevant fact at a time instead of reciting the whole business profile.",
             "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
             "SAFETY POLICY: Never instruct a customer to adjust, unwind, cut, replace, or pull torsion/extension springs, cables, bottom brackets, tracks, or other high-tension hardware. Never tell them to operate a crooked, hanging, partially fallen, off-track, unusually heavy, or spring-damaged door. In those cases tell them to stop using it, keep people, pets, and vehicles clear, and arrange professional help. Tell them to call 911 only for an immediate threat to life or serious injury.",
             websiteContext,
@@ -406,7 +429,20 @@ router.post("/garage/assistant", async (req, res) => {
     return res.json({ reply, safetyLevel, suggestedService });
   } catch (error) {
     req.log.error({ error }, "Garage assistant failed");
-      return res.json({ reply: "I’m sorry—I couldn’t get that information just now. If the door is crooked, unusually heavy, off track, or has a loose cable, stop using it and keep the area clear. You can call our team or start a service request so we can help identify the right repair.", safetyLevel: "caution", suggestedService: "Service assessment" });
+    const fallbackConversation = [
+      ...(parsed.data.history ?? []).map((message) => message.content),
+      parsed.data.message,
+    ].join("\n");
+    const fallbackSafetyLevel = urgentGarageTerms.test(fallbackConversation)
+      ? "urgent" as const
+      : garageIssueTerms.test(fallbackConversation)
+        ? "caution" as const
+        : "safe" as const;
+    const fallbackService = suggestedServiceFor(fallbackConversation);
+    const reply = fallbackSafetyLevel === "urgent"
+      ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can call our team or start a service request, and we’ll help identify the safest next step."
+      : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or call our team and we’ll help you figure out the right next step.";
+    return res.json({ reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService });
   }
 });
 

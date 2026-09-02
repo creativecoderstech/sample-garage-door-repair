@@ -20,7 +20,7 @@ export const CUSTOMER_CARE_NAME = "Maya";
 export const SERVICE_REQUEST_DRAFT_EVENT = "garage-service-request-draft";
 
 export const customerCareWelcome = (businessName = "Summit Garage Door Co.") =>
-  `Hi! I’m Maya from ${businessName}. I can help with services, service area, and next steps—and help you start a service request. What can we help with today?`;
+  `Hi! I’m Maya from ${businessName}. What’s going on with the door today? You don’t need to know the repair name—just tell me what you’re seeing, and I’ll help with the next step.`;
 
 const storageKey = "garage_customer_care_messages";
 
