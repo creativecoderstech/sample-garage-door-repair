@@ -121,11 +121,19 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function App() {
+  const configuredBasePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const routerBasePath =
+    configuredBasePath &&
+    (window.location.pathname === configuredBasePath ||
+      window.location.pathname.startsWith(`${configuredBasePath}/`))
+      ? configuredBasePath
+      : '';
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="industrial">
         <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+          <WouterRouter base={routerBasePath}>
             <Router />
           </WouterRouter>
           <Toaster />
