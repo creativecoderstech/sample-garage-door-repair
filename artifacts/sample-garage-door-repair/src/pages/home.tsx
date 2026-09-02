@@ -4,7 +4,7 @@ import type { GoogleReviewFeed, Testimonial } from '@workspace/api-client-react'
 import { SiGoogle } from 'react-icons/si';
 import { useListFaqs, useListTasks } from '@/lib/demo-store';
 import { Button } from '@/components/ui/button';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { BookingForm } from '@/components/booking-form';
 import { 
   Shield, 
@@ -30,7 +30,6 @@ const defaultGalleryImages = [
 ];
 
 export default function HomePage() {
-  const [, navigate] = useLocation();
   const { data: settings } = useGetBusinessSettings();
   const { data: services } = useListGarageServices();
   const { data: testimonials } = useListTestimonials();
@@ -145,14 +144,8 @@ export default function HomePage() {
                   <Button asChild size="lg" className="font-display font-bold h-14 px-8 text-lg shadow-xl glow-primary hover-elevate">
                     <a href="#booking">Book Service Now</a>
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="font-display font-bold h-14 px-8 text-lg hover-elevate"
-                    onClick={() => navigate('/services')}
-                  >
-                    Our Services
+                  <Button asChild variant="outline" size="lg" className="font-display font-bold h-14 px-8 text-lg hover-elevate">
+                    <a href="#services">Our Services</a>
                   </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border/60">
