@@ -3,7 +3,7 @@ import { useGetGarageDashboard, useListServiceRequests, useUpdateServiceRequest,
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "wouter";
-import { LogOut, Settings as SettingsIcon, AlertTriangle, CheckCircle2, Clock, Calendar, Search, ArrowRight, User, Trash2, Plus, Edit2, Check } from "lucide-react";
+import { LogOut, AlertTriangle, CheckCircle2, Clock, Calendar, Search, ArrowRight, User, Trash2, Plus, Edit2, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,12 +48,12 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background noise-overlay">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-7xl">
+      <div className="container mx-auto px-6 lg:px-12 py-10 max-w-7xl">
         <div className="mb-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
               <h1 className="font-display font-bold text-4xl md:text-5xl mb-3 tracking-tight">
-                Operations
+                Admin
               </h1>
               <p className="text-muted-foreground text-lg">
                 Signed in as <span className="text-foreground font-medium">admin@summitgaragedoor.demo</span>
@@ -63,19 +63,19 @@ export default function AdminPage() {
               <Button type="button" variant="outline" className="font-display font-bold" asChild>
                 <Link href="/login"><LogOut className="w-4 h-4 mr-2" /> Sign out</Link>
               </Button>
-              <Button asChild className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold shadow-md glow-primary">
+              <Button asChild className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold hover:shadow-xl transition-all">
                 <Link href="/">← Back to Site</Link>
               </Button>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 p-1.5 rounded-xl bg-muted/60 border border-border w-fit">
+          <div className="flex flex-wrap gap-2 p-1 rounded-xl bg-muted/60 border border-border w-fit">
             {tabs.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setTab(item.id)}
-                className={`px-4 py-2 rounded-lg font-display font-bold text-sm transition-all inline-flex items-center gap-2 ${
+                className={`px-5 py-2.5 rounded-lg font-display font-bold text-sm transition-all inline-flex items-center gap-2 ${
                   tab === item.id
                     ? 'bg-primary text-primary-foreground shadow-md'
                     : 'text-muted-foreground hover:text-foreground'
@@ -93,9 +93,7 @@ export default function AdminPage() {
         </div>
 
         {tab === 'settings' ? (
-          <div className="bg-card border rounded-2xl shadow-xl overflow-hidden p-6">
-            <AdminSettingsPage />
-          </div>
+          <AdminSettingsPage />
         ) : tab === 'service-requests' ? (
           <ServiceRequestsAdmin />
         ) : tab === 'faqs' ? (
