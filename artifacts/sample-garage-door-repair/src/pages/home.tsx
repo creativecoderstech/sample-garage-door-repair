@@ -300,7 +300,7 @@ export default function HomePage() {
               <Link href="/faqs" className="hidden sm:inline-flex text-sm font-bold text-primary hover:underline shrink-0">View all FAQs</Link>
             </div>
             <div className="space-y-3">
-              {faqs?.map((faq) => (
+              {faqs?.slice(0, 6).map((faq) => (
                 <div 
                   key={faq.id} 
                   className={`border rounded-xl bg-card overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'shadow-md border-primary/30' : 'hover:border-border/80'}`}

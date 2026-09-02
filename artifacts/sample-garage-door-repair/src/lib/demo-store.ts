@@ -22,6 +22,24 @@ export interface FAQ {
 }
 
 const defaultFaqs: FAQ[] = [
+  { id: "1", question: "What areas do you serve?", answer: "We serve Dallas–Fort Worth and nearby communities. Send us your ZIP code or call us, and we’ll quickly confirm whether your address is inside our service area." },
+  { id: "2", question: "How quickly can you respond?", answer: "We answer most requests within 45 minutes during business hours and offer priority scheduling for doors that are stuck open, off track, or creating a security concern." },
+  { id: "3", question: "Do you provide estimates before starting work?", answer: "Yes. A technician will inspect the system, explain what failed, and give you clear repair options before work begins. We do not add work without your approval." },
+  { id: "4", question: "Why won’t my garage door open?", answer: "Common causes include a broken spring, disconnected or failed opener, blocked safety sensor, damaged cable, power issue, or a door that has come off track. Stop pressing the opener if the door strains, lifts unevenly, or makes a sharp popping sound, and schedule an inspection." },
+  { id: "5", question: "How can I tell if a garage door spring is broken?", answer: "You may hear a loud bang, see a visible gap in the spring, notice the door feels extremely heavy, or find that the opener only lifts it a few inches. Springs are under extreme tension—do not touch, unwind, or replace them yourself." },
+  { id: "6", question: "Can I manually open the door if the opener is not working?", answer: "Only if the door is fully closed, level, and you have no reason to suspect a broken spring or cable. If the door is unusually heavy, crooked, jammed, or partially open, leave it in place and call a technician. Never pull the emergency release while standing under an unstable door." },
+  { id: "7", question: "Why does my garage door close and then reverse?", answer: "The safety sensors may be blocked, dirty, misaligned, or affected by wiring or sunlight. The opener’s travel or force settings may also need professional adjustment. Clear obvious objects from the opening, but do not bypass the sensors—they are an essential safety feature." },
+  { id: "8", question: "Why is my garage door suddenly so loud?", answer: "Grinding, squealing, rattling, or popping can come from worn rollers, loose hardware, dry hinges, an opener problem, or a spring or cable issue. A new sound is worth checking early because a small worn part can place extra stress on the rest of the system." },
+  { id: "9", question: "What should I do if the garage door is off track or hanging unevenly?", answer: "Stop using the door and keep people, pets, and vehicles away from it. Do not pull cables, loosen brackets, or try to force the rollers back into place. An off-track door can fall unexpectedly and should be stabilized by a trained technician." },
+  { id: "10", question: "Why does the wall button work but the remote does not?", answer: "The remote may need a fresh battery, reprogramming, or replacement. Also check whether the opener’s lock or vacation mode is enabled. If several remotes fail at once, the opener’s receiver, antenna, or power supply may need service." },
+  { id: "11", question: "Should I repair my garage door or replace it?", answer: "Repair usually makes sense when the panels and track are in good condition and the issue is limited to a replaceable part. Replacement may be the better value when the door has extensive panel damage, recurring failures, poor insulation, serious corrosion, or outdated safety performance. We’ll show you both options when appropriate." },
+  { id: "12", question: "How long do garage doors and openers usually last?", answer: "A well-maintained garage door can often serve for 15 to 30 years, while many openers last around 10 to 15 years. Usage, weather, installation quality, door weight, and maintenance all affect lifespan." },
+  { id: "13", question: "How often should my garage door be serviced?", answer: "For most homes, a professional inspection once a year is a good preventive schedule. High-use doors may need attention more often. Between visits, watch for frayed cables, loose parts, uneven movement, new noises, and changes in the door’s balance—without touching high-tension components." },
+  { id: "14", question: "How much will a garage door repair cost?", answer: "Cost depends on the failed part, door size and weight, parts availability, and whether related damage is present. We provide a clear price after diagnosis and before repairs begin, so you can make an informed decision." },
+  { id: "15", question: "Do you offer emergency garage door service?", answer: "Yes, priority help is available for doors that are stuck open, dangerously off track, hanging by a cable, or preventing a vehicle from getting out. If the door looks unstable, keep the area clear and do not attempt to move it." },
+];
+
+const previousDefaultFaqs: FAQ[] = [
   { id: "1", question: "What's your service area?", answer: "I serve the greater metro area and surrounding communities. If you're within 20 miles, I can help." },
   { id: "2", question: "How quickly can you respond?", answer: "I respond to requests in 45 minutes on average. Most messages get answered within an hour." },
   { id: "3", question: "Do you offer free estimates?", answer: "Yes! For larger projects I provide free, detailed estimates. Smaller jobs are typically quoted after a quick phone discussion." },
@@ -30,7 +48,34 @@ const defaultFaqs: FAQ[] = [
 export function useListFaqs() {
   return useQuery({
     queryKey: ["demo-faqs"],
-    queryFn: () => getStorage<FAQ[]>("faqs", defaultFaqs),
+    queryFn: () => {
+      const faqs = getStorage<FAQ[]>("faqs", defaultFaqs);
+      if (getStorage<number>("faqs-seed-version", 0) >= 2) return faqs;
+
+      let didUpgrade = false;
+      const upgraded = faqs.map((faq) => {
+        const previousIndex = previousDefaultFaqs.findIndex(
+          (previous) =>
+            faq.id === previous.id &&
+            faq.question === previous.question &&
+            faq.answer === previous.answer,
+        );
+        if (previousIndex === -1) return faq;
+        didUpgrade = true;
+        return defaultFaqs[previousIndex];
+      });
+
+      for (const seed of defaultFaqs.slice(3)) {
+        if (!upgraded.some((faq) => faq.id === seed.id)) {
+          upgraded.push(seed);
+          didUpgrade = true;
+        }
+      }
+
+      setStorage("faqs-seed-version", 2);
+      if (didUpgrade) setStorage("faqs", upgraded);
+      return upgraded;
+    },
   });
 }
 
