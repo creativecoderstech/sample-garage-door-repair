@@ -1,9 +1,9 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { AlertTriangle, Bot, ChevronDown, Info, Loader2, Send, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ChevronDown, Headset, Info, Loader2, Send, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCustomerCareChat, type CustomerCareMessage } from "@/components/customer-care-chat";
+import { CUSTOMER_CARE_NAME, useCustomerCareChat, type CustomerCareMessage } from "@/components/customer-care-chat";
 
 type CustomerCareChatViewProps = {
   variant: "floating" | "page";
@@ -46,7 +46,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
     <div key={`${message.role}-${index}`} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
       {message.role === "assistant" && (
         <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
-          <Bot className="h-4 w-4 text-secondary-foreground" />
+          <Headset className="h-4 w-4 text-secondary-foreground" aria-hidden="true" />
         </div>
       )}
       <div
@@ -78,11 +78,11 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       <div className="flex items-center justify-between bg-primary p-4 text-primary-foreground">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-primary-foreground/20 p-2">
-            <Bot className="h-5 w-5" />
+            <Headset className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="text-sm font-bold">Customer Care</h3>
-            <p className="text-xs text-primary-foreground/80">Friendly answers &amp; safe next steps</p>
+            <h3 className="text-sm font-bold">{CUSTOMER_CARE_NAME} from {chat.businessName}</h3>
+            <p className="text-xs text-primary-foreground/80">Friendly help from our team</p>
           </div>
         </div>
         {onClose && (
@@ -103,7 +103,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
           {chat.isPending && (
             <div className="flex gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
-                <Bot className="h-4 w-4 text-secondary-foreground" />
+                <Headset className="h-4 w-4 text-secondary-foreground" aria-hidden="true" />
               </div>
               <div className="flex items-center rounded-2xl rounded-tl-sm border bg-card p-4 shadow-sm">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />

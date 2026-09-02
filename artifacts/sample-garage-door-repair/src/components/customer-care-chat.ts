@@ -15,8 +15,10 @@ export type ServiceRequestDraft = {
   details: string;
 };
 
+export const CUSTOMER_CARE_NAME = "Maya";
+
 export const customerCareWelcome = (businessName = "Summit Garage Door Co.") =>
-  `Hi! I’m ${businessName}’s customer care assistant. I can answer questions about our services, service area, and next steps—and help you start a service request. What can we help with today?`;
+  `Hi! I’m Maya from ${businessName}. I can help with services, service area, and next steps—and help you start a service request. What can we help with today?`;
 
 const storageKey = "garage_customer_care_messages";
 
@@ -75,7 +77,7 @@ export function useCustomerCareChat() {
       if (
         previous.length !== 1 ||
         previous[0].role !== "assistant" ||
-        !previous[0].content.includes("customer care assistant")
+        !previous[0].content.includes("I’m Maya from")
       ) {
         return previous;
       }
@@ -121,7 +123,7 @@ export function useCustomerCareChat() {
             {
               role: "assistant",
               content:
-                "I’m sorry—I couldn’t complete that response. You can call our team or start a service request, and we’ll help identify the right next step.",
+                "I’m sorry—I couldn’t get that information just now. You can call our team or start a service request, and we’ll help identify the right next step.",
               safety: "caution",
               service: "Service assessment",
             },
@@ -155,5 +157,6 @@ export function useCustomerCareChat() {
     startServiceRequest,
     isPending: askMutation.isPending,
     hasUserMessages: messages.some((message) => message.role === "user"),
+    businessName: settings?.businessName || "Summit Garage Door Co.",
   };
 }

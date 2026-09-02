@@ -58,7 +58,7 @@ const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> 
   overview: { title: 'Welcome back', description: 'Your business at a glance.' },
   'service-requests': { title: 'Service requests', description: 'Review new leads, confirm job details, and keep every request moving.' },
   bookings: { title: 'Bookings', description: 'See confirmed appointments and the work coming up next.' },
-  chats: { title: 'Chat inquiries', description: 'Review conversations captured by the diagnostic assistant.' },
+  chats: { title: 'Chat inquiries', description: 'Review conversations started with Maya and your customer-care team.' },
   tasks: { title: 'Before & after', description: 'Manage the project transformations shown on your website.' },
   gallery: { title: 'Gallery', description: 'Curate the garage-door project photography customers see online.' },
   faqs: { title: 'FAQs', description: 'Keep customer answers accurate, useful, and safety focused.' },
@@ -412,7 +412,7 @@ function ListCard({ icon, title, description, linkText, onLinkClick, children }:
 // === Sub-components (Restyled to match flat/clean look) ===
 
 function ChatsAdmin() {
-  return <ContentModuleAdmin storageKey="garage-admin-chats" title="Chat Inquiries" description="Review and track customer conversations captured by the diagnostic assistant." fields={['Customer', 'Phone', 'Status']} defaults={[
+  return <ContentModuleAdmin storageKey="garage-admin-chats" title="Chat Inquiries" description="Review and track conversations started with Maya and your customer-care team." fields={['Customer', 'Phone', 'Status']} defaults={[
     ['Taylor Morgan', '(214) 555-0178', 'New'],
     ['Jordan Lee', '(972) 555-0134', 'Replied'],
   ]} />

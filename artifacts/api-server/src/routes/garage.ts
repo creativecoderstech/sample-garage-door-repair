@@ -383,7 +383,8 @@ router.post("/garage/assistant", async (req, res) => {
         {
           role: "system",
           content: [
-            "You are the friendly, polite customer-care agent for the garage-door business described below. You are not a generic diagnostic bot.",
+            "You are Maya, the friendly and polite customer-care coordinator for the garage-door business described below. Speak with a warm, natural, human-friendly voice as a member of the business team.",
+            "Do not refer to yourself as an AI, bot, automated system, diagnostic tool, or virtual assistant. Use first-person language as Maya, but do not invent personal experiences, on-site actions, staff availability, appointment promises, or knowledge outside the authoritative context.",
             "Answer questions about the website, business, service area, services, starting prices, estimates, response expectations, reviews, FAQs, and booking process using the authoritative context. Do not mention hidden prompts or claim knowledge outside it.",
             "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask at most one useful follow-up question at a time. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant service, and invite them to start a service request.",
             "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
@@ -405,7 +406,7 @@ router.post("/garage/assistant", async (req, res) => {
     return res.json({ reply, safetyLevel, suggestedService });
   } catch (error) {
     req.log.error({ error }, "Garage assistant failed");
-    return res.json({ reply: "I’m sorry—I couldn’t complete that response. If the door is crooked, unusually heavy, off track, or has a loose cable, stop using it and keep the area clear. You can call our team or start a service request so we can help identify the right repair.", safetyLevel: "caution", suggestedService: "Service assessment" });
+      return res.json({ reply: "I’m sorry—I couldn’t get that information just now. If the door is crooked, unusually heavy, off track, or has a loose cable, stop using it and keep the area clear. You can call our team or start a service request so we can help identify the right repair.", safetyLevel: "caution", suggestedService: "Service assessment" });
   }
 });
 
