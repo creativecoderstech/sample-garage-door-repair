@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import { THEMES, type ThemeOption } from "@/lib/theme-options";
 
 const imageLocation = z.string().refine(
   (value) => value.startsWith("/") || z.string().url().safeParse(value).success,
@@ -43,86 +44,6 @@ const settingsSchema = z.object({
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
-
-const THEMES = [
-  {
-    id: "industrial",
-    name: "Industrial",
-    desc: "Bold orange & dark gray. Maximum contrast.",
-    mood: "Confident and action-oriented",
-    preview: {
-      background: "hsl(40 10% 98%)",
-      foreground: "hsl(220 15% 15%)",
-      card: "hsl(0 0% 100%)",
-      primary: "hsl(24 95% 53%)",
-      secondary: "hsl(220 15% 15%)",
-      accent: "hsl(24 95% 53%)",
-      border: "hsl(220 10% 85%)",
-    },
-  },
-  {
-    id: "trust",
-    name: "Trust",
-    desc: "Professional blue & clean white. Reassuring.",
-    mood: "Clear and dependable",
-    preview: {
-      background: "hsl(210 20% 98%)",
-      foreground: "hsl(222 47% 11%)",
-      card: "hsl(0 0% 100%)",
-      primary: "hsl(221 83% 53%)",
-      secondary: "hsl(210 40% 96.1%)",
-      accent: "hsl(210 40% 96.1%)",
-      border: "hsl(214.3 31.8% 91.4%)",
-    },
-  },
-  {
-    id: "eco",
-    name: "Eco",
-    desc: "Forest green & natural tones. Sustainable.",
-    mood: "Warm and grounded",
-    preview: {
-      background: "hsl(120 10% 98%)",
-      foreground: "hsl(120 20% 15%)",
-      card: "hsl(0 0% 100%)",
-      primary: "hsl(142 40% 40%)",
-      secondary: "hsl(30 20% 92%)",
-      accent: "hsl(142 40% 40%)",
-      border: "hsl(120 10% 85%)",
-    },
-  },
-  {
-    id: "modern",
-    name: "Modern",
-    desc: "Stark black & white with red hits. Minimal.",
-    mood: "Sharp and contemporary",
-    preview: {
-      background: "hsl(0 0% 100%)",
-      foreground: "hsl(0 0% 0%)",
-      card: "hsl(0 0% 98%)",
-      primary: "hsl(0 0% 0%)",
-      secondary: "hsl(0 0% 90%)",
-      accent: "hsl(0 90% 50%)",
-      border: "hsl(0 0% 90%)",
-    },
-  },
-  {
-    id: "classic",
-    name: "Classic",
-    desc: "Navy blue & gold. Traditional service.",
-    mood: "Established and welcoming",
-    preview: {
-      background: "hsl(40 10% 98%)",
-      foreground: "hsl(220 30% 20%)",
-      card: "hsl(0 0% 100%)",
-      primary: "hsl(220 40% 25%)",
-      secondary: "hsl(45 90% 60%)",
-      accent: "hsl(45 90% 60%)",
-      border: "hsl(220 10% 85%)",
-    },
-  },
-];
-
-type ThemeOption = (typeof THEMES)[number];
 
 function ThemePreview({ theme }: { theme: ThemeOption }) {
   const { preview } = theme;

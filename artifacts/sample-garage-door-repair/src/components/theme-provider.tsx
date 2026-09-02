@@ -25,8 +25,8 @@ export function ThemeProvider({
   storageKey = "garage-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<string>(
-    () => (localStorage.getItem(storageKey) as string) || defaultTheme
+  const [theme, setTheme] = useState<string | null>(
+    () => localStorage.getItem(storageKey)
   )
 
   const { data: settings } = useGetBusinessSettings()
@@ -34,8 +34,8 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement
     
-    // Always use the setting from the backend if it exists, otherwise use local/default
-    const activeTheme = settings?.theme || theme
+    // A local choice is a live preview; fall back to the business setting on first load.
+    const activeTheme = theme || settings?.theme || defaultTheme
 
     // Remove all possible theme classes
     root.classList.remove("light", "dark")
@@ -47,10 +47,10 @@ export function ThemeProvider({
         root.setAttribute("data-theme", activeTheme)
     }
 
-  }, [theme, settings?.theme])
+  }, [theme, settings?.theme, defaultTheme])
 
   const value = {
-    theme: settings?.theme || theme,
+    theme: theme || settings?.theme || defaultTheme,
     setTheme: (theme: string) => {
       localStorage.setItem(storageKey, theme)
       setTheme(theme)

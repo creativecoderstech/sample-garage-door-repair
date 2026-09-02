@@ -15,6 +15,7 @@ import {
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { FloatingChat } from '@/components/floating-chat';
+import { ThemeSwatch } from '@/components/theme-swatch';
 import { getPublicSectionRouterHref, scrollToPublicSectionId, type PublicSection } from '@/lib/public-navigation';
 
 import HomePage from '@/pages/home';
@@ -68,6 +69,7 @@ function Router() {
         {!isAdmin && (
           <>
             <SiteFooter />
+            <ThemeSwatch />
             <FloatingChat />
           </>
         )}
