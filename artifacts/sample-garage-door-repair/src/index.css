@@ -682,6 +682,22 @@
     box-shadow: 0 0 40px hsl(var(--primary) / 0.15);
   }
   
+  @keyframes phi-chat-breathe {
+    0%, 100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 hsl(var(--primary) / 0));
+    }
+    50% {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 5px hsl(var(--primary) / 0.32));
+    }
+  }
+
+  .phi-chat-icon {
+    animation: phi-chat-breathe 3.2s ease-in-out infinite;
+    transform-origin: center;
+  }
+
   /* Animated gradient backgrounds - theme-aware */
   .gradient-bg-subtle {
     background: linear-gradient(135deg, 
