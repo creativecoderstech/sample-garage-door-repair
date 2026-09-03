@@ -1,5 +1,5 @@
 const REPOSITORY = "https://raw.githubusercontent.com/creativecoderstech/sample-garage-door-repair";
-const ASSET_REVISION = "a5bf00be9e025c66aa8e179c5fa23ac1d6c4aa0c";
+const ASSET_REVISION = "7fcea38e152bfcad81af960fe298d2e25860a94f";
 const BUILD_ROOT = "artifacts/sample-garage-door-repair/dist/public";
 const ARTIFACT_BASE_PATH = "/sample-garage-door-repair";
 const MAX_JSON_BYTES = 32 * 1024;
@@ -111,7 +111,14 @@ async function analytics(request, env, body) {
 }
 async function handleApi(request, url, env) {
   const path = url.pathname;
-  if (path === "/api/garage/cloudflare-config") return json({ siteKey: env.TURNSTILE_SITE_KEY || "", features: { turnstile: !!env.TURNSTILE_SITE_KEY, assistant: !!env.AI, media: !!env.MEDIA } });
+  if (path === "/api/garage/cloudflare-config") {
+    const siteKey = env.TURNSTILE_SITE_KEY || "";
+    return json({
+      turnstile: { enabled: !!siteKey, siteKey },
+      siteKey,
+      features: { turnstile: !!siteKey, assistant: !!env.AI, media: !!env.MEDIA },
+    });
+  }
   if (path === "/api/garage/services") { if (!env.DB) return json([]); const rows = await env.DB.prepare("SELECT * FROM services WHERE verified=1 ORDER BY id").all(); return json(rows.results.map(mapService)); }
   if (path === "/api/garage/testimonials") return json([]);
   if (path === "/api/garage/reviews") return json({ mode: "live", connectionStatus: "disconnected", locationName: "Google Business Profile not connected", aggregateRating: 0, totalReviewCount: 0, lastSyncedAt: null, profileUrl: null, reviews: [] }, 200, { "cache-control": "public, max-age=300" });
