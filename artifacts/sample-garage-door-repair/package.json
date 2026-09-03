@@ -9,7 +9,8 @@
     "build:pages": "vite build --config vite.config.ts && node cloudflare/prepare-pages.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "verify:cloudflare-release": "node cloudflare/verify-release.mjs"
+    "verify:cloudflare-release": "node cloudflare/verify-release.mjs",
+    "migrate:d1:remote": "test -n \"$D1_DATABASE_NAME\" && wrangler d1 migrations apply \"$D1_DATABASE_NAME\" --remote --cwd ."
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

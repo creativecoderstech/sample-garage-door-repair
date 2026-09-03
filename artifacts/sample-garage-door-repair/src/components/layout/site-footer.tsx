@@ -3,6 +3,7 @@ import { useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import { Shield, MapPin, Phone, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { getPublicSectionHref } from "@/lib/public-navigation";
+import { trackGarageEvent } from "@/lib/garage-analytics";
 
 export function SiteFooter() {
   const { data: settings } = useGetPublicBusinessSettings();
@@ -40,7 +41,7 @@ export function SiteFooter() {
             <ul className="space-y-3 text-background/70">
               {settings?.phone && <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 mt-1 shrink-0" />
-                <a className="hover:text-background underline-offset-4 hover:underline" href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}>
+                <a className="hover:text-background underline-offset-4 hover:underline" href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`} onClick={() => trackGarageEvent("phone_link_click")}>
                   {settings.phone}
                 </a>
               </li>}

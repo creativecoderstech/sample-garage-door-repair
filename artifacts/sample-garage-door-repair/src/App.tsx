@@ -18,6 +18,7 @@ import { SiteFooter } from '@/components/layout/site-footer';
 import { FloatingChat } from '@/components/floating-chat';
 import { ThemeSwatch } from '@/components/theme-swatch';
 import { getPublicSectionRouterHref, scrollToPublicSectionId, type PublicSection } from '@/lib/public-navigation';
+import { trackPageReferral } from '@/lib/garage-analytics';
 
 import HomePage from '@/pages/home';
 import AdminPage from '@/pages/admin';
@@ -151,6 +152,10 @@ function App() {
       window.location.pathname.startsWith(`${configuredBasePath}/`))
       ? configuredBasePath
       : '';
+
+  useEffect(() => {
+    trackPageReferral();
+  }, []);
 
   return (
     <WouterRouter base={routerBasePath}>

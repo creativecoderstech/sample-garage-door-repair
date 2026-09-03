@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAskGarageAssistant, useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import type { AssistantInput, AssistantReply } from "@workspace/api-client-react";
 import { navigateToPublicSection } from "@/lib/public-navigation";
+import { getInvisibleTurnstileToken } from "@/lib/cloudflare-turnstile";
 
 export type CustomerCareMessage = {
   role: "user" | "assistant";
@@ -94,6 +95,7 @@ export function useCustomerCareChat() {
   });
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const typingStartedAtRef = useRef<number | null>(null);
   const typingTimerRef = useRef<number | null>(null);
   const askMutation = useAskGarageAssistant();
@@ -142,11 +144,28 @@ export function useCustomerCareChat() {
     }, remaining);
   };
 
-  const sendMessage = (event: React.FormEvent) => {
+  const sendMessage = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!input.trim() || askMutation.isPending) return;
+    if (!input.trim() || askMutation.isPending || isVerifying) return;
 
     const userMessage = input.trim();
+    setIsVerifying(true);
+    let turnstileToken: string | undefined;
+    try {
+      turnstileToken = await getInvisibleTurnstileToken("assistant");
+    } catch {
+      setMessages((previous) => [
+        ...previous,
+        {
+          role: "assistant",
+          content: "I couldn’t verify this message right now. Please try again in a moment.",
+          safety: "caution",
+        },
+      ]);
+      setIsVerifying(false);
+      return;
+    }
+    setIsVerifying(false);
     const history: NonNullable<AssistantInput["history"]> = messages
       .slice(-10)
       .map(({ role, content }) => ({ role, content }));
@@ -156,7 +175,7 @@ export function useCustomerCareChat() {
     typingStartedAtRef.current = Date.now();
 
     askMutation.mutate(
-      { data: { message: userMessage, history } },
+      { data: ({ message: userMessage, history, ...(turnstileToken ? { turnstileToken } : {}) } as AssistantInput & { turnstileToken?: string }) as AssistantInput },
       {
         onSuccess: (data) => {
           queueAssistantMessage({
@@ -208,7 +227,7 @@ export function useCustomerCareChat() {
     setInput,
     sendMessage,
     startServiceRequest,
-    isPending: askMutation.isPending || isTyping,
+    isPending: askMutation.isPending || isTyping || isVerifying,
     hasUserMessages: messages.some((message) => message.role === "user"),
     businessName: settings?.businessName || "Garage Door Service Preview",
   };

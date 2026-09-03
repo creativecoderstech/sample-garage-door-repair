@@ -10,6 +10,7 @@ import {
   navigateToPublicSection,
   type PublicSection,
 } from "@/lib/public-navigation";
+import { trackGarageEvent } from "@/lib/garage-analytics";
 
 const NAV_LINKS = [
   { id: 'services', label: 'Services', section: 'services' },
@@ -79,6 +80,7 @@ export function SiteHeader() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, section: PublicSection) => {
     e.preventDefault();
+    trackGarageEvent("service_navigation_click");
     navigateToPublicSection(section);
   };
 
@@ -121,11 +123,12 @@ export function SiteHeader() {
                  href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`}
                  className="phi-control flex w-[var(--phi-control)] items-center justify-center rounded-[var(--phi-radius)] border border-border bg-background text-primary md:hidden"
                  aria-label={`Call ${phoneDisplay}`}
+                 onClick={() => trackGarageEvent("phone_link_click")}
                >
                  <Phone className="h-5 w-5" aria-hidden="true" />
                </a>
              )}
-            {phoneDisplay && <a href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-primary mr-2">
+            {phoneDisplay && <a href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`} onClick={() => trackGarageEvent("phone_link_click")} className="hidden md:flex items-center gap-2 text-sm font-bold text-primary mr-2">
                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                  <Phone className="w-3.5 h-3.5" />
                </span>
@@ -216,6 +219,7 @@ export function SiteHeader() {
             <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-semibold">Call or text</p>
              <a
                href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`}
+               onClick={() => trackGarageEvent("phone_link_click")}
                className="flex items-center gap-2 rounded-lg text-lg font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                aria-label={`Call ${phoneDisplay}`}
              >
@@ -226,6 +230,7 @@ export function SiteHeader() {
              </a>
              <a
                href={`sms:${phoneDisplay.replace(/[^\d+]/g, "")}`}
+               onClick={() => trackGarageEvent("phone_link_click")}
                className="mt-3 inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline"
              >
                Text this number
@@ -239,7 +244,7 @@ export function SiteHeader() {
           <Shield className="w-4 h-4" />
           Priority requests accepted — timing confirmed by the team
            {phoneDisplay && (
-             <a className="rounded underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`}>
+             <a className="rounded underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`} onClick={() => trackGarageEvent("phone_link_click")}>
                Call {phoneDisplay}
              </a>
            )}

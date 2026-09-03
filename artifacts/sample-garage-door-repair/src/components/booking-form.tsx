@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useCreateServiceRequest } from '@workspace/api-client-react';
+import { useCreateServiceRequest, type ServiceRequestInput } from '@workspace/api-client-react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, CalendarCheck, MapPin, Upload, Camera, Video, X, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceInput } from "@/components/voice-input";
+import { getInvisibleTurnstileToken } from "@/lib/cloudflare-turnstile";
+import { trackGarageEvent } from "@/lib/garage-analytics";
 import {
   consumeServiceRequestDraft,
   SERVICE_REQUEST_DRAFT_EVENT,
@@ -105,6 +107,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [videoError, setVideoError] = useState<string | null>(null);
   const photosRef = useRef<PhotoItem[]>([]);
+  const bookingStartedRef = useRef(false);
 
   const browseInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -207,14 +210,32 @@ export function BookingForm({ className = "" }: { className?: string }) {
     if (videoFiles.files.length) addVideos(videoFiles.files);
   };
 
-  const onSubmit = (values: BookingFormValues) => {
+  const trackBookingStart = () => {
+    if (bookingStartedRef.current) return;
+    bookingStartedRef.current = true;
+    trackGarageEvent("booking_start");
+  };
+
+  const onSubmit = async (values: BookingFormValues) => {
+    trackBookingStart();
+    let turnstileToken: string | undefined;
+    try {
+      turnstileToken = await getInvisibleTurnstileToken("booking");
+    } catch {
+      toast({
+        title: "Verification needed",
+        description: "We couldn’t verify this request. Please try again in a moment.",
+        variant: "destructive",
+      });
+      return;
+    }
     let combinedDetails = values.details || "";
 
     if (photos.length > 0 || videos.length > 0) {
       combinedDetails = `${combinedDetails}\n\n[Media note: Customer selected ${photos.length} photo(s) and ${videos.length} video(s) for local preview. The files were not uploaded or sent with this request.]`.trim();
     }
 
-    createRequest.mutate({ data: {
+    const data: ServiceRequestInput & { turnstileToken?: string } = {
       customerName: values.customerName,
       phone: values.phone,
       email: values.email || "",
@@ -227,7 +248,10 @@ export function BookingForm({ className = "" }: { className?: string }) {
       preferredDate: values.preferredDate || new Date().toISOString().split('T')[0],
       preferredTime: values.preferredTime || "",
       details: combinedDetails,
-    }}, {
+      ...(turnstileToken ? { turnstileToken } : {}),
+    };
+
+    createRequest.mutate({ data: data as ServiceRequestInput }, {
       onSuccess: () => {
         toast({
           title: "Request Received!",
@@ -263,7 +287,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
         </div>
       )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
+        <form onSubmit={form.handleSubmit(onSubmit)} onFocusCapture={trackBookingStart} className="p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
            <section aria-labelledby="contact-heading" className="space-y-4">
              <div>
                 <h3 id="contact-heading" className="font-display text-lg font-bold">1. Your contact details</h3>

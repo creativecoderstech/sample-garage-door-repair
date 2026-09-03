@@ -6,6 +6,7 @@ import { useListFaqs, useListPublishedGarageServices, useListTasks } from '@/lib
 import { Button } from '@/components/ui/button';
 import { BookingForm } from '@/components/booking-form';
 import { ServiceAreaSection } from '@/components/service-area-section';
+import { trackGarageEvent } from '@/lib/garage-analytics';
 import { 
   Shield, 
   Clock, 
@@ -86,6 +87,19 @@ export default function HomePage() {
       bookingObserver.disconnect();
       window.removeEventListener('scroll', sync);
     };
+  }, []);
+
+  useEffect(() => {
+    const servicesSection = document.getElementById("services");
+    if (!servicesSection) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      trackGarageEvent("service_view");
+      observer.disconnect();
+    }, { threshold: 0.25 });
+    observer.observe(servicesSection);
+    return () => observer.disconnect();
   }, []);
 
   const heroImage = settings?.heroImage || "/images/garage/hero-door-forward.jpg";

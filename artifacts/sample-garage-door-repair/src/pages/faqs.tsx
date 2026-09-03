@@ -4,6 +4,7 @@ import { ChevronDown, Phone, ShieldCheck } from 'lucide-react';
 import { useListFaqs } from '@/lib/demo-store';
 import { useGetPublicBusinessSettings } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
+import { trackGarageEvent } from '@/lib/garage-analytics';
 
 export default function FaqsPage() {
   const { data: faqs } = useListFaqs();
@@ -61,7 +62,7 @@ export default function FaqsPage() {
               If a door is crooked, hanging, or has a loose cable or broken spring, stop operating it and call for professional service.
             </p>
              {settings?.phone && <Button asChild size="lg" className="mt-7 w-full font-bold">
-               <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}><Phone className="mr-2 h-4 w-4" /> Call {settings.phone}</a>
+               <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`} onClick={() => trackGarageEvent("phone_link_click")}><Phone className="mr-2 h-4 w-4" /> Call {settings.phone}</a>
              </Button>}
             <Button asChild variant="outline" size="lg" className="mt-3 w-full border-secondary-foreground/20 bg-transparent font-bold text-secondary-foreground hover:bg-secondary-foreground/10">
               <Link href="/#booking">Request Service</Link>

@@ -14,10 +14,10 @@ Modern garage door repair sample application for Creative Coders.
     "deploy": "wrangler pages deploy dist/public --project-name sample-garage-door-repair"
   },
   "resources": {
-    "d1": false,
+    "d1": true,
     "kv": false,
-    "r2": false,
-    "ai": false,
+    "r2": true,
+    "ai": true,
     "email": false
   },
   "pages": {
@@ -25,7 +25,13 @@ Modern garage door repair sample application for Creative Coders.
     "package": "@workspace/sample-garage-door-repair",
     "assetsDirectory": "dist/public",
     "functionsEntry": "dist/public/_worker.js",
-    "bindings": {}
+    "bindings": {
+      "DB": "D1 database",
+      "MEDIA": "R2 bucket",
+      "AI": "Workers AI",
+      "TURNSTILE_SITE_KEY": "plain-text variable",
+      "TURNSTILE_SECRET_KEY": "encrypted secret"
+    }
   }
 }
 ```

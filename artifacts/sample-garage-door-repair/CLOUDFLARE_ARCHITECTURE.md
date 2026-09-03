@@ -34,6 +34,11 @@ Create separate preview and production resources. Bind them with these names:
 - `AI`: Workers AI
 - `ASSETS`: Pages' built-in static asset binding
 
+Additional optional variables are `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`,
+`ACCESS_TEAM_DOMAIN`, and `ACCESS_AUD`. Set secrets and Access values in
+Cloudflare; do not add them to source control. Staff APIs reject requests in
+production until Access JWT verification is configured.
+
 Never commit Cloudflare IDs or secrets. Resource identifiers belong in deployment configuration and secrets belong in Cloudflare's encrypted secret store.
 
 ## Release procedure
@@ -45,12 +50,15 @@ project. Its advanced-mode Pages Function is generated as
 
 1. Run `PORT=22004 BASE_PATH=/ pnpm run build:pages` from this artifact
    directory.
-2. Confirm `dist/public/_worker.js`, `index.html`, and the generated assets
+2. Apply the schema to the bound database with
+   `D1_DATABASE_NAME=your-database-name pnpm run migrate:d1:remote`. The
+   database name is supplied at deploy time and is not committed.
+3. Confirm `dist/public/_worker.js`, `index.html`, and the generated assets
    exist.
-3. Commit and push the source changes to `main` for Git-connected deployments,
+4. Commit and push the source changes to `main` for Git-connected deployments,
    or run `wrangler pages deploy dist/public --project-name
    sample-garage-door-repair` for a direct upload.
-4. Verify `/`, `/sample-garage-door-repair/`, generated JavaScript and CSS, and
+5. Verify `/`, `/sample-garage-door-repair/`, generated JavaScript and CSS, and
    representative public API responses on the Pages deployment.
 
 The previous standalone Worker release metadata remains available only as a
