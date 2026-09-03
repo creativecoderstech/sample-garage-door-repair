@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGetGoogleReviewFeed, useListGarageServices, useListTestimonials, useGetBusinessSettings } from '@workspace/api-client-react';
+import { useGetGoogleReviewFeed, useListGarageServices, useListTestimonials, useGetPublicBusinessSettings } from '@workspace/api-client-react';
 import type { GoogleReviewFeed, Testimonial } from '@workspace/api-client-react';
 import { SiGoogle } from 'react-icons/si';
 import { useListFaqs, useListTasks } from '@/lib/demo-store';
@@ -29,7 +29,7 @@ const defaultGalleryImages = [
 ];
 
 export default function HomePage() {
-  const { data: settings } = useGetBusinessSettings();
+  const { data: settings } = useGetPublicBusinessSettings();
   const { data: services } = useListGarageServices();
   const { data: testimonials } = useListTestimonials();
   const { data: googleFeed, isLoading: isLoadingReviews, isError: isErrorReviews } = useGetGoogleReviewFeed();

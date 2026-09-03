@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { desc, eq, sql } from "drizzle-orm";
-import { db, businessSettings, googleReviews, serviceRequests } from "@workspace/db";
+import { db, businessSettings, garageAuditLogs, googleReviews, serviceRequests } from "@workspace/db";
 import {
   AskGarageAssistantBody,
   CreateServiceRequestBody,
@@ -10,6 +10,7 @@ import {
   UpdateServiceRequestParams,
 } from "@workspace/api-zod";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { requireStaffAuth, requireStaffRole } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
@@ -226,6 +227,19 @@ const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect)
   ),
 });
 
+const toPublicSettings = (
+  settings: typeof businessSettings.$inferSelect | typeof defaultSettings,
+) => ({
+  businessName: settings.businessName,
+  phone: settings.phone,
+  email: settings.email,
+  serviceArea: settings.serviceArea,
+  theme: settings.theme,
+  emergencyEnabled: settings.emergencyEnabled,
+  heroImage: settings.heroImage,
+  galleryImages: settings.galleryImages,
+});
+
 const customerCareFaqs = [
   ["Service area", "We serve Metro Atlanta and nearby Georgia communities. Customers can send a ZIP code or call to confirm coverage."],
   ["Response time", "Most requests are answered within 45 minutes during business hours. Priority scheduling is available for security concerns, stuck-open doors, and dangerous damage, but this is not a guaranteed same-day appointment."],
@@ -311,6 +325,26 @@ const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
   createdAt: row.createdAt.toISOString(),
 });
 
+async function recordStaffAudit(
+  req: Parameters<typeof requireStaffAuth>[0],
+  action: string,
+  resourceType: string,
+  resourceId: string | null,
+  changedFields: string[],
+) {
+  const principal = req.staffPrincipal;
+  if (!principal) throw new Error("Missing staff principal for audit event.");
+
+  await db.insert(garageAuditLogs).values({
+    actorUserId: principal.userId,
+    actorRole: principal.role,
+    action,
+    resourceType,
+    resourceId,
+    changedFields,
+  });
+}
+
 router.get("/garage/services", (_req, res) => res.json(services));
 router.get("/garage/testimonials", (_req, res) => res.json(testimonials));
 router.get("/garage/reviews", async (_req, res) => {
@@ -330,7 +364,12 @@ router.get("/garage/availability", (req, res) => {
   });
 });
 
-router.get("/garage/requests", async (_req, res) => {
+router.get("/garage/site-settings", async (_req, res): Promise<void> => {
+  const [settings] = await db.select().from(businessSettings).limit(1);
+  res.json(toPublicSettings(settings ? withRefreshedSeedImages(settings) : defaultSettings));
+});
+
+router.get("/garage/requests", requireStaffAuth, async (_req, res): Promise<void> => {
   const rows = await db.select().from(serviceRequests).orderBy(desc(serviceRequests.createdAt));
   res.json(rows.map(mapRequest));
 });
@@ -342,16 +381,29 @@ router.post("/garage/requests", async (req, res) => {
   return res.status(201).json(mapRequest(created));
 });
 
-router.patch("/garage/requests/:id", async (req, res) => {
+router.patch("/garage/requests/:id", requireStaffAuth, async (req, res): Promise<void> => {
   const params = UpdateServiceRequestParams.safeParse(req.params);
   const body = UpdateServiceRequestBody.safeParse(req.body);
-  if (!params.success || !body.success) return res.status(400).json({ error: "Invalid update." });
+  if (!params.success || !body.success) {
+    res.status(400).json({ error: "Invalid update." });
+    return;
+  }
   const [updated] = await db.update(serviceRequests).set(body.data).where(eq(serviceRequests.id, params.data.id)).returning();
-  if (!updated) return res.status(404).json({ error: "Request not found." });
-  return res.json(mapRequest(updated));
+  if (!updated) {
+    res.status(404).json({ error: "Request not found." });
+    return;
+  }
+  await recordStaffAudit(
+    req,
+    "service_request.updated",
+    "service_request",
+    String(updated.id),
+    Object.keys(body.data),
+  );
+  res.json(mapRequest(updated));
 });
 
-router.get("/garage/dashboard", async (_req, res) => {
+router.get("/garage/dashboard", requireStaffAuth, async (_req, res): Promise<void> => {
   const rows = await db.select().from(serviceRequests).orderBy(desc(serviceRequests.createdAt));
   res.json({
     newRequests: rows.filter((r) => r.status === "new").length,
@@ -363,20 +415,33 @@ router.get("/garage/dashboard", async (_req, res) => {
   });
 });
 
-router.get("/garage/settings", async (_req, res) => {
+router.get("/garage/settings", requireStaffAuth, async (_req, res): Promise<void> => {
   const [settings] = await db.select().from(businessSettings).limit(1);
-  if (!settings) return res.json(defaultSettings);
-  return res.json(withRefreshedSeedImages(settings));
+  if (!settings) {
+    res.json(defaultSettings);
+    return;
+  }
+  res.json(withRefreshedSeedImages(settings));
 });
 
-router.patch("/garage/settings", async (req, res) => {
+router.patch("/garage/settings", requireStaffRole("owner", "manager"), async (req, res): Promise<void> => {
   const parsed = UpdateBusinessSettingsBody.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Invalid settings." });
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid settings." });
+    return;
+  }
   const [settings] = await db.insert(businessSettings).values({ ...defaultSettings, ...parsed.data }).onConflictDoUpdate({
     target: businessSettings.id,
     set: parsed.data,
   }).returning();
-  return res.json(settings);
+  await recordStaffAudit(
+    req,
+    "business_settings.updated",
+    "business_settings",
+    String(settings.id),
+    Object.keys(parsed.data),
+  );
+  res.json(settings);
 });
 
 router.post("/garage/assistant", async (req, res) => {

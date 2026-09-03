@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link } from 'wouter';
 import { ChevronDown, Phone, ShieldCheck } from 'lucide-react';
 import { useListFaqs } from '@/lib/demo-store';
-import { useGetBusinessSettings } from '@workspace/api-client-react';
+import { useGetPublicBusinessSettings } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 
 export default function FaqsPage() {
   const { data: faqs } = useListFaqs();
-  const { data: settings } = useGetBusinessSettings();
+  const { data: settings } = useGetPublicBusinessSettings();
   const [openId, setOpenId] = useState<string | null>(faqs?.[0]?.id ?? null);
 
   return (

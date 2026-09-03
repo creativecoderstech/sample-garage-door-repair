@@ -78,6 +78,18 @@ export const GetAvailabilityResponse = zod.object({
 })
 
 
+export const GetPublicBusinessSettingsResponse = zod.object({
+  "businessName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "serviceArea": zod.string(),
+  "theme": zod.string(),
+  "emergencyEnabled": zod.boolean(),
+  "heroImage": zod.string(),
+  "galleryImages": zod.array(zod.string())
+})
+
+
 export const ListServiceRequestsResponseItem = zod.object({
   "id": zod.number(),
   "customerName": zod.string(),

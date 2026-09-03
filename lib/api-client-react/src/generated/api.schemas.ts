@@ -197,6 +197,17 @@ export interface BusinessSettings {
   galleryImages: string[];
 }
 
+export interface PublicBusinessSettings {
+  businessName: string;
+  phone: string;
+  email: string;
+  serviceArea: string;
+  theme: string;
+  emergencyEnabled: boolean;
+  heroImage: string;
+  galleryImages: string[];
+}
+
 export interface BusinessSettingsInput {
   businessName?: string;
   phone?: string;

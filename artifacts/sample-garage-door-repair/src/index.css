@@ -1,4 +1,6 @@
+@layer theme, base, clerk, components, utilities;
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500..800&family=Plus+Jakarta+Sans:wght@400..700&display=swap');
+@import '@clerk/themes/shadcn.css';
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";

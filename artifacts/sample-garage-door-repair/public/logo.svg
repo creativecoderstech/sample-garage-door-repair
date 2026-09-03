@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" role="img" aria-labelledby="title">
+  <title>Summit Garage Door Co.</title>
+  <rect width="48" height="48" rx="12" fill="#ea580c"/>
+  <path d="M12 25 24 15l12 10v11H12V25Z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M18 36V27h12v9M20 22h8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <text x="58" y="30" font-family="Manrope,Arial,sans-serif" font-size="14" font-weight="800" fill="#172033">SUMMIT</text>
+</svg>

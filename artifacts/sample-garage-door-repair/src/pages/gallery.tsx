@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useGetBusinessSettings } from '@workspace/api-client-react';
+import { useGetPublicBusinessSettings } from '@workspace/api-client-react';
 
 export default function GalleryPage() {
-  const { data: settings } = useGetBusinessSettings();
+  const { data: settings } = useGetPublicBusinessSettings();
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {

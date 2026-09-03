@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const serviceRequests = pgTable("garage_service_requests", {
   id: serial("id").primaryKey(),
@@ -43,3 +43,25 @@ export const googleReviews = pgTable("garage_google_reviews", {
   isDefault: boolean("is_default").notNull().default(false),
   syncedAt: timestamp("synced_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const garageAuditLogs = pgTable("garage_audit_logs", {
+  id: serial("id").primaryKey(),
+  actorUserId: text("actor_user_id").notNull(),
+  actorRole: text("actor_role").notNull(),
+  action: text("action").notNull(),
+  resourceType: text("resource_type").notNull(),
+  resourceId: text("resource_id"),
+  changedFields: jsonb("changed_fields").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const garageStaffUsers = pgTable("garage_staff_users", {
+  id: serial("id").primaryKey(),
+  clerkUserId: text("clerk_user_id").notNull(),
+  role: text("role").notNull().default("staff"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("garage_staff_users_clerk_user_id_unique").on(table.clerkUserId),
+]);

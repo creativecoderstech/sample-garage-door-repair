@@ -23,6 +23,7 @@ export * from './googleReviewFeedConnectionStatus';
 export * from './googleReviewFeedMode';
 export * from './googleReviewSource';
 export * from './healthStatus';
+export * from './publicBusinessSettings';
 export * from './serviceRequest';
 export * from './serviceRequestInput';
 export * from './serviceRequestInputUrgency';

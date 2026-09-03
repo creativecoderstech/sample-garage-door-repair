@@ -1,11 +1,11 @@
 import { Link } from "wouter";
-import { useGetBusinessSettings } from "@workspace/api-client-react";
+import { useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import { Shield, MapPin, Phone, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { getPublicSectionHref } from "@/lib/public-navigation";
 
 export function SiteFooter() {
-  const { data: settings } = useGetBusinessSettings();
+  const { data: settings } = useGetPublicBusinessSettings();
   
   return (
     <footer className="phi-site-footer bg-foreground text-background mt-auto">

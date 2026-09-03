@@ -72,6 +72,16 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Availability" }
+  /garage/site-settings:
+    get:
+      operationId: getPublicBusinessSettings
+      tags: [public]
+      responses:
+        "200":
+          description: Public business settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicBusinessSettings" }
   /garage/requests:
     get:
       operationId: listServiceRequests
@@ -293,6 +303,20 @@ components:
         serviceArea: { type: string }
         theme: { type: string }
         serviceId: { type: string }
+        emergencyEnabled: { type: boolean }
+        heroImage: { type: string }
+        galleryImages:
+          type: array
+          items: { type: string }
+    PublicBusinessSettings:
+      type: object
+      required: [businessName, phone, email, serviceArea, theme, emergencyEnabled, heroImage, galleryImages]
+      properties:
+        businessName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        serviceArea: { type: string }
+        theme: { type: string }
         emergencyEnabled: { type: boolean }
         heroImage: { type: string }
         galleryImages:

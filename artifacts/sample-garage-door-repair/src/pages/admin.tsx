@@ -10,6 +10,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link, useLocation } from "wouter";
+import { useClerk, useUser } from "@clerk/react";
 import { 
   LogOut, AlertTriangle, CheckCircle2, Clock, Calendar, 
   Search, User, Trash2, Plus, Edit2, Check,
@@ -80,6 +81,7 @@ const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> 
 };
 
 const adminCardClass = 'phi-admin-card border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900';
+const configuredBasePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>(() => {
@@ -91,6 +93,9 @@ export default function AdminPage() {
   const { data: dashboard } = useGetGarageDashboard();
   const pendingCount = dashboard?.newRequests ?? 0;
   const [, setLocation] = useLocation();
+  const { signOut } = useClerk();
+  const { user } = useUser();
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? "Authenticated staff";
 
   const navGroups = [
     {
@@ -122,7 +127,9 @@ export default function AdminPage() {
   ] as const;
 
   const handleSignOut = () => {
-    setLocation('/login');
+    void signOut({
+      redirectUrl: `${window.location.origin}${configuredBasePath || "/"}`,
+    });
   };
 
   const SidebarContent = () => (
@@ -143,7 +150,7 @@ export default function AdminPage() {
         <div className="phi-admin-card bg-orange-50/70 dark:bg-orange-950/20 p-[var(--phi-space-3)] border-2 border-orange-100 dark:border-orange-900/40">
           <div className="text-[10px] font-bold uppercase text-slate-500 mb-1 tracking-wider">Owner Workspace</div>
           <div className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">Admin User</div>
-          <div className="text-xs text-slate-500 truncate mt-0.5">admin@summitgaragedoor.demo</div>
+            <div className="text-xs text-slate-500 truncate mt-0.5">{userEmail}</div>
         </div>
       </div>
 
@@ -236,7 +243,7 @@ export default function AdminPage() {
       {/* Main Content */}
       <main className="phi-admin-main flex-1 overflow-x-hidden">
         <div className="w-full max-w-[var(--phi-content)]">
-          <AdminPageHeader title={ADMIN_PAGE_COPY[tab].title} description={ADMIN_PAGE_COPY[tab].description} />
+           <AdminPageHeader title={ADMIN_PAGE_COPY[tab].title} description={ADMIN_PAGE_COPY[tab].description} userEmail={userEmail} />
         {tab === 'overview' ? <OverviewTab setTab={setTab} pendingCount={pendingCount} dashboard={dashboard} /> :
          tab === 'settings' ? <AdminSettingsPage /> :
          tab === 'service-requests' ? <ServiceRequestsAdmin /> :
@@ -255,7 +262,7 @@ export default function AdminPage() {
   )
 }
 
-function AdminPageHeader({ title, description }: { title: string; description: string }) {
+function AdminPageHeader({ title, description, userEmail }: { title: string; description: string; userEmail: string }) {
   return (
     <header className="phi-admin-header flex flex-col gap-[var(--phi-space-3)] border-b border-slate-200 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
       <div>
@@ -264,7 +271,7 @@ function AdminPageHeader({ title, description }: { title: string; description: s
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs text-slate-500">admin@summitgaragedoor.demo</span>
+         <span className="text-xs text-slate-500">{userEmail}</span>
         <Button variant="outline" className="h-10 rounded-xl border-2 bg-white font-semibold shadow-sm dark:bg-slate-900" asChild>
           <Link href="/"><ExternalLink className="mr-2 h-4 w-4" /> View site</Link>
         </Button>
@@ -737,19 +744,42 @@ function ReviewsAdmin() {
 }
 
 function UsersAdmin() {
+  const { user } = useUser();
+  const metadataRole = user?.publicMetadata?.role;
+  const role = metadataRole === "staff" || metadataRole === "manager" || metadataRole === "owner"
+    ? metadataRole
+    : "owner";
+  const email = user?.primaryEmailAddress?.emailAddress ?? "Authenticated staff";
+
   return (
-    <ContentModuleAdmin
-      storageKey="garage-admin-users"
-      title="Users"
-      eyebrow="Workspace access"
-      description="Keep staff access easy to review. Roles below are demo controls for the Summit workspace and do not replace production authentication."
-      fields={["Team member", "Role", "Access scope", "Last active", "Status"]}
-      defaults={[
-        ["admin@summitgaragedoor.demo", "Super Admin", "Everything", "Today, 10:12 AM", "Active"],
-        ["dispatch@summitgaragedoor.demo", "Dispatcher", "Requests + bookings", "Yesterday, 4:42 PM", "Active"],
-      ]}
-      addLabel="Invite user"
-    />
+    <div className="space-y-[var(--phi-space-4)]">
+      <AdminSectionHeader
+        eyebrow="Workspace access"
+        title="Staff access"
+        description="Staff identities and account recovery are managed by the secure identity provider, not browser storage."
+        count="1 current session"
+      />
+      <div className={`${adminCardClass} p-[var(--phi-space-4)]`}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <User className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-950 dark:text-white">{user?.fullName || "Staff member"}</p>
+              <p className="text-sm text-slate-500">{email}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge value={role} />
+            <StatusBadge value="Authenticated" />
+          </div>
+        </div>
+      </div>
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+        Account invites, role assignment, password recovery, and account deletion must be completed through the managed identity provider. This page intentionally cannot delete the currently signed-in owner.
+      </div>
+    </div>
   );
 }
 

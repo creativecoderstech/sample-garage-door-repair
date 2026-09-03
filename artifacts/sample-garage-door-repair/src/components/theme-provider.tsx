@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { useGetBusinessSettings } from "@workspace/api-client-react"
+import { useGetPublicBusinessSettings } from "@workspace/api-client-react"
 
 type ThemeProviderProps = {
   children: React.ReactNode
@@ -29,7 +29,7 @@ export function ThemeProvider({
     () => localStorage.getItem(storageKey)
   )
 
-  const { data: settings } = useGetBusinessSettings()
+  const { data: settings } = useGetPublicBusinessSettings()
 
   useEffect(() => {
     const root = window.document.documentElement

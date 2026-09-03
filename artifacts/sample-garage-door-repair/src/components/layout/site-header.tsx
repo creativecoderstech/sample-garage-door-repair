@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useGetBusinessSettings } from "@workspace/api-client-react";
+import { useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Phone, Menu, Shield, Wrench } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetClose } from "@/components/ui/sheet";
@@ -19,7 +19,7 @@ const NAV_LINKS = [
 ] as const;
 
 export function SiteHeader() {
-  const { data: settings } = useGetBusinessSettings();
+  const { data: settings } = useGetPublicBusinessSettings();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState(() =>

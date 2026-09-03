@@ -36,6 +36,17 @@ const settings = {
   ],
 };
 
+const publicSettings = {
+  businessName: settings.businessName,
+  phone: settings.phone,
+  email: settings.email,
+  serviceArea: settings.serviceArea,
+  theme: settings.theme,
+  emergencyEnabled: settings.emergencyEnabled,
+  heroImage: settings.heroImage,
+  galleryImages: settings.galleryImages,
+};
+
 const json = (data, status = 200, extraHeaders = {}) =>
   new Response(JSON.stringify(data), {
     status,
@@ -82,11 +93,9 @@ function handleApi(request, url) {
     ]);
   }
   if (path === "/api/garage/reviews") return json(reviews, 200, { "cache-control": "public, max-age=300" });
+  if (path === "/api/garage/site-settings") return json(publicSettings);
   if (path === "/api/garage/settings") {
-    if (request.method === "PATCH") {
-      return request.json().then((body) => json({ ...settings, ...body }));
-    }
-    return json(settings);
+    return json({ error: "The Cloudflare demo does not expose the staff settings API." }, 501);
   }
   if (path === "/api/garage/availability") {
     const zip = url.searchParams.get("zip") || "";
@@ -99,10 +108,13 @@ function handleApi(request, url) {
         json({ id: crypto.randomUUID(), status: "new", createdAt: new Date().toISOString(), ...body }, 201),
       );
     }
-    return json([]);
+    return json({ error: "The Cloudflare demo does not expose customer leads." }, 501);
+  }
+  if (path.startsWith("/api/garage/requests/")) {
+    return json({ error: "The Cloudflare demo does not expose customer lead mutations." }, 501);
   }
   if (path === "/api/garage/dashboard") {
-    return json({ newRequests: 0, scheduledToday: 0, emergencyCalls: 0, completedThisWeek: 0, estimatedRevenue: 0, requests: [] });
+    return json({ error: "The Cloudflare demo does not expose the staff dashboard API." }, 501);
   }
   if (path === "/api/garage/assistant" && request.method === "POST") {
     return request.json().then(({ message = "" }) => {

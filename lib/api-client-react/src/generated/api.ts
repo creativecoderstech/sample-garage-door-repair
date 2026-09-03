@@ -30,6 +30,7 @@ import type {
   GetAvailabilityParams,
   GoogleReviewFeed,
   HealthStatus,
+  PublicBusinessSettings,
   ServiceRequest,
   ServiceRequestInput,
   ServiceRequestUpdate,
@@ -413,6 +414,77 @@ export function useGetAvailability<TData = Awaited<ReturnType<typeof getAvailabi
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAvailabilityQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetPublicBusinessSettingsUrl = () => {
+
+
+
+
+  return `/api/garage/site-settings`
+}
+
+export const getPublicBusinessSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<PublicBusinessSettings> => {
+
+  return customFetch<PublicBusinessSettings>(getGetPublicBusinessSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPublicBusinessSettingsQueryKey = () => {
+    return [
+    `/api/garage/site-settings`
+    ] as const;
+    }
+
+
+export const getGetPublicBusinessSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getPublicBusinessSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPublicBusinessSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicBusinessSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicBusinessSettings>>> = ({ signal }) => getPublicBusinessSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicBusinessSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPublicBusinessSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicBusinessSettings>>>
+export type GetPublicBusinessSettingsQueryError = ErrorType<unknown>
+
+
+
+export function useGetPublicBusinessSettings<TData = Awaited<ReturnType<typeof getPublicBusinessSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPublicBusinessSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPublicBusinessSettingsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

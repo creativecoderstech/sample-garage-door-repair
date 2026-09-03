@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAskGarageAssistant, useGetBusinessSettings } from "@workspace/api-client-react";
+import { useAskGarageAssistant, useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import type { AssistantInput, AssistantReply } from "@workspace/api-client-react";
 import { navigateToPublicSection } from "@/lib/public-navigation";
 
@@ -71,7 +71,7 @@ export function useCustomerCareChat() {
   });
   const [input, setInput] = useState("");
   const askMutation = useAskGarageAssistant();
-  const { data: settings } = useGetBusinessSettings();
+  const { data: settings } = useGetPublicBusinessSettings();
 
   useEffect(() => {
     if (!settings?.businessName) return;

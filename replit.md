@@ -10,6 +10,7 @@ A customer-facing garage door repair website and operations admin with booking, 
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Staff authorization fails closed. Provision the initial owner explicitly with `pnpm --filter @workspace/api-server provision:garage-owner -- user_<clerk-user-id>` after that person appears in the Auth pane, or set `GARAGE_OWNER_USER_IDS` to a comma-separated allowlist of Clerk user IDs before they first sign in.
 
 ## Stack
 
@@ -40,6 +41,7 @@ A customer-facing garage door repair website and operations admin with booking, 
 - Media is admin-configurable through hosted image URLs now; R2 is the Cloudflare production upload target.
 - The AI assistant is constrained to safe intake guidance and must never coach customers through high-tension repairs.
 - API contracts remain provider-neutral so the Express preview adapter can be moved to Workers + D1 without redesigning the frontend.
+- The current Cloudflare demo Worker serves public customer APIs only. Staff leads, dashboard, request mutations, and full settings APIs deliberately return 501 until the Worker is connected to a Clerk-verified persistent admin backend.
 
 ## Product
 
