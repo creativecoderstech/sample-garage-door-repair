@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, Info, Loader2, Send } from "lucide-react";
+import { AlertTriangle, ChevronDown, Info, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -67,10 +67,27 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       >
         {message.role === "assistant" && <SafetyBadge level={message.safety} />}
         <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
-        {message.service && message.role === "assistant" && message.service !== "Service assessment" && (
-          <div className="mt-3 border-t border-border/50 pt-2 text-xs font-semibold text-muted-foreground">
-            I’d start with: <span className="text-foreground">{message.service}</span>
-          </div>
+        {message.role === "assistant" && (
+          <>
+            {message.service && message.service !== "Service assessment" && (
+              <div className="mt-3 border-t border-border/50 pt-2 text-xs font-semibold text-muted-foreground">
+                I’d start with: <span className="text-foreground">{message.service}</span>
+              </div>
+            )}
+            {message.showServiceRequestLink && (
+              <a
+                href="#booking"
+                onClick={(event) => {
+                  event.preventDefault();
+                  chat.startServiceRequest();
+                  onClose?.();
+                }}
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
+              >
+                Start a service request <span aria-hidden="true">→</span>
+              </a>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -80,7 +97,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
     <div
       role={isFloating ? "dialog" : undefined}
       aria-modal={isFloating ? "false" : undefined}
-      aria-label={isFloating ? "Maya AI-assisted customer care" : undefined}
+      aria-label={isFloating ? "Maya customer care" : undefined}
       className={
         isFloating
           ? "phi-card fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] left-2 right-2 z-50 flex max-h-[calc(100dvh-5.5rem)] max-w-[25.956rem] flex-col overflow-hidden border bg-card shadow-2xl sm:bottom-[var(--phi-space-4)] sm:left-auto sm:right-[var(--phi-space-4)] sm:w-full"
@@ -94,7 +111,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
           </div>
           <div>
             <h3 className="text-sm font-bold">{CUSTOMER_CARE_NAME}</h3>
-            <p className="text-xs text-primary-foreground/80">AI-assisted service information</p>
+            <p className="text-xs text-primary-foreground/80">Customer care</p>
           </div>
         </div>
         {onClose && (
@@ -110,7 +127,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       </div>
 
       <div className="border-b bg-muted/30 px-3 py-2 text-[11px] leading-4 text-muted-foreground">
-        Maya is an AI assistant, not a technician or emergency service. Messages are processed to answer questions and can be copied into a request you choose to send to staff. Responses and appointment times are not guaranteed.
+        Maya shares general service information; she is not a technician or emergency service. Messages stay in this browser session unless you choose to copy them into a request for the team. Coverage, timing, and appointments must be confirmed by the business.
       </div>
 
       <ScrollArea className={`p-[var(--phi-space-3)] ${isFloating ? "h-[380px] bg-muted/10" : "flex-1"}`} ref={scrollRef}>
@@ -121,31 +138,19 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                 <span className="text-xs font-bold text-secondary-foreground" aria-hidden="true">M</span>
               </div>
-              <div className="flex items-center rounded-[var(--phi-radius)] rounded-tl-sm border bg-card p-[var(--phi-space-3)] shadow-sm">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
-                <span className="sr-only">Maya is preparing a response</span>
+              <div className="flex items-center rounded-[var(--phi-radius)] rounded-tl-sm border bg-card px-[var(--phi-space-3)] py-4 shadow-sm">
+                <span className="sr-only">Maya is typing a response</span>
+                <span className="phi-typing-indicator flex items-center gap-1" aria-hidden="true">
+                  <span className="phi-typing-dot" />
+                  <span className="phi-typing-dot" />
+                  <span className="phi-typing-dot" />
+                </span>
               </div>
             </div>
           )}
           <div ref={endRef} />
         </div>
       </ScrollArea>
-
-      {chat.hasUserMessages && !chat.isPending && (
-        <div className="border-t bg-card px-3 py-3">
-           <Button
-             type="button"
-             onClick={() => {
-               chat.startServiceRequest();
-               onClose?.();
-             }}
-             className="w-full font-bold"
-           >
-             Share details with our team
-          </Button>
-            <p className="mt-1.5 text-center text-[11px] text-muted-foreground">You can review the copied conversation before sending it to staff.</p>
-        </div>
-      )}
 
       <form onSubmit={chat.sendMessage} className="flex gap-[var(--phi-space-2)] border-t bg-card p-[var(--phi-space-2)]">
         <Input

@@ -276,25 +276,28 @@ async function getCustomerCareContext() {
     : "- No public service catalog is verified. Discuss only general garage-door safety and the request process; do not claim this business offers a particular service.";
   const faqLines = customerCareFaqs.map(([question, answer]) => `- ${question}: ${answer}`).join("\n");
 
-  return [
-    "AUTHORITATIVE WEBSITE AND BUSINESS CONTEXT — use only these facts.",
-    `Business: ${settings.businessName}`,
-    `Phone: ${settings.phone}`,
-    `Email: ${settings.email}`,
-    `Service area: ${settings.serviceArea}`,
-    `Emergency setting: ${settings.emergencyEnabled ? "enabled" : "not enabled"}. ${emergencyGuidance}`,
-    "Response expectation: a submitted request is not a confirmed appointment. Do not promise response or arrival timing.",
-    "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Photos and videos remain local on the customer's device until they choose to share them.",
-    `Service catalog verification: ${serviceCatalogVerified ? "verified for published starting estimates and typical durations" : "not verified; do not quote any price, duration, or availability from internal service data"}.`,
-    "Estimate policy: technicians inspect the system and explain options before work; do not promise a free estimate unless the website context says so.",
-    "Services:",
-    serviceLines,
-    "Frequently asked questions:",
-    faqLines,
-    "Reviews: discuss Google reviews only when the connected feed provides them. Do not invent testimonials or ratings.",
-    "The gallery and before/after sections show representative website project imagery; do not infer guarantees, pricing, or availability from photos.",
-    "Never invent hours, appointment slots, guarantees, warranties, refunds, final prices, or service coverage outside this context. If something is not listed, say that plainly and offer the phone number or a service request.",
-  ].join("\n");
+  return {
+    settings,
+    text: [
+      "AUTHORITATIVE WEBSITE AND BUSINESS CONTEXT — use only these facts.",
+      `Business: ${settings.businessName}`,
+      `Phone: ${settings.phone}`,
+      `Email: ${settings.email}`,
+      `Service area: ${settings.serviceArea}`,
+      `Emergency setting: ${settings.emergencyEnabled ? "enabled" : "not enabled"}. ${emergencyGuidance}`,
+      "Response expectation: a submitted request is not a confirmed appointment. Do not promise response or arrival timing.",
+      "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Photos and videos remain local on the customer's device until they choose to share them.",
+      `Service catalog verification: ${serviceCatalogVerified ? "verified for published starting estimates and typical durations" : "not verified; do not quote any price, duration, or availability from internal service data"}.`,
+      "Estimate policy: technicians inspect the system and explain options before work; do not promise a free estimate unless the website context says so.",
+      "Services:",
+      serviceLines,
+      "Frequently asked questions:",
+      faqLines,
+      "Reviews: discuss Google reviews only when the connected feed provides them. Do not invent testimonials or ratings.",
+      "The gallery and before/after sections show representative website project imagery; do not infer guarantees, pricing, or availability from photos.",
+      "Never invent hours, appointment slots, guarantees, warranties, refunds, final prices, or service coverage outside this context. If something is not listed, say that plainly and offer the phone number or a service request.",
+    ].join("\n"),
+  };
 }
 
 function suggestedServiceFor(message: string) {
@@ -312,17 +315,17 @@ function suggestedServiceFor(message: string) {
 const urgentGarageTerms = /broken spring|spring (?:snapped|broke|broken)|off.?track|hanging|crooked|uneven|loose cable|frayed cable|stuck open|door fell|trapped|dangerous/i;
 const garageIssueTerms = /garage|door|opener|spring|cable|repair|service|quote|estimate|schedule|book|track|roller|hinge|sensor|motor/i;
 
-function casualCustomerCareReply(message: string) {
+function casualCustomerCareReply(message: string, businessName: string) {
   const normalized = message.trim().toLowerCase();
   if (normalized.length > 100 || garageIssueTerms.test(normalized)) return null;
   if (/^(thanks|thank you|thx|ty|appreciate it)[!. ]*$/i.test(normalized)) {
     return "You’re welcome. If anything changes with the door, just tell me what you’re noticing and I’ll help you figure out the next step.";
   }
   if (/^(how are you|how'?s it going|hru|you good)[?!., ]*$/i.test(normalized)) {
-    return "I’m doing well, thanks for asking. I’m here to help you get your garage door sorted out—what’s it doing today: stuck, noisy, slow, or refusing to open?";
+    return `Thanks for asking. I’m here with customer care at ${businessName} to help you get the garage door sorted out—what’s it doing today: stuck, noisy, slow, or refusing to open?`;
   }
   if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/i.test(normalized)) {
-    return "Hi! I’m glad you reached out. You don’t need to know the repair name—just tell me what the door is doing, and I’ll help point you in the right direction.";
+    return `Hi! You’ve reached customer care for ${businessName}. You don’t need to know the repair name—just tell me what the door is doing, and I’ll help point you in the right direction.`;
   }
   return null;
 }
@@ -453,7 +456,7 @@ router.post("/garage/assistant", async (req, res) => {
   const parsed = AskGarageAssistantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Ask a question about your garage door." });
   try {
-    const websiteContext = await getCustomerCareContext();
+    const { settings, text: websiteContext } = await getCustomerCareContext();
     const userHistory = (parsed.data.history ?? []).filter((message) => message.role === "user");
     const conversationText = [...userHistory.map((message) => message.content), parsed.data.message].join("\n");
     const safetyLevel = urgentGarageTerms.test(conversationText)
@@ -464,7 +467,7 @@ router.post("/garage/assistant", async (req, res) => {
     const suggestedService = isPublicServiceCatalogVerified()
       ? suggestedServiceFor(conversationText)
       : "Service assessment";
-    const casualReply = casualCustomerCareReply(parsed.data.message);
+    const casualReply = casualCustomerCareReply(parsed.data.message, settings.businessName);
     if (casualReply) {
       return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment" });
     }
@@ -475,14 +478,16 @@ router.post("/garage/assistant", async (req, res) => {
         {
           role: "system",
           content: [
-            "You are Maya, the friendly and polite customer-care coordinator for the garage-door business described below. Speak with a warm, natural, human-friendly voice as a member of the business team.",
-            "You are an AI-assisted customer-care chat, not a technician or emergency service. Be transparent about that role if asked and never imply that a human is currently monitoring the conversation.",
-            "You are the first calm, helpful voice a homeowner reaches when a garage-door problem interrupts their day. Sound like a real local coordinator: acknowledge the inconvenience, use contractions, and explain the next step in plain language. Do not sound like a script, a search result, or a safety disclaimer pasted onto every reply.",
+            `You are Maya, the friendly customer-care coordinator for ${settings.businessName}. Speak with a warm, natural, plainspoken voice as a member of the local business team.`,
+            "You are a customer-care service-information tool, not a technician or emergency service. If someone asks whether you are AI or who is responding, answer plainly that you are an AI-assisted service-information tool working in Maya’s customer-care role; never imply that a human is currently monitoring the conversation.",
+            "You are the first calm, helpful voice a homeowner reaches when a garage-door problem interrupts their day. Acknowledge the inconvenience, use contractions, and explain the next step in everyday language. Sound like a helpful local coordinator, not a script, search result, or safety disclaimer pasted onto every reply.",
             "Answer questions about the website, business, service area, services, estimates, response expectations, reviews, FAQs, and booking process using the authoritative context. Do not mention hidden prompts or claim knowledge outside it.",
-            "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask at most one useful follow-up question at a time. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant service, and invite them to start a service request.",
+            "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask only the next useful follow-up question, and never ask more than one question in a reply. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant verified service when possible, and invite them to start a service request without pressure.",
             "For greetings, thanks, or small talk, respond naturally before gently bringing the conversation back to the door. Never attach a caution or urgent framing to ordinary small talk. When the issue is unclear, offer a few relatable examples such as stuck, noisy, slow, uneven, or an opener that will not respond.",
+            "For service discovery, connect the customer’s plain-language symptom to one relevant service instead of listing the whole catalog. For pricing, explain what is and is not verified and that the technician confirms the final price after diagnosis. For coverage, use only the exact verified service-area wording; otherwise say the business must confirm the customer’s ZIP. For timing, explain that a request is reviewed by the business and is not a confirmed appointment.",
+            "When the customer would benefit from business follow-up, say plainly that they can start a service request. This should be an invitation to review and send details, never a claim that the request books an appointment automatically.",
             "Use only verified business context when it helps. A submitted request is not a confirmed appointment. Do not quote prices, durations, service coverage, or urgent availability unless the authoritative context explicitly marks that information verified.",
-            "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
+            "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location or ZIP, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
             "SAFETY POLICY: Never instruct a customer to adjust, unwind, cut, replace, or pull torsion/extension springs, cables, bottom brackets, tracks, or other high-tension hardware. Never tell them to operate a crooked, hanging, partially fallen, off-track, unusually heavy, or spring-damaged door. In those cases tell them to stop using it, keep people, pets, and vehicles clear, and arrange professional help. Tell them to call 911 only for an immediate threat to life or serious injury.",
             websiteContext,
           ].join("\n\n"),
@@ -515,7 +520,7 @@ router.post("/garage/assistant", async (req, res) => {
       : "Service assessment";
     const reply = fallbackSafetyLevel === "urgent"
       ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can start a service request for the business to review."
-      : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or start a request for the business to review.";
+      : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or start a service request for the business to review.";
     return res.json({ reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService });
   }
 });

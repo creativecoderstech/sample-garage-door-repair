@@ -8,6 +8,7 @@ export type CustomerCareMessage = {
   content: string;
   safety?: AssistantReply["safetyLevel"];
   service?: string;
+  showServiceRequestLink?: boolean;
 };
 
 export type ServiceRequestDraft = {
@@ -20,7 +21,20 @@ export const CUSTOMER_CARE_NAME = "Maya";
 export const SERVICE_REQUEST_DRAFT_EVENT = "garage-service-request-draft";
 
 export const customerCareWelcome = (businessName = "Garage Door Service Preview") =>
-  `Hi, I’m Maya, an AI-assisted customer-care guide for ${businessName}. Tell me what your garage door is doing and I’ll share general service information and the safest next step. A human must confirm coverage, timing, and any appointment.`;
+  `Hi, I’m Maya with the customer-care team at ${businessName}. Tell me what your garage door is doing and I’ll help point you toward the right service and the safest next step. The business will confirm coverage, timing, and any appointment.`;
+
+function isCustomerCareWelcome(content: string) {
+  return /Maya(?:, an AI-assisted customer-care guide| from | with )/i.test(content);
+}
+
+function shouldOfferServiceRequestLink(
+  reply: string,
+  service: string,
+  safety: AssistantReply["safetyLevel"],
+) {
+  if (service !== "Service assessment" || safety === "urgent") return true;
+  return /service request|(?:start|submit|send|create|make)\s+(?:a\s+)?(?:service\s+)?request|request\s+(?:service|help)|(?:arrange|contact|reach out to)\s+(?:professional help|the team|a technician)/i.test(reply);
+}
 
 const storageKey = "garage_customer_care_messages";
 
@@ -79,7 +93,7 @@ export function useCustomerCareChat() {
       if (
         previous.length !== 1 ||
         previous[0].role !== "assistant" ||
-        !previous[0].content.includes("I’m Maya from")
+        !isCustomerCareWelcome(previous[0].content)
       ) {
         return previous;
       }
@@ -116,6 +130,11 @@ export function useCustomerCareChat() {
               content: data.reply,
               safety: data.safetyLevel,
               service: data.suggestedService,
+              showServiceRequestLink: shouldOfferServiceRequestLink(
+                data.reply,
+                data.suggestedService,
+                data.safetyLevel,
+              ),
             },
           ]);
         },
@@ -125,9 +144,10 @@ export function useCustomerCareChat() {
             {
               role: "assistant",
               content:
-                "I’m sorry—I couldn’t get that information just now. You can call our team or start a service request, and we’ll help identify the right next step.",
+                "I’m sorry—I couldn’t get that information just now. Start a service request and the business can review what’s going on and help with the next step.",
               safety: "caution",
               service: "Service assessment",
+              showServiceRequestLink: true,
             },
           ]);
         },
