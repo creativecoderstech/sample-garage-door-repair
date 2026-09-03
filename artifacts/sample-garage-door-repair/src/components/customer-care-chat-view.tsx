@@ -133,7 +133,14 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
 
       {chat.hasUserMessages && !chat.isPending && (
         <div className="border-t bg-card px-3 py-3">
-          <Button type="button" onClick={chat.startServiceRequest} className="w-full font-bold">
+           <Button
+             type="button"
+             onClick={() => {
+               chat.startServiceRequest();
+               onClose?.();
+             }}
+             className="w-full font-bold"
+           >
              Share details with our team
           </Button>
             <p className="mt-1.5 text-center text-[11px] text-muted-foreground">You can review the copied conversation before sending it to staff.</p>

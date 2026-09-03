@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Phone, Menu, Shield, Wrench } from "lucide-react";
-import { Sheet, SheetContent, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import {
   getPublicSectionId,
@@ -175,32 +175,35 @@ export function SiteHeader() {
 
           {/* Nav links */}
           <nav className="flex flex-col gap-1 flex-1">
-            <SheetClose asChild>
-              <Link
-                href="/"
-                onClick={() => setActiveSection('')}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${location === '/' && !activeSection ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted hover:text-foreground'}`}
-              >
-                Home
-              </Link>
-            </SheetClose>
+            <Link
+              href="/"
+              onClick={() => {
+                setActiveSection('');
+                setDrawerOpen(false);
+              }}
+              className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${location === '/' && !activeSection ? 'bg-primary/10 text-primary' : 'text-foreground/80 hover:bg-muted hover:text-foreground'}`}
+            >
+              Home
+            </Link>
             {NAV_LINKS.map((link) => (
-              <SheetClose asChild key={link.id}>
-                <Link
-                  href={getPublicSectionRouterHref(link.section)}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${
-                    isLinkActive(link.section)
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-foreground/80 hover:bg-muted hover:text-foreground'
-                  }`}
-                  onClick={(e) => handleNavClick(e, link.section)}
-                >
-                  {link.label}
-                  {isLinkActive(link.section) && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
-                  )}
-                </Link>
-              </SheetClose>
+              <Link
+                key={link.id}
+                href={getPublicSectionRouterHref(link.section)}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold transition-colors ${
+                  isLinkActive(link.section)
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-foreground/80 hover:bg-muted hover:text-foreground'
+                }`}
+                onClick={(e) => {
+                  handleNavClick(e, link.section);
+                  setDrawerOpen(false);
+                }}
+              >
+                {link.label}
+                {isLinkActive(link.section) && (
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
+                )}
+              </Link>
             ))}
           </nav>
 
