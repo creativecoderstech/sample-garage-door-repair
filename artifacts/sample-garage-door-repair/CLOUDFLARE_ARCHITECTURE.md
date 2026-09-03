@@ -9,8 +9,12 @@ The application is organized around portable HTTP contracts so the same customer
 - **R2** stores business-uploaded hero and gallery photography. The current admin also accepts licensed stock-photo URLs, making the media surface usable before an R2 upload workflow is connected.
 - **Workers AI** is the production target for the safety-constrained garage-door assistant. Local preview uses Replit AI Integrations and does not require a user API key.
 - **Turnstile** should protect public lead and assistant forms before a live advertising campaign.
-- **WAF and Rate Limiting** should protect `/api/garage/assistant`, `/api/garage/requests`, and admin routes.
-- **Cloudflare Access** should guard `/admin*` for the production operator team.
+- **Turnstile and application rate limiting** protect the public assistant and
+  request forms in this sample. A real customer deployment should add WAF
+  rules and Cloudflare Access before enabling staff operations.
+- **Cloudflare Access is intentionally disabled here.** This sample leaves
+  `/admin`, `/login`, and staff APIs available to any caller. A real
+  customer deployment must add Access before exposing business data.
 - **Web Analytics** should record service-page views, booking starts, completed requests, phone clicks, and iframe referrals.
 
 ## Creative Coders embedding
@@ -34,10 +38,10 @@ Create separate preview and production resources. Bind them with these names:
 - `AI`: Workers AI
 - `ASSETS`: Pages' built-in static asset binding
 
-Additional optional variables are `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`,
-`ACCESS_TEAM_DOMAIN`, and `ACCESS_AUD`. Set secrets and Access values in
-Cloudflare; do not add them to source control. Staff APIs reject requests in
-production until Access JWT verification is configured.
+Additional variables are `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
+Access variables are intentionally absent from this sample. A real deployment
+must add its own Cloudflare Access policy and JWT configuration before exposing
+staff routes.
 
 Never commit Cloudflare IDs or secrets. Resource identifiers belong in deployment configuration and secrets belong in Cloudflare's encrypted secret store.
 
