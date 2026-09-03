@@ -10,7 +10,7 @@ Modern garage door repair sample application for Creative Coders.
   "appDirectory": "artifacts/sample-garage-door-repair",
   "healthPath": "/",
   "commands": {
-    "build": "pnpm --filter @workspace/sample-garage-door-repair run build",
+    "build": "PORT=22004 BASE_PATH=/ pnpm --filter @workspace/sample-garage-door-repair run build",
     "deploy": "wrangler deploy --config wrangler.client.json",
     "migrations": {
       "directory": "cloudflare/migrations"
