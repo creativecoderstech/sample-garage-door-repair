@@ -220,10 +220,11 @@ async function serveAsset(request, url, context) {
   return response;
 }
 
-addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-  const response = url.pathname.startsWith("/api/")
-    ? handleApi(event.request, url)
-    : serveAsset(event.request, url, event);
-  event.respondWith(response);
-});
+export default {
+  async fetch(request, _env, context) {
+    const url = new URL(request.url);
+    return url.pathname.startsWith("/api/")
+      ? handleApi(request, url)
+      : serveAsset(request, url, context);
+  },
+};
