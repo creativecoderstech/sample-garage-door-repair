@@ -84,7 +84,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="phi-site-header sticky top-0 z-50 bg-background/[0.97] backdrop-blur-xl border-b border-border shadow-sm">
+      <header data-cc-section="nav" data-cc-label="Navigation" className="phi-site-header sticky top-0 z-50 bg-background/[0.97] backdrop-blur-xl border-b border-border shadow-sm">
         <div className="phi-container flex items-center justify-between gap-3 py-3 sm:py-4">
            <div className="flex items-center group min-w-0">
              <Link href="/" aria-label={`${settings?.businessName || "Garage Door Service Preview"} home`} className="flex min-w-0 items-center gap-2 lg:group-hover:scale-105 transition-transform">

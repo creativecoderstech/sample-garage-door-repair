@@ -25,6 +25,8 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
   return (
     <section
       id="service-area"
+      data-cc-section="service-area"
+      data-cc-label="Service Area"
       className="scroll-mt-[112px] border-b bg-muted/20 py-[var(--phi-section)]"
       aria-labelledby="service-area-title"
     >

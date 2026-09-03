@@ -9,7 +9,7 @@ export function SiteFooter() {
   const isVerified = settings?.verificationStatus === "verified";
   
   return (
-    <footer className="phi-site-footer bg-foreground text-background mt-auto">
+    <footer data-cc-section="footer" data-cc-label="Footer" className="phi-site-footer bg-foreground text-background mt-auto">
       <div className="phi-container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)]">
           <div className="md:col-span-2">

@@ -114,7 +114,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background noise-overlay">
       {/* HERO SECTION */}
-      <section id="hero" className="relative overflow-hidden">
+      <section id="hero" data-cc-section="hero" data-cc-label="Hero Banner" className="relative overflow-hidden">
         {/* Mobile View */}
         <div className="phi-hero lg:hidden relative">
           <div className="absolute inset-0 w-full h-full">
@@ -190,7 +190,7 @@ export default function HomePage() {
       </section>
 
       {/* SERVICES */}
-       <section id="services" className="scroll-mt-[112px] phi-section bg-muted/30">
+       <section id="services" data-cc-section="services" data-cc-label="Services" className="scroll-mt-[112px] phi-section bg-muted/30">
         <div className="phi-container">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--phi-space-4)] mb-[var(--phi-space-5)] reveal-on-scroll">
             <div>
@@ -242,7 +242,7 @@ export default function HomePage() {
       </section>
 
       {/* GALLERY TEASER */}
-        <section id="work" className="scroll-mt-[112px] phi-section border-y bg-background">
+        <section id="work" data-cc-section="work" data-cc-label="Project Gallery" className="scroll-mt-[112px] phi-section border-y bg-background">
            <div className="phi-container">
              <div className="text-center phi-copy mx-auto mb-[var(--phi-space-6)] reveal-on-scroll">
                <p className="phi-eyebrow text-primary mb-3">Representative imagery</p>
@@ -276,7 +276,7 @@ export default function HomePage() {
       </section>
 
       {/* BEFORE & AFTER */}
-        <section id="before-after" className="scroll-mt-[112px] phi-section bg-muted/20 border-b">
+        <section id="before-after" data-cc-section="before-after" data-cc-label="Before & After" className="scroll-mt-[112px] phi-section bg-muted/20 border-b">
          <div className="phi-container">
            <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--phi-space-4)] mb-[var(--phi-space-5)] reveal-on-scroll">
             <div className="max-w-2xl">
@@ -323,7 +323,7 @@ export default function HomePage() {
       </section>
 
       {/* BOOKING */}
-        <section className="scroll-mt-[112px] phi-section-tight bg-muted/20 border-b relative overflow-hidden" id="booking">
+        <section className="scroll-mt-[112px] phi-section-tight bg-muted/20 border-b relative overflow-hidden" id="booking" data-cc-section="booking" data-cc-label="Booking">
          <div className="phi-container relative z-10">
           <div className="max-w-2xl mx-auto reveal-on-scroll">
             <BookingForm />
@@ -344,7 +344,7 @@ export default function HomePage() {
 
        <ServiceAreaSection serviceArea={settings?.serviceArea} isVerified={isVerified} />
 
-       <section id="trust" className="scroll-mt-[112px] border-b bg-background py-[var(--phi-space-6)]">
+       <section id="trust" data-cc-section="trust" data-cc-label="Trust & Credentials" className="scroll-mt-[112px] border-b bg-background py-[var(--phi-space-6)]">
          <div className="phi-container">
            <div className="grid gap-[var(--phi-space-5)] lg:grid-cols-[0.9fr_1.1fr]">
              <div>
@@ -380,7 +380,7 @@ export default function HomePage() {
        </section>
 
       {/* FAQ */}
-        <section className="scroll-mt-[112px] phi-section bg-muted/10" id="faq">
+        <section className="scroll-mt-[112px] phi-section bg-muted/10" id="faq" data-cc-section="faqs" data-cc-label="FAQ">
          <div className="phi-container">
           <div className="max-w-4xl mx-auto reveal-on-scroll">
             <div className="flex items-end justify-between gap-5 mb-10">
