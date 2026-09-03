@@ -35,3 +35,23 @@ Create separate preview and production resources. Bind them with these names:
 - `ASSETS`: Worker static assets
 
 Never commit Cloudflare IDs or secrets. Resource identifiers belong in deployment configuration and secrets belong in Cloudflare's encrypted secret store.
+
+## Release procedure
+
+The Worker fetches immutable build assets from the GitHub revision recorded in
+`cloudflare/release.json`. A Git push does not promote the Worker by itself.
+
+1. Build the web artifact with its production `PORT` and `BASE_PATH` values.
+2. Commit and push the generated `dist/public` bundle.
+3. Copy the full pushed Git SHA into both `cloudflare/release.json` and the
+   Worker's `ASSET_REVISION`.
+4. Run `pnpm run verify:cloudflare-release` from this artifact directory.
+5. Upload `cloudflare/worker.mjs` to the existing
+   `sample-garage-door-repair` Worker through the configured Cloudflare
+   connection.
+6. Verify `/`, `/sample-garage-door-repair/`, the generated JavaScript and CSS,
+   and representative public API responses on the attached production hostname.
+
+The Git revision belongs in source control because it is not a secret. Account
+IDs, zone IDs, API credentials, and other Cloudflare resource identifiers must
+remain outside the repository.

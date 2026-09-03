@@ -1,6 +1,6 @@
 const REPOSITORY =
   "https://raw.githubusercontent.com/creativecoderstech/sample-garage-door-repair";
-const ASSET_REVISION = "__GITHUB_REVISION__";
+const ASSET_REVISION = "93bdeda5709f866fa9043eac004bd272729d7269";
 const BUILD_ROOT =
   "artifacts/sample-garage-door-repair/dist/public";
 const ARTIFACT_BASE_PATH = "/sample-garage-door-repair";
