@@ -134,7 +134,6 @@ export function useCustomerCareChat() {
         {
           role: "assistant",
           content: "I couldn’t verify this message right now. Please try again in a moment.",
-          safety: "caution",
         },
       ]);
       setIsVerifying(false);
@@ -172,7 +171,6 @@ export function useCustomerCareChat() {
             role: "assistant",
             content:
               "I’m sorry—I couldn’t get that information just now. Start a service request and the business can review what’s going on and help with the next step.",
-            safety: "caution",
             service: "Service assessment",
             showServiceRequestLink: true,
           });

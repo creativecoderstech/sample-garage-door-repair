@@ -373,6 +373,12 @@ async function recordAdminAudit(
 router.get("/garage/services", (_req, res) => {
   res.json(isPublicServiceCatalogVerified() ? services : []);
 });
+router.get("/garage/cloudflare-config", (_req, res) => {
+  res.json({
+    turnstile: { enabled: false },
+    features: { turnstile: false, assistant: true, media: false },
+  });
+});
 router.get("/garage/testimonials", (_req, res) => res.json([]));
 router.get("/garage/reviews", async (_req, res) => {
   res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");

@@ -8,3 +8,9 @@ Keep the garage-door provisioning contract on Cloudflare Pages with its advanced
 **Why:** A repository provisioning change declared a standalone Worker with a nonexistent config and omitted Turnstile variables. The change also left Pages bound to a deleted D1 database, breaking public settings and services until a new database was migrated and rebound.
 
 **How to apply:** Before pushing provisioning metadata, validate the documented build and deploy commands. After any runtime or binding change, inspect the Pages production configuration, confirm every resource still exists, and curl D1-backed public endpoints before considering the release healthy.
+
+Keep the browser and runtime verification-config contract explicit: production returns Turnstile enabled plus its site key, while the local API explicitly returns Turnstile disabled.
+
+**Why:** A shape mismatch between the Pages config response and browser parser caused production to omit tokens, while a missing local config route blocked Maya before requests were posted.
+
+**How to apply:** When changing verification config, test the config endpoint and a Maya POST in both local preview and Pages. Never treat a missing config endpoint as permission to bypass production verification.

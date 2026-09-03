@@ -3,6 +3,9 @@ type TurnstileAction = "booking" | "assistant";
 type CloudflareConfigResponse = {
   enabled?: boolean;
   siteKey?: string;
+  features?: {
+    turnstile?: boolean;
+  };
   turnstile?: {
     enabled?: boolean;
     siteKey?: string;
@@ -39,7 +42,10 @@ let configPromise: Promise<TurnstileConfig> | undefined;
 let scriptPromise: Promise<TurnstileApi> | undefined;
 
 function readConfig(value: CloudflareConfigResponse): TurnstileConfig {
-  const enabled = value.turnstile?.enabled ?? value.turnstileEnabled ?? value.enabled;
+  const enabled = value.turnstile?.enabled ??
+    value.turnstileEnabled ??
+    value.features?.turnstile ??
+    value.enabled;
   const siteKey = value.turnstile?.siteKey ?? value.turnstileSiteKey ?? value.siteKey;
   return { enabled: enabled === true, siteKey };
 }
