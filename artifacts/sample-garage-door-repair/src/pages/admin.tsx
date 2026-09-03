@@ -10,9 +10,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link, useLocation } from "wouter";
-import { useClerk, useUser } from "@clerk/react";
-import { 
-  LogOut, AlertTriangle, CheckCircle2, Clock, Calendar, 
+import {
+  AlertTriangle, CheckCircle2, Clock, Calendar,
   Search, User, Trash2, Plus, Edit2, Check,
   LayoutGrid, Inbox, CalendarDays, MessageCircle, 
   Wrench, Image as ImageIcon, SplitSquareHorizontal, 
@@ -81,8 +80,6 @@ const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> 
 };
 
 const adminCardClass = 'phi-admin-card border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900';
-const configuredBasePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-
 export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>(() => {
     const requestedTab = window.location.hash.slice(1) as AdminTab;
@@ -93,9 +90,7 @@ export default function AdminPage() {
   const { data: dashboard } = useGetGarageDashboard();
   const pendingCount = dashboard?.newRequests ?? 0;
   const [, setLocation] = useLocation();
-  const { signOut } = useClerk();
-  const { user } = useUser();
-  const userEmail = user?.primaryEmailAddress?.emailAddress ?? "Authenticated staff";
+  const userEmail = "Temporary admin access";
 
   const navGroups = [
     {
@@ -125,12 +120,6 @@ export default function AdminPage() {
       ]
     }
   ] as const;
-
-  const handleSignOut = () => {
-    void signOut({
-      redirectUrl: `${window.location.origin}${configuredBasePath || "/"}`,
-    });
-  };
 
   const SidebarContent = () => (
     <>
@@ -196,13 +185,13 @@ export default function AdminPage() {
         ))}
         
         <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
-          <button
-            onClick={handleSignOut}
+          <Link
+            href="/"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
           >
-            <LogOut className="w-4 h-4 text-slate-400" />
-            Sign out
-          </button>
+            <ExternalLink className="w-4 h-4 text-slate-400" />
+            View customer site
+          </Link>
         </div>
       </ScrollArea>
     </>
@@ -744,20 +733,13 @@ function ReviewsAdmin() {
 }
 
 function UsersAdmin() {
-  const { user } = useUser();
-  const metadataRole = user?.publicMetadata?.role;
-  const role = metadataRole === "staff" || metadataRole === "manager" || metadataRole === "owner"
-    ? metadataRole
-    : "owner";
-  const email = user?.primaryEmailAddress?.emailAddress ?? "Authenticated staff";
-
   return (
     <div className="space-y-[var(--phi-space-4)]">
       <AdminSectionHeader
         eyebrow="Workspace access"
         title="Staff access"
-        description="Staff identities and account recovery are managed by the secure identity provider, not browser storage."
-        count="1 current session"
+        description="Authentication is temporarily disabled while this admin workspace is being configured."
+        count="Open access"
       />
       <div className={`${adminCardClass} p-[var(--phi-space-4)]`}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -766,18 +748,18 @@ function UsersAdmin() {
               <User className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-bold text-slate-950 dark:text-white">{user?.fullName || "Staff member"}</p>
-              <p className="text-sm text-slate-500">{email}</p>
+              <p className="font-bold text-slate-950 dark:text-white">Temporary admin</p>
+              <p className="text-sm text-slate-500">No login required</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge value={role} />
-            <StatusBadge value="Authenticated" />
+            <StatusBadge value="owner" />
+            <StatusBadge value="Open access" />
           </div>
         </div>
       </div>
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-        Account invites, role assignment, password recovery, and account deletion must be completed through the managed identity provider. This page intentionally cannot delete the currently signed-in owner.
+        This temporary mode does not provide account invites, role assignment, password recovery, or individual staff identities. Restore authentication before using real customer data.
       </div>
     </div>
   );

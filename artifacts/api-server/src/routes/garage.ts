@@ -10,7 +10,6 @@ import {
   UpdateServiceRequestParams,
 } from "@workspace/api-zod";
 import { openai } from "@workspace/integrations-openai-ai-server";
-import { requireStaffAuth, requireStaffRole } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
@@ -333,19 +332,15 @@ const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
   createdAt: row.createdAt.toISOString(),
 });
 
-async function recordStaffAudit(
-  req: Parameters<typeof requireStaffAuth>[0],
+async function recordAdminAudit(
   action: string,
   resourceType: string,
   resourceId: string | null,
   changedFields: string[],
 ) {
-  const principal = req.staffPrincipal;
-  if (!principal) throw new Error("Missing staff principal for audit event.");
-
   await db.insert(garageAuditLogs).values({
-    actorUserId: principal.userId,
-    actorRole: principal.role,
+    actorUserId: "temporary-admin",
+    actorRole: "owner",
     action,
     resourceType,
     resourceId,
@@ -381,7 +376,7 @@ router.get("/garage/site-settings", async (_req, res): Promise<void> => {
   res.json(toPublicSettings(settings ? withRefreshedSeedImages(settings) : defaultSettings));
 });
 
-router.get("/garage/requests", requireStaffAuth, async (_req, res): Promise<void> => {
+router.get("/garage/requests", async (_req, res): Promise<void> => {
   const rows = await db.select().from(serviceRequests).orderBy(desc(serviceRequests.createdAt));
   res.json(rows.map(mapRequest));
 });
@@ -393,7 +388,7 @@ router.post("/garage/requests", async (req, res) => {
   return res.status(201).json(mapRequest(created));
 });
 
-router.patch("/garage/requests/:id", requireStaffAuth, async (req, res): Promise<void> => {
+router.patch("/garage/requests/:id", async (req, res): Promise<void> => {
   const params = UpdateServiceRequestParams.safeParse(req.params);
   const body = UpdateServiceRequestBody.safeParse(req.body);
   if (!params.success || !body.success) {
@@ -405,8 +400,7 @@ router.patch("/garage/requests/:id", requireStaffAuth, async (req, res): Promise
     res.status(404).json({ error: "Request not found." });
     return;
   }
-  await recordStaffAudit(
-    req,
+  await recordAdminAudit(
     "service_request.updated",
     "service_request",
     String(updated.id),
@@ -415,7 +409,7 @@ router.patch("/garage/requests/:id", requireStaffAuth, async (req, res): Promise
   res.json(mapRequest(updated));
 });
 
-router.get("/garage/dashboard", requireStaffAuth, async (_req, res): Promise<void> => {
+router.get("/garage/dashboard", async (_req, res): Promise<void> => {
   const rows = await db.select().from(serviceRequests).orderBy(desc(serviceRequests.createdAt));
   res.json({
     newRequests: rows.filter((r) => r.status === "new").length,
@@ -427,7 +421,7 @@ router.get("/garage/dashboard", requireStaffAuth, async (_req, res): Promise<voi
   });
 });
 
-router.get("/garage/settings", requireStaffAuth, async (_req, res): Promise<void> => {
+router.get("/garage/settings", async (_req, res): Promise<void> => {
   const [settings] = await db.select().from(businessSettings).limit(1);
   if (!settings) {
     res.json(defaultSettings);
@@ -436,7 +430,7 @@ router.get("/garage/settings", requireStaffAuth, async (_req, res): Promise<void
   res.json(withRefreshedSeedImages(settings));
 });
 
-router.patch("/garage/settings", requireStaffRole("owner", "manager"), async (req, res): Promise<void> => {
+router.patch("/garage/settings", async (req, res): Promise<void> => {
   const parsed = UpdateBusinessSettingsBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid settings." });
@@ -446,8 +440,7 @@ router.patch("/garage/settings", requireStaffRole("owner", "manager"), async (re
     target: businessSettings.id,
     set: parsed.data,
   }).returning();
-  await recordStaffAudit(
-    req,
+  await recordAdminAudit(
     "business_settings.updated",
     "business_settings",
     String(settings.id),
