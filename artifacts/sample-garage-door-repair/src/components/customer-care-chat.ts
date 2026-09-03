@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAskGarageAssistant, useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import type { AssistantInput, AssistantReply } from "@workspace/api-client-react";
 import { navigateToPublicSection } from "@/lib/public-navigation";
@@ -37,6 +37,15 @@ function shouldOfferServiceRequestLink(
 }
 
 const storageKey = "garage_customer_care_messages";
+const MIN_TYPING_DURATION_MS = 900;
+const MAX_TYPING_DURATION_MS = 1800;
+
+function typingDurationFor(reply: string) {
+  return Math.min(
+    MAX_TYPING_DURATION_MS,
+    Math.max(MIN_TYPING_DURATION_MS, 700 + reply.length * 7),
+  );
+}
 
 function readSavedMessages(): CustomerCareMessage[] {
   if (typeof window === "undefined") return [];
@@ -84,8 +93,19 @@ export function useCustomerCareChat() {
     return saved.length > 0 ? saved : [{ role: "assistant", content: customerCareWelcome() }];
   });
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const typingStartedAtRef = useRef<number | null>(null);
+  const typingTimerRef = useRef<number | null>(null);
   const askMutation = useAskGarageAssistant();
   const { data: settings } = useGetPublicBusinessSettings();
+
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current !== null) {
+        window.clearTimeout(typingTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!settings?.businessName) return;
@@ -108,6 +128,20 @@ export function useCustomerCareChat() {
     }
   }, [messages]);
 
+  const queueAssistantMessage = (message: CustomerCareMessage) => {
+    const elapsed = typingStartedAtRef.current === null
+      ? 0
+      : Date.now() - typingStartedAtRef.current;
+    const remaining = Math.max(typingDurationFor(message.content) - elapsed, 0);
+
+    typingTimerRef.current = window.setTimeout(() => {
+      setMessages((previous) => [...previous, message]);
+      setIsTyping(false);
+      typingStartedAtRef.current = null;
+      typingTimerRef.current = null;
+    }, remaining);
+  };
+
   const sendMessage = (event: React.FormEvent) => {
     event.preventDefault();
     if (!input.trim() || askMutation.isPending) return;
@@ -118,38 +152,34 @@ export function useCustomerCareChat() {
       .map(({ role, content }) => ({ role, content }));
     setMessages((previous) => [...previous, { role: "user", content: userMessage }]);
     setInput("");
+    setIsTyping(true);
+    typingStartedAtRef.current = Date.now();
 
     askMutation.mutate(
       { data: { message: userMessage, history } },
       {
         onSuccess: (data) => {
-          setMessages((previous) => [
-            ...previous,
-            {
-              role: "assistant",
-              content: data.reply,
-              safety: data.safetyLevel,
-              service: data.suggestedService,
-              showServiceRequestLink: shouldOfferServiceRequestLink(
-                data.reply,
-                data.suggestedService,
-                data.safetyLevel,
-              ),
-            },
-          ]);
+          queueAssistantMessage({
+            role: "assistant",
+            content: data.reply,
+            safety: data.safetyLevel,
+            service: data.suggestedService,
+            showServiceRequestLink: shouldOfferServiceRequestLink(
+              data.reply,
+              data.suggestedService,
+              data.safetyLevel,
+            ),
+          });
         },
         onError: () => {
-          setMessages((previous) => [
-            ...previous,
-            {
-              role: "assistant",
-              content:
-                "I’m sorry—I couldn’t get that information just now. Start a service request and the business can review what’s going on and help with the next step.",
-              safety: "caution",
-              service: "Service assessment",
-              showServiceRequestLink: true,
-            },
-          ]);
+          queueAssistantMessage({
+            role: "assistant",
+            content:
+              "I’m sorry—I couldn’t get that information just now. Start a service request and the business can review what’s going on and help with the next step.",
+            safety: "caution",
+            service: "Service assessment",
+            showServiceRequestLink: true,
+          });
         },
       },
     );
@@ -178,7 +208,7 @@ export function useCustomerCareChat() {
     setInput,
     sendMessage,
     startServiceRequest,
-    isPending: askMutation.isPending,
+    isPending: askMutation.isPending || isTyping,
     hasUserMessages: messages.some((message) => message.role === "user"),
     businessName: settings?.businessName || "Garage Door Service Preview",
   };
