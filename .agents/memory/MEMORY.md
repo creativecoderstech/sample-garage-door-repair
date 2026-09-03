@@ -1,1 +1,2 @@
 - [GitHub and Cloudflare release behavior](github-cloudflare-deployment.md) — push assets, then promote the Worker with that revision; use revision-key caches.
+- [GitHub template LFS cleanup](github-template-lfs-cleanup.md) — history rewrites do not clear orphaned LFS storage; templates may require Support or repository recreation.
