@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { useCreateServiceRequest, useGetAvailability } from '@workspace/api-client-react';
+import { useCreateServiceRequest } from '@workspace/api-client-react';
 import { z } from "zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CalendarCheck, ShieldCheck, MapPin, Upload, Camera, Video, X, Film } from "lucide-react";
+import { Loader2, CalendarCheck, MapPin, Upload, Camera, Video, X, Film } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceInput } from "@/components/voice-input";
 import {
@@ -99,9 +99,6 @@ export function BookingForm({ className = "" }: { className?: string }) {
       details: assistantDraft?.details || "",
     }
   });
-
-  const zip = form.watch("zip");
-  const { data: availability } = useGetAvailability({ zip }, { query: { enabled: zip.length >= 5, queryKey: ["availability", zip] } });
 
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -267,46 +264,9 @@ export function BookingForm({ className = "" }: { className?: string }) {
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
-           <section aria-labelledby="coverage-heading" className="rounded-xl border bg-muted/20 p-4 sm:p-5">
-             <h3 id="coverage-heading" className="font-display text-lg font-bold">1. Check service coverage</h3>
-             <p id="coverage-help" className="mt-1 text-sm text-muted-foreground">
-               Start with only a ZIP code. Your complete job address is required later only when you send the service request.
-             </p>
-             <FormField control={form.control} name="zip" render={({ field }) => (
-               <FormItem className="mt-4 max-w-xs">
-                 <FormLabel>Job ZIP code *</FormLabel>
-                 <FormControl>
-                   <Input
-                     placeholder="ZIP code"
-                     inputMode="numeric"
-                     autoComplete="postal-code"
-                     aria-describedby="coverage-help coverage-status"
-                     {...field}
-                     maxLength={5}
-                     onChange={(event) => field.onChange(event.target.value.replace(/\D/g, '').slice(0, 5))}
-                   />
-                 </FormControl>
-                 <FormDescription>Used only to request a coverage check.</FormDescription>
-                 <FormMessage />
-               </FormItem>
-             )} />
-             <div id="coverage-status" role="status" aria-live="polite" aria-atomic="true" className="mt-3 min-h-5">
-               {zip.length < 5 ? (
-                 <p className="text-xs text-muted-foreground">Enter five digits to check coverage.</p>
-               ) : availability ? (
-                 <p className={`flex items-center gap-1 text-sm font-medium ${availability.available ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
-                   {availability.available ? <ShieldCheck className="h-4 w-4" aria-hidden="true" /> : <MapPin className="h-4 w-4" aria-hidden="true" />}
-                   {availability.available ? availability.message : `Coverage confirmation required. ${availability.message}`}
-                 </p>
-               ) : (
-                 <p className="text-xs text-muted-foreground">Checking coverage…</p>
-               )}
-             </div>
-           </section>
-
            <section aria-labelledby="contact-heading" className="space-y-4">
              <div>
-               <h3 id="contact-heading" className="font-display text-lg font-bold">2. Your contact details</h3>
+                <h3 id="contact-heading" className="font-display text-lg font-bold">1. Your contact details</h3>
                <p className="mt-1 text-sm text-muted-foreground">Used to respond to this request. A submission is not a confirmed appointment.</p>
              </div>
           <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
@@ -341,7 +301,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             <div>
                <h3 id="location-heading" className="font-display text-lg font-bold text-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                 3. Job address
+                  2. Job address
                </h3>
                <p id="address-help" className="text-sm text-muted-foreground mt-1">
                  The complete address is required only to send this request. It is used to review routing and confirm coverage; it does not confirm a visit.
@@ -356,7 +316,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 <FormMessage />
               </FormItem>
             )} />
-             <div className="grid grid-cols-[minmax(0,1fr)_5rem] gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_5rem_7rem]">
               <FormField control={form.control} name="city" render={({ field }) => (
                 <FormItem>
                    <FormLabel>City *</FormLabel>
@@ -380,6 +340,23 @@ export function BookingForm({ className = "" }: { className?: string }) {
                   <FormMessage />
                 </FormItem>
               )} />
+               <FormField control={form.control} name="zip" render={({ field }) => (
+                 <FormItem>
+                   <FormLabel>ZIP code *</FormLabel>
+                   <FormControl>
+                     <Input
+                       placeholder="ZIP code"
+                       inputMode="numeric"
+                       autoComplete="postal-code"
+                       aria-describedby="address-help"
+                       {...field}
+                       maxLength={5}
+                       onChange={(event) => field.onChange(event.target.value.replace(/\D/g, '').slice(0, 5))}
+                     />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )} />
             </div>
            </section>
 
