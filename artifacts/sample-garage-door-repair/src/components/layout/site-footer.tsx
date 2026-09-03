@@ -40,7 +40,9 @@ export function SiteFooter() {
             <ul className="space-y-3 text-background/70">
               {settings?.phone && <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 mt-1 shrink-0" />
-                <span>{settings.phone}</span>
+                <a className="hover:text-background underline-offset-4 hover:underline" href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}>
+                  {settings.phone}
+                </a>
               </li>}
               {settings?.email && <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 mt-1 shrink-0" />
@@ -53,7 +55,7 @@ export function SiteFooter() {
               </li>}
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-1 shrink-0" />
-                <span>{settings?.serviceArea || "Greater Metropolitan Area"}</span>
+                <span>{settings?.serviceArea || "Service area awaiting verification"}</span>
               </li>
             </ul>
           </div>

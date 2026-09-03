@@ -34,10 +34,21 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
   const endRef = useRef<HTMLDivElement>(null);
   const chat = useCustomerCareChat();
   const isFloating = variant === "floating";
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "nearest" });
   }, [chat.messages, chat.isPending]);
+
+  useEffect(() => {
+    if (!isFloating) return;
+    inputRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isFloating, onClose]);
 
   const renderMessage = (message: CustomerCareMessage, index: number): ReactNode => (
     <div key={`${message.role}-${index}`} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -67,9 +78,12 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
 
   return (
     <div
+      role={isFloating ? "dialog" : undefined}
+      aria-modal={isFloating ? "false" : undefined}
+      aria-label={isFloating ? "Maya AI-assisted customer care" : undefined}
       className={
         isFloating
-          ? "phi-card fixed bottom-[var(--phi-space-2)] left-[var(--phi-space-2)] right-[var(--phi-space-2)] z-50 flex max-w-[25.956rem] flex-col overflow-hidden border bg-card shadow-2xl sm:bottom-[var(--phi-space-4)] sm:left-auto sm:right-[var(--phi-space-4)] sm:w-full"
+          ? "phi-card fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] left-2 right-2 z-50 flex max-h-[calc(100dvh-5.5rem)] max-w-[25.956rem] flex-col overflow-hidden border bg-card shadow-2xl sm:bottom-[var(--phi-space-4)] sm:left-auto sm:right-[var(--phi-space-4)] sm:w-full"
           : "phi-card flex h-[500px] flex-col overflow-hidden border bg-card shadow-sm"
       }
     >
@@ -103,12 +117,13 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         <div className="space-y-[var(--phi-space-3)]">
           {chat.messages.map(renderMessage)}
           {chat.isPending && (
-            <div className="flex gap-3">
+            <div className="flex gap-3" role="status" aria-live="polite">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                 <span className="text-xs font-bold text-secondary-foreground" aria-hidden="true">M</span>
               </div>
               <div className="flex items-center rounded-[var(--phi-radius)] rounded-tl-sm border bg-card p-[var(--phi-space-3)] shadow-sm">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
+                <span className="sr-only">Maya is preparing a response</span>
               </div>
             </div>
           )}
@@ -127,6 +142,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
 
       <form onSubmit={chat.sendMessage} className="flex gap-[var(--phi-space-2)] border-t bg-card p-[var(--phi-space-2)]">
         <Input
+          ref={inputRef}
           value={chat.input}
           onChange={(event) => chat.setInput(event.target.value)}
            placeholder={isFloating ? "Tell Maya what’s happening..." : "Tell Maya what’s happening..."}

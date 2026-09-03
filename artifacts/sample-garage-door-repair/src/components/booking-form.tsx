@@ -3,7 +3,7 @@ import { useCreateServiceRequest, useGetAvailability } from '@workspace/api-clie
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -214,7 +214,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
     let combinedDetails = values.details || "";
 
     if (photos.length > 0 || videos.length > 0) {
-      combinedDetails = `${combinedDetails}\n\n[Note: Customer has ${photos.length} photo(s) and ${videos.length} video(s) saved locally to share upon request.]`.trim();
+      combinedDetails = `${combinedDetails}\n\n[Media note: Customer selected ${photos.length} photo(s) and ${videos.length} video(s) for local preview. The files were not uploaded or sent with this request.]`.trim();
     }
 
     createRequest.mutate({ data: {
@@ -254,9 +254,9 @@ export function BookingForm({ className = "" }: { className?: string }) {
   return (
     <div className={cn("phi-booking-card phi-card bg-card border shadow-xl overflow-hidden", className)}>
       <div className="phi-booking-header bg-primary text-primary-foreground">
-        <h3 className="text-2xl font-display font-bold flex items-center gap-2">
+         <h2 className="text-2xl font-display font-bold flex items-center gap-2">
           <CalendarCheck className="w-6 h-6" /> Book Service
-        </h3>
+         </h2>
          <p className="text-primary-foreground/80 mt-2 text-sm">This sends a request, not a confirmed appointment. Coverage and timing are confirmed by the business.</p>
       </div>
       {assistantDraft && (
@@ -267,11 +267,53 @@ export function BookingForm({ className = "" }: { className?: string }) {
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
+           <section aria-labelledby="coverage-heading" className="rounded-xl border bg-muted/20 p-4 sm:p-5">
+             <h3 id="coverage-heading" className="font-display text-lg font-bold">1. Check service coverage</h3>
+             <p id="coverage-help" className="mt-1 text-sm text-muted-foreground">
+               Start with only a ZIP code. Your complete job address is required later only when you send the service request.
+             </p>
+             <FormField control={form.control} name="zip" render={({ field }) => (
+               <FormItem className="mt-4 max-w-xs">
+                 <FormLabel>Job ZIP code *</FormLabel>
+                 <FormControl>
+                   <Input
+                     placeholder="ZIP code"
+                     inputMode="numeric"
+                     autoComplete="postal-code"
+                     aria-describedby="coverage-help coverage-status"
+                     {...field}
+                     maxLength={5}
+                     onChange={(event) => field.onChange(event.target.value.replace(/\D/g, '').slice(0, 5))}
+                   />
+                 </FormControl>
+                 <FormDescription>Used only to request a coverage check.</FormDescription>
+                 <FormMessage />
+               </FormItem>
+             )} />
+             <div id="coverage-status" role="status" aria-live="polite" aria-atomic="true" className="mt-3 min-h-5">
+               {zip.length < 5 ? (
+                 <p className="text-xs text-muted-foreground">Enter five digits to check coverage.</p>
+               ) : availability ? (
+                 <p className={`flex items-center gap-1 text-sm font-medium ${availability.available ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                   {availability.available ? <ShieldCheck className="h-4 w-4" aria-hidden="true" /> : <MapPin className="h-4 w-4" aria-hidden="true" />}
+                   {availability.available ? availability.message : `Coverage confirmation required. ${availability.message}`}
+                 </p>
+               ) : (
+                 <p className="text-xs text-muted-foreground">Checking coverage…</p>
+               )}
+             </div>
+           </section>
+
+           <section aria-labelledby="contact-heading" className="space-y-4">
+             <div>
+               <h3 id="contact-heading" className="font-display text-lg font-bold">2. Your contact details</h3>
+               <p className="mt-1 text-sm text-muted-foreground">Used to respond to this request. A submission is not a confirmed appointment.</p>
+             </div>
           <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
             <FormField control={form.control} name="customerName" render={({ field }) => (
               <FormItem>
                 <FormLabel>Full Name *</FormLabel>
-                <FormControl><Input placeholder="John Doe" {...field} /></FormControl>
+                 <FormControl><Input placeholder="Full name" autoComplete="name" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -288,42 +330,46 @@ export function BookingForm({ className = "" }: { className?: string }) {
              <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem>
                 <FormLabel>Email (Optional)</FormLabel>
-                <FormControl><Input type="email" placeholder="john@example.com" {...field} /></FormControl>
+                 <FormControl><Input type="email" placeholder="name@example.com" autoComplete="email" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
           </div>
+           </section>
 
-          <div className="space-y-3">
+           <section aria-labelledby="location-heading" className="space-y-3">
             <div>
-              <p className="text-sm font-bold text-foreground flex items-center gap-2">
+               <h3 id="location-heading" className="font-display text-lg font-bold text-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                Job Location *
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                We need the address to route the technician and confirm service availability.
+                 3. Job address
+               </h3>
+               <p id="address-help" className="text-sm text-muted-foreground mt-1">
+                 The complete address is required only to send this request. It is used to review routing and confirm coverage; it does not confirm a visit.
               </p>
             </div>
             <FormField control={form.control} name="streetAddress" render={({ field }) => (
               <FormItem>
+                 <FormLabel>Street address *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Street address" autoComplete="street-address" {...field} />
+                   <Input placeholder="Street address" autoComplete="street-address" aria-describedby="address-help" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
-            <div className="grid grid-cols-[minmax(0,1fr)_72px_96px] gap-2">
+             <div className="grid grid-cols-[minmax(0,1fr)_5rem] gap-2">
               <FormField control={form.control} name="city" render={({ field }) => (
                 <FormItem>
+                   <FormLabel>City *</FormLabel>
                   <FormControl><Input placeholder="City" autoComplete="address-level2" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="state" render={({ field }) => (
                 <FormItem>
+                   <FormLabel>State *</FormLabel>
                   <FormControl>
                     <Input
-                      aria-label="State"
+                       placeholder="GA"
                       autoComplete="address-level1"
                       maxLength={2}
                       className="text-center uppercase"
@@ -334,34 +380,13 @@ export function BookingForm({ className = "" }: { className?: string }) {
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={form.control} name="zip" render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    placeholder="ZIP"
-                    aria-label="ZIP code"
-                    autoComplete="postal-code"
-                    {...field}
-                    maxLength={5}
-                    onChange={(e) => field.onChange(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                  />
-                </FormControl>
-                {availability && (
-                  <p className={`text-xs mt-1 font-medium flex items-center gap-1 ${availability.available ? 'text-emerald-600' : 'text-amber-700 dark:text-amber-400'}`}>
-                    {availability.available ? <ShieldCheck className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
-                    {availability.available ? availability.message : `Coverage confirmation required. ${availability.message}`}
-                  </p>
-                )}
-                <FormMessage />
-              </FormItem>
-              )} />
             </div>
-          </div>
+           </section>
 
           <FormField control={form.control} name="service" render={({ field }) => (
             <FormItem>
               <FormLabel>Service Needed *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
                 </FormControl>
@@ -383,11 +408,12 @@ export function BookingForm({ className = "" }: { className?: string }) {
             name="urgency"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>How soon do you need this?</FormLabel>
+               <FormLabel id="urgency-label">How soon do you need this?</FormLabel>
                 <FormControl>
                   <div
                     className="grid grid-cols-1 sm:grid-cols-3 gap-[var(--phi-space-2)]"
                     role="radiogroup"
+                     aria-labelledby="urgency-label"
                   >
                     {URGENCY_OPTIONS.map((option) => {
                       const selected = field.value === option.value;
@@ -452,6 +478,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
           <FormField control={form.control} name="details" render={({ field }) => (
             <FormItem>
               <FormLabel>Job Description *</FormLabel>
+               <FormDescription>Do not include passwords, payment-card details, or other sensitive information.</FormDescription>
               <FormControl>
                 <Textarea
                   placeholder="Describe what you need done. The more detail, the better!"
@@ -473,17 +500,18 @@ export function BookingForm({ className = "" }: { className?: string }) {
             </FormItem>
           )} />
 
-          <div className="space-y-3">
+           <section aria-labelledby="media-heading" className="space-y-3">
             <div>
-              <p className="text-sm font-medium text-foreground">Photos &amp; Videos (Optional)</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Up to {MAX_PHOTOS} photos and {MAX_VIDEOS} videos. Media remains local on your device; technicians may request them later.
+               <h3 id="media-heading" className="font-display text-lg font-bold text-foreground">Photos &amp; Videos (Optional)</h3>
+               <p id="media-help" className="text-sm text-muted-foreground mt-1">
+                 Selected files are previewed only in this browser tab. They are not uploaded, retained, or sent with the request. The request notes only how many files you selected.
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-[var(--phi-space-2)]">
               <button
                 type="button"
+                 aria-describedby="media-help media-status"
                 onClick={() => browseInputRef.current?.click()}
                 className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-2 py-4 text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
               >
@@ -493,6 +521,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
 
               <button
                 type="button"
+                 aria-describedby="media-help media-status"
                 onClick={() => cameraInputRef.current?.click()}
                 className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-2 py-4 text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
               >
@@ -502,6 +531,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
 
               <button
                 type="button"
+                 aria-describedby="media-help media-status"
                 onClick={() => videoInputRef.current?.click()}
                 className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-2 py-4 text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
               >
@@ -510,8 +540,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
               </button>
             </div>
 
-            {(photoError || videoError) && (
-              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
+             {(photoError || videoError) && (
+               <div id="media-errors" role="alert" className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
                 {photoError && <div>{photoError}</div>}
                 {videoError && <div>{videoError}</div>}
               </div>
@@ -519,6 +549,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
 
             <input
               type="file"
+               aria-label="Choose photos or videos for local preview"
+               aria-describedby="media-help"
               multiple
               accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
               className="hidden"
@@ -530,6 +562,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
             />
             <input
               type="file"
+               aria-label="Take a photo for local preview"
+               aria-describedby="media-help"
               accept="image/jpeg,image/png,image/webp"
               capture="environment"
               className="hidden"
@@ -541,6 +575,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
             />
             <input
               type="file"
+               aria-label="Record a video for local preview"
+               aria-describedby="media-help"
               accept="video/mp4,video/quicktime,video/webm"
               capture="environment"
               className="hidden"
@@ -551,7 +587,13 @@ export function BookingForm({ className = "" }: { className?: string }) {
               }}
             />
 
-            {photos.length > 0 && (
+             <p id="media-status" role="status" aria-live="polite" aria-atomic="true" className="text-xs text-muted-foreground">
+               {photos.length + videos.length === 0
+                 ? "No local media selected."
+                 : `${photos.length} photo${photos.length === 1 ? "" : "s"} and ${videos.length} video${videos.length === 1 ? "" : "s"} selected locally; none will be uploaded.`}
+             </p>
+
+             {photos.length > 0 && (
               <div className="space-y-2 pt-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Photos ({photos.length}/{MAX_PHOTOS})
@@ -562,13 +604,13 @@ export function BookingForm({ className = "" }: { className?: string }) {
                       key={photo.id}
                       className="group relative aspect-square rounded-xl overflow-hidden border bg-muted/50"
                     >
-                      <img src={photo.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                       <img src={photo.previewUrl} alt={`Local preview of ${photo.file.name}`} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <button
                           type="button"
                           onClick={() => removePhoto(photo.id)}
                           className="w-8 h-8 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                          aria-label="Remove photo"
+                           aria-label={`Remove ${photo.file.name}`}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -603,19 +645,19 @@ export function BookingForm({ className = "" }: { className?: string }) {
                         type="button"
                         onClick={() => removeVideo(video.id)}
                         className="w-8 h-8 shrink-0 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
-                        aria-label="Remove video"
+                       aria-label={`Remove ${video.name}`}
                       >
                         <X className="w-4 h-4" />
                       </button>
-                    </div>
+                     </div>
                   ))}
                 </div>
               </div>
             )}
-          </div>
+           </section>
 
           <Button type="submit" size="lg" className="w-full font-bold text-lg min-h-[var(--phi-control)] py-4 mt-4 shadow-md glow-primary" disabled={createRequest.isPending}>
-            {createRequest.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Request Service"}
+             {createRequest.isPending ? <><Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /><span>Sending request…</span></> : "Request Service"}
           </Button>
         </form>
       </Form>

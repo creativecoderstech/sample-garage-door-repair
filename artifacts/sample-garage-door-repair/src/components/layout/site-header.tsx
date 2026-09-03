@@ -82,12 +82,12 @@ export function SiteHeader() {
     <>
       <header className="phi-site-header sticky top-0 z-50 bg-background/[0.97] backdrop-blur-xl border-b border-border shadow-sm">
         <div className="phi-container flex items-center justify-between gap-3 py-3 sm:py-4">
-          <div className="flex items-center group min-w-0">
-            <Link href="/" className="flex items-center gap-2 lg:group-hover:scale-105 transition-transform">
+           <div className="flex items-center group min-w-0">
+             <Link href="/" aria-label={`${settings?.businessName || "Garage Door Service Preview"} home`} className="flex min-w-0 items-center gap-2 lg:group-hover:scale-105 transition-transform">
               <div className="bg-primary text-primary-foreground p-2 rounded-[var(--phi-radius)]">
                 <Wrench className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <span className="font-display font-bold text-lg sm:text-xl truncate tracking-tight">
+               <span className="max-w-[9rem] truncate font-display text-lg font-bold tracking-tight sm:max-w-[16rem] sm:text-xl lg:max-w-none">
                  {settings?.businessName || "Garage Door Service Preview"}
               </span>
             </Link>
@@ -112,6 +112,15 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+             {phoneDisplay && (
+               <a
+                 href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`}
+                 className="phi-control flex w-[var(--phi-control)] items-center justify-center rounded-[var(--phi-radius)] border border-border bg-background text-primary md:hidden"
+                 aria-label={`Call ${phoneDisplay}`}
+               >
+                 <Phone className="h-5 w-5" aria-hidden="true" />
+               </a>
+             )}
             {phoneDisplay && <a href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-primary mr-2">
                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                  <Phone className="w-3.5 h-3.5" />
@@ -198,20 +207,35 @@ export function SiteHeader() {
           {/* Phone number at the bottom */}
           {phoneDisplay && <div className="mt-6 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-semibold">Call or text</p>
-            <div className="flex items-center gap-2 text-lg font-bold text-primary">
+             <a
+               href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`}
+               className="flex items-center gap-2 rounded-lg text-lg font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+               aria-label={`Call ${phoneDisplay}`}
+             >
               <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <Phone className="w-4 h-4 text-primary" />
               </div>
               {phoneDisplay}
-            </div>
+             </a>
+             <a
+               href={`sms:${phoneDisplay.replace(/[^\d+]/g, "")}`}
+               className="mt-3 inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline"
+             >
+               Text this number
+             </a>
           </div>}
         </SheetContent>
       </Sheet>
       
       {isVerified && settings.emergencyEnabled && (
-        <div className="bg-destructive text-destructive-foreground py-1.5 px-4 text-center text-sm font-semibold flex items-center justify-center gap-2">
+         <div className="bg-destructive text-destructive-foreground py-1.5 px-4 text-center text-sm font-semibold flex flex-wrap items-center justify-center gap-2">
           <Shield className="w-4 h-4" />
           Priority requests accepted — timing confirmed by the team
+           {phoneDisplay && (
+             <a className="rounded underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`}>
+               Call {phoneDisplay}
+             </a>
+           )}
         </div>
       )}
     </>

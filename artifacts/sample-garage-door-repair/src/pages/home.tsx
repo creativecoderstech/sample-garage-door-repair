@@ -111,7 +111,7 @@ export default function HomePage() {
     : [];
   
   return (
-    <div className="min-h-screen bg-background noise-overlay" id="main-content">
+    <div className="min-h-screen bg-background noise-overlay">
       {/* HERO SECTION */}
       <section id="hero" className="relative overflow-hidden">
         {/* Mobile View */}
@@ -401,13 +401,16 @@ export default function HomePage() {
                   className={`border rounded-xl bg-card overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'shadow-md border-primary/30' : 'hover:border-border/80'}`}
                 >
                   <button
+                     type="button"
                     className="w-full px-6 py-5 flex items-center justify-between text-left font-bold"
+                     aria-expanded={activeFaq === faq.id}
+                     aria-controls={`faq-answer-${faq.id}`}
                     onClick={() => setActiveFaq(activeFaq === faq.id ? null : faq.id)}
                   >
                     {faq.question}
                     <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${activeFaq === faq.id ? 'rotate-180 text-primary' : ''}`} />
                   </button>
-                  <div className={`px-6 overflow-hidden transition-all duration-300 ${activeFaq === faq.id ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
+                   <div id={`faq-answer-${faq.id}`} hidden={activeFaq !== faq.id} className="px-6 pb-5">
                     <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
                   </div>
                 </div>
@@ -428,11 +431,11 @@ export default function HomePage() {
       
       {/* Mobile Quick Action Button */}
       <div 
-        className={`lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+         className={`lg:hidden fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-4 right-[4.75rem] z-40 transition-all duration-300 ${
           showQuickRequest ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
         }`}
       >
-        <Button asChild size="lg" className="h-14 px-8 font-display font-bold shadow-2xl glow-primary rounded-full min-w-[200px]">
+         <Button asChild size="lg" className="h-14 w-full px-5 font-display font-bold shadow-2xl glow-primary rounded-full">
           <a href="#booking">Book Now</a>
         </Button>
       </div>

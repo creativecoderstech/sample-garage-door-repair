@@ -17,7 +17,7 @@ export default function FaqsPage() {
           <div className="phi-copy">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
               <ShieldCheck className="h-4 w-4" />
-              Clear answers from local experts
+              Garage-door safety and request guidance
             </div>
             <h1 className="phi-page-title mt-6">Frequently Asked Questions</h1>
             <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground">
@@ -39,11 +39,12 @@ export default function FaqsPage() {
                     className="flex w-full items-center justify-between gap-6 px-6 py-6 text-left font-display text-lg font-bold"
                     onClick={() => setOpenId(isOpen ? null : faq.id)}
                     aria-expanded={isOpen}
+                     aria-controls={`faq-page-answer-${faq.id}`}
                   >
                     {faq.question}
                     <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
                   </button>
-                  <div className={`grid transition-[grid-template-rows,opacity] duration-300 ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                   <div id={`faq-page-answer-${faq.id}`} hidden={!isOpen}>
                     <div className="overflow-hidden">
                       <p className="px-6 pb-6 leading-relaxed text-muted-foreground">{faq.answer}</p>
                     </div>
@@ -59,9 +60,9 @@ export default function FaqsPage() {
             <p className="mt-4 leading-relaxed text-secondary-foreground/70">
               If a door is crooked, hanging, or has a loose cable or broken spring, stop operating it and call for professional service.
             </p>
-            <Button asChild size="lg" className="mt-7 w-full font-bold">
-              <a href={`tel:${settings?.phone ?? ''}`}><Phone className="mr-2 h-4 w-4" /> Call {settings?.phone}</a>
-            </Button>
+             {settings?.phone && <Button asChild size="lg" className="mt-7 w-full font-bold">
+               <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}><Phone className="mr-2 h-4 w-4" /> Call {settings.phone}</a>
+             </Button>}
             <Button asChild variant="outline" size="lg" className="mt-3 w-full border-secondary-foreground/20 bg-transparent font-bold text-secondary-foreground hover:bg-secondary-foreground/10">
               <Link href="/#booking">Request Service</Link>
             </Button>

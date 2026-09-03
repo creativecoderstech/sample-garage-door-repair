@@ -113,8 +113,16 @@ function Router() {
     <RoutedErrorBoundary>
       <ScrollPositionManager />
       <div className="phi-app-shell flex flex-col">
+        {!isAdmin && (
+          <a
+            href="#main-content"
+            className="sr-only fixed left-4 top-4 z-[100] rounded-md bg-background px-4 py-3 font-bold text-foreground shadow-lg focus:not-sr-only"
+          >
+            Skip to main content
+          </a>
+        )}
         {!isAdmin && <SiteHeader />}
-        <main className="flex-1 flex flex-col">
+        <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col outline-none">
           <Switch>
             <Route path="/" component={HomePage} />
             <Route path="/services">
