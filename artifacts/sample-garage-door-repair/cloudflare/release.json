@@ -1,6 +1,6 @@
 {
   "worker": "sample-garage-door-repair",
   "hostname": "sample-garage-door-repair.samples.creativecoders.tech",
-  "assetRevision": "9d1900561493b742f38abef8d3afcbe3686d57a9",
+  "assetRevision": "a5bf00be9e025c66aa8e179c5fa23ac1d6c4aa0c",
   "assetRoot": "artifacts/sample-garage-door-repair/dist/public"
 }
