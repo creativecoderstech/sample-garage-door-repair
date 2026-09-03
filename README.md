@@ -6,12 +6,15 @@ Modern garage door repair sample application for Creative Coders.
 ```json
 {
   "schemaVersion": 1,
-  "runtime": "pages",
+  "runtime": "worker",
   "appDirectory": "artifacts/sample-garage-door-repair",
   "healthPath": "/",
   "commands": {
-    "build": "PORT=22004 BASE_PATH=/sample-garage-door-repair/ pnpm --filter @workspace/sample-garage-door-repair run build:pages",
-    "deploy": "wrangler pages deploy dist/public --project-name sample-garage-door-repair"
+    "build": "pnpm --filter @workspace/sample-garage-door-repair run build",
+    "deploy": "wrangler deploy --config wrangler.client.json",
+    "migrations": {
+      "directory": "cloudflare/migrations"
+    }
   },
   "resources": {
     "d1": true,
@@ -20,17 +23,15 @@ Modern garage door repair sample application for Creative Coders.
     "ai": true,
     "email": false
   },
-  "pages": {
-    "project": "sample-garage-door-repair",
+  "worker": {
     "package": "@workspace/sample-garage-door-repair",
+    "entry": "cloudflare/worker.mjs",
     "assetsDirectory": "dist/public",
-    "functionsEntry": "dist/public/_worker.js",
+    "assetsBinding": "ASSETS",
     "bindings": {
-      "DB": "D1 database",
-      "MEDIA": "R2 bucket",
-      "AI": "Workers AI",
-      "TURNSTILE_SITE_KEY": "plain-text variable",
-      "TURNSTILE_SECRET_KEY": "encrypted secret"
+      "d1": "DB",
+      "r2": "MEDIA",
+      "ai": "AI"
     }
   }
 }
