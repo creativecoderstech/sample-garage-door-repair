@@ -31,6 +31,7 @@ import {
   useListFaqs, useSaveFaq, useDeleteFaq, 
   useListTasks, useSaveTask, useDeleteTask, 
   useListBookings, useListChatInquiries,
+  DEFAULT_SERVICE_CATALOG_ROWS,
   type FAQ, type Task,
 } from '@/lib/demo-store';
 import { Textarea } from '@/components/ui/textarea';
@@ -607,11 +608,7 @@ function ServicesAdmin() {
       eyebrow="Website content"
       description="Maintain the service catalog, customer-facing benefits, starting prices, and publishing status shown on the homepage."
       fields={["Service", "Benefit", "Description", "Starting price", "Status"]}
-      defaults={[
-        ["Broken spring replacement", "Get the door balanced and moving safely again.", "Torsion and extension spring diagnosis and replacement by a trained technician.", "$249", "Published"],
-        ["Garage door opener repair", "Quiet, reliable access without the guesswork.", "Troubleshoot motors, remotes, sensors, travel limits, and worn opener parts.", "$179", "Published"],
-        ["New door installation", "A better-looking, better-insulated entry.", "Measure, recommend, and install a residential garage door that fits the home.", "$1,299", "Published"],
-      ]}
+      defaults={DEFAULT_SERVICE_CATALOG_ROWS}
       addLabel="Add service"
     />
   );
@@ -843,6 +840,7 @@ function ContentModuleAdmin({
   imageField?: string;
 }) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [rows, setRows] = useState<ContentRow[]>(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
     if (stored) {
@@ -864,6 +862,9 @@ function ContentModuleAdmin({
     setRows((current) => editingId
       ? current.map((row) => row.id === editingId ? { ...row, values: draft } : row)
       : [...current, { id: `${storageKey}-${Date.now()}`, values: draft }]);
+    if (storageKey === "garage-admin-services") {
+      void queryClient.invalidateQueries({ queryKey: ["demo-garage-services"] });
+    }
     setDraft(null);
     setEditingId(null);
     toast({ title: editingId ? `${title} updated` : `${title} item added` });
@@ -990,6 +991,9 @@ function ContentModuleAdmin({
         onConfirm={() => {
           if (!deleteTarget) return;
           setRows((current) => current.filter((item) => item.id !== deleteTarget.id));
+           if (storageKey === "garage-admin-services") {
+             void queryClient.invalidateQueries({ queryKey: ["demo-garage-services"] });
+           }
           setDeleteTarget(null);
           toast({ title: `${title} item deleted` });
         }}

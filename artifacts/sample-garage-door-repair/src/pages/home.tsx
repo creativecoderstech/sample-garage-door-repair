@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGetGoogleReviewFeed, useListGarageServices, useGetPublicBusinessSettings } from '@workspace/api-client-react';
+import { useGetGoogleReviewFeed, useGetPublicBusinessSettings } from '@workspace/api-client-react';
 import type { GoogleReviewFeed } from '@workspace/api-client-react';
 import { SiGoogle } from 'react-icons/si';
-import { useListFaqs, useListTasks } from '@/lib/demo-store';
+import { useListFaqs, useListPublishedGarageServices, useListTasks } from '@/lib/demo-store';
 import { Button } from '@/components/ui/button';
 import { BookingForm } from '@/components/booking-form';
 import { 
@@ -30,7 +30,7 @@ const defaultGalleryImages = [
 
 export default function HomePage() {
   const { data: settings } = useGetPublicBusinessSettings();
-  const { data: services } = useListGarageServices();
+  const { data: services } = useListPublishedGarageServices();
   const { data: googleFeed, isLoading: isLoadingReviews, isError: isErrorReviews } = useGetGoogleReviewFeed();
   const { data: faqs } = useListFaqs();
   const { data: tasks } = useListTasks();
@@ -224,7 +224,8 @@ export default function HomePage() {
                   <Wrench className="h-7 w-7" />
                 </div>
                 <h3 className="text-2xl font-bold font-display mb-3">{service.name}</h3>
-                <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{service.description}</p>
+                 <p className="font-semibold text-foreground/80 mb-2">{service.benefit}</p>
+                 <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{service.description}</p>
                 <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/50">
                    <span className="font-bold text-sm">
                      {isVerified ? `Starting estimate $${service.startingPrice} · final after inspection` : 'Pricing awaiting verification'}

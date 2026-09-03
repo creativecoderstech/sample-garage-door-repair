@@ -14,6 +14,60 @@ function setStorage<T>(key: string, value: T) {
   }
 }
 
+export type PublicServiceCatalogItem = {
+  id: string;
+  name: string;
+  benefit: string;
+  description: string;
+  startingPrice: number;
+  status: string;
+};
+
+export const DEFAULT_SERVICE_CATALOG_ROWS: string[][] = [
+  ["Broken spring replacement", "Get the door balanced and moving safely again.", "Torsion and extension spring diagnosis and replacement by a trained technician.", "$249", "Published"],
+  ["Garage door opener repair", "Quiet, reliable access without the guesswork.", "Troubleshoot motors, remotes, sensors, travel limits, and worn opener parts.", "$179", "Published"],
+  ["New door installation", "A better-looking, better-insulated entry.", "Measure, recommend, and install a residential garage door that fits the home.", "$1,299", "Published"],
+];
+
+function normalizeServiceCatalogRow(row: string[], index: number): string[] {
+  if (row.length >= DEFAULT_SERVICE_CATALOG_ROWS[0].length) return row.slice(0, 5);
+  if (row.length === 3) {
+    return [
+      row[0],
+      "Professional garage door service.",
+      "Clear, careful work from diagnosis through completion.",
+      row[1],
+      row[2],
+    ];
+  }
+  return [...row, ...DEFAULT_SERVICE_CATALOG_ROWS[index]?.slice(row.length) ?? []].slice(0, 5);
+}
+
+export function useListPublishedGarageServices() {
+  return useQuery<PublicServiceCatalogItem[]>({
+    queryKey: ["demo-garage-services"],
+    queryFn: () => {
+      const stored = isBrowser ? localStorage.getItem("garage-admin-services") : null;
+      const rows = stored
+        ? (JSON.parse(stored) as { values?: string[] }[]).map((row, index) =>
+            normalizeServiceCatalogRow(row.values ?? [], index),
+          )
+        : DEFAULT_SERVICE_CATALOG_ROWS;
+
+      return rows
+        .filter((values) => /published/i.test(values[4] ?? ""))
+        .map((values, index) => ({
+          id: `admin-service-${index}-${values[0]}`,
+          name: values[0],
+          benefit: values[1],
+          description: values[2],
+          startingPrice: Number(values[3]?.replace(/[$,]/g, "")) || 0,
+          status: values[4],
+        }));
+    },
+  });
+}
+
 // === FAQs ===
 export interface FAQ {
   id: string;

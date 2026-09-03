@@ -1,10 +1,13 @@
-import { useListGarageServices } from "@workspace/api-client-react";
+import { useGetPublicBusinessSettings } from "@workspace/api-client-react";
+import { useListPublishedGarageServices } from "@/lib/demo-store";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Wrench, ChevronRight } from "lucide-react";
 
 export default function ServicesPage() {
-  const { data: services } = useListGarageServices();
+  const { data: services } = useListPublishedGarageServices();
+  const { data: settings } = useGetPublicBusinessSettings();
+  const isVerified = settings?.verificationStatus === "verified";
 
   return (
     <div className="min-h-screen bg-background noise-overlay phi-section">
@@ -23,9 +26,12 @@ export default function ServicesPage() {
                 <Wrench className="h-7 w-7" />
               </div>
               <h3 className="text-2xl font-bold font-display mb-3">{service.name}</h3>
+              <p className="font-semibold text-foreground/80 mb-2">{service.benefit}</p>
               <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{service.description}</p>
               <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/50">
-                <span className="font-bold text-lg">From ${service.startingPrice}</span>
+                <span className="font-bold text-sm">
+                  {isVerified ? `Starting estimate $${service.startingPrice}` : "Estimate after inspection"}
+                </span>
                 <Button variant="ghost" size="sm" asChild className="rounded-full">
                   <Link href="/#booking">Book <ChevronRight className="h-4 w-4 ml-1"/></Link>
                 </Button>
