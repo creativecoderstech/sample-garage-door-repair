@@ -220,7 +220,7 @@ async function serveAsset(request, url, context, env) {
 
   if (env?.ASSETS) {
     const assetUrl = new URL(request.url);
-    assetUrl.pathname = assetPath;
+    assetUrl.pathname = assetPath === "/index.html" ? "/" : assetPath;
     const assetResponse = await env.ASSETS.fetch(
       new Request(assetUrl, request),
     );
