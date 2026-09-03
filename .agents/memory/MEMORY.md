@@ -2,3 +2,4 @@
 - [GitHub template LFS cleanup](github-template-lfs-cleanup.md) — history rewrites do not clear orphaned LFS storage; templates may require Support or repository recreation.
 - [Pages deployment authentication](cloudflare-pages-auth.md) — Pages Git installation failed internally; direct upload needs a valid full API token, not the upload-only JWT.
 - [Pages analytics bindings](cloudflare-pages-analytics.md) — Analytics Engine bindings block deploys until account activation; use Web Analytics plus D1 events otherwise.
+- [Garage Pages provisioning contract](garage-pages-provisioning.md) — keep the provisioning block on Pages with all bindings; runtime changes can orphan live resources.
