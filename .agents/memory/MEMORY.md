@@ -1,2 +1,3 @@
 - [GitHub and Cloudflare release behavior](github-cloudflare-deployment.md) — push assets, then promote the Worker with that revision; use revision-key caches.
 - [GitHub template LFS cleanup](github-template-lfs-cleanup.md) — history rewrites do not clear orphaned LFS storage; templates may require Support or repository recreation.
+- [Pages deployment authentication](cloudflare-pages-auth.md) — Pages Git installation failed internally; direct upload needs a valid full API token, not the upload-only JWT.
