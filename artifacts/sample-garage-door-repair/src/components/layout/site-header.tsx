@@ -13,6 +13,7 @@ import {
 
 const NAV_LINKS = [
   { id: 'services', label: 'Services', section: 'services' },
+  { id: 'service-area', label: 'Where I Work', section: 'serviceArea' },
   { id: 'gallery', label: 'Gallery', section: 'gallery' },
   { id: 'before-after', label: 'Before & After', section: 'beforeAfter' },
   { id: 'faqs', label: 'FAQs', section: 'faqs' },

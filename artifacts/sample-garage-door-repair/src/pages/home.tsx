@@ -5,6 +5,7 @@ import { SiGoogle } from 'react-icons/si';
 import { useListFaqs, useListPublishedGarageServices, useListTasks } from '@/lib/demo-store';
 import { Button } from '@/components/ui/button';
 import { BookingForm } from '@/components/booking-form';
+import { ServiceAreaSection } from '@/components/service-area-section';
 import { 
   Shield, 
   Clock, 
@@ -239,6 +240,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <ServiceAreaSection serviceArea={settings?.serviceArea} isVerified={isVerified} />
 
       {/* GALLERY TEASER */}
         <section id="work" className="scroll-mt-[112px] phi-section border-y bg-background">

@@ -1,5 +1,6 @@
 export const PUBLIC_SECTION_IDS = {
   services: "services",
+  serviceArea: "service-area",
   gallery: "work",
   beforeAfter: "before-after",
   booking: "booking",
