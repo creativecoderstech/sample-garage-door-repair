@@ -384,7 +384,7 @@ export default function HomePage() {
                  <p className="font-semibold">No credentials or commercial terms are published until the business supplies and verifies them.</p>
                )}
                <div className="mt-5 space-y-2 border-t pt-4 text-sm leading-6 text-muted-foreground">
-                 <p><strong className="text-foreground">Privacy:</strong> Request details are used to respond to the customer. Maya messages are processed by an AI service and stay in this browser session unless the customer copies them into a request.</p>
+                  <p><strong className="text-foreground">Privacy:</strong> Request details are used to respond to the customer. Maya messages are processed by an AI service and reset when the browser page is refreshed unless the customer copies them into a request.</p>
                  <p><strong className="text-foreground">Terms:</strong> Submitting a form does not confirm service coverage, an appointment, arrival time, final price, warranty, or financing.</p>
                  <p><strong className="text-foreground">Accessibility:</strong> The site supports keyboard navigation and readable labels. Contact details appear only after verification.</p>
                </div>

@@ -127,7 +127,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       </div>
 
       <div className="border-b bg-muted/30 px-3 py-2 text-[11px] leading-4 text-muted-foreground">
-        Maya shares general service information; she is not a technician or emergency service. Messages stay in this browser session unless you choose to copy them into a request for the team. Coverage, timing, and appointments must be confirmed by the business.
+        Maya shares general service information; she is not a technician or emergency service. Messages reset when you refresh, unless you choose to copy them into a request for the team. Coverage, timing, and appointments must be confirmed by the business.
       </div>
 
       <ScrollArea className={`p-[var(--phi-space-3)] ${isFloating ? "h-[380px] bg-muted/10" : "flex-1"}`} ref={scrollRef}>

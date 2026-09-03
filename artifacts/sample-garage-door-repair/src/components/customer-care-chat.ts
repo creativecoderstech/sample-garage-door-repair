@@ -37,7 +37,6 @@ function shouldOfferServiceRequestLink(
   return /service request|(?:start|submit|send|create|make)\s+(?:a\s+)?(?:service\s+)?request|request\s+(?:service|help)|(?:arrange|contact|reach out to)\s+(?:professional help|the team|a technician)/i.test(reply);
 }
 
-const storageKey = "garage_customer_care_messages";
 const MIN_TYPING_DURATION_MS = 900;
 const MAX_TYPING_DURATION_MS = 1800;
 
@@ -46,23 +45,6 @@ function typingDurationFor(reply: string) {
     MAX_TYPING_DURATION_MS,
     Math.max(MIN_TYPING_DURATION_MS, 700 + reply.length * 7),
   );
-}
-
-function readSavedMessages(): CustomerCareMessage[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const saved = sessionStorage.getItem(storageKey);
-    if (!saved) return [];
-    const parsed = JSON.parse(saved);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (message): message is CustomerCareMessage =>
-        (message?.role === "user" || message?.role === "assistant") &&
-        typeof message?.content === "string",
-    );
-  } catch {
-    return [];
-  }
 }
 
 function toBookingService(service?: string) {
@@ -89,10 +71,9 @@ export function consumeServiceRequestDraft(): Partial<ServiceRequestDraft> | nul
 }
 
 export function useCustomerCareChat() {
-  const [messages, setMessages] = useState<CustomerCareMessage[]>(() => {
-    const saved = readSavedMessages();
-    return saved.length > 0 ? saved : [{ role: "assistant", content: customerCareWelcome() }];
-  });
+  const [messages, setMessages] = useState<CustomerCareMessage[]>([
+    { role: "assistant", content: customerCareWelcome() },
+  ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -123,12 +104,6 @@ export function useCustomerCareChat() {
       return previous[0].content === content ? previous : [{ role: "assistant", content }];
     });
   }, [settings?.businessName]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(storageKey, JSON.stringify(messages.slice(-24)));
-    }
-  }, [messages]);
 
   const queueAssistantMessage = (message: CustomerCareMessage) => {
     const elapsed = typingStartedAtRef.current === null
