@@ -16,13 +16,13 @@ const services = [
 
 const settings = {
   id: 1,
-  businessName: "Summit Garage Door Co.",
-  phone: "(888) 555-0142",
-  email: "service@summitgaragedoor.com",
-  serviceArea: "Serving Metro Atlanta and nearby Georgia communities",
+  businessName: "Garage Door Service Preview",
+  phone: "",
+  email: "",
+  serviceArea: "Service area awaiting verification",
   theme: "industrial",
   serviceId: "garage-door-repair",
-  emergencyEnabled: true,
+  emergencyEnabled: false,
   heroImage: "/images/garage/hero-door-forward.jpg",
   galleryImages: [
     "/images/garage/modern-white-home.jpg",
@@ -45,6 +45,17 @@ const publicSettings = {
   emergencyEnabled: settings.emergencyEnabled,
   heroImage: settings.heroImage,
   galleryImages: settings.galleryImages,
+  verificationStatus: "unverified",
+  trustProfile: {
+    hours: null,
+    ownerTeam: null,
+    yearsInBusiness: null,
+    brandsServiced: null,
+    paymentOptions: null,
+    financing: null,
+    licenseInsurance: null,
+    warranty: null,
+  },
 };
 
 const json = (data, status = 200, extraHeaders = {}) =>
@@ -58,18 +69,14 @@ const json = (data, status = 200, extraHeaders = {}) =>
   });
 
 const reviews = {
-  mode: "demo",
+  mode: "live",
   connectionStatus: "disconnected",
-  locationName: "Summit Garage Door Co.",
-  aggregateRating: 4.9,
-  totalReviewCount: 127,
+  locationName: "Google Business Profile not connected",
+  aggregateRating: 0,
+  totalReviewCount: 0,
   lastSyncedAt: null,
   profileUrl: null,
-  reviews: [
-    { id: "demo-google-1", reviewerName: "Melissa R.", reviewerPhotoUrl: null, rating: 5, comment: "Our spring broke before school drop-off. Summit arrived quickly, explained every option, and left the door quieter than it has been in years.", publishedAt: "2026-08-26T14:00:00.000Z", relativeTime: "1 week ago", source: "google" },
-    { id: "demo-google-2", reviewerName: "David K.", reviewerPhotoUrl: null, rating: 5, comment: "Straightforward estimate and a very clean opener installation.", publishedAt: "2026-08-18T16:30:00.000Z", relativeTime: "2 weeks ago", source: "google" },
-    { id: "demo-google-3", reviewerName: "Jordan T.", reviewerPhotoUrl: null, rating: 5, comment: "No pressure and no mystery fees. They repaired the damaged cable and rollers.", publishedAt: "2026-08-05T19:10:00.000Z", relativeTime: "4 weeks ago", source: "google" },
-  ],
+  reviews: [],
 };
 
 function suggestedServiceFor(message) {
@@ -84,13 +91,9 @@ function suggestedServiceFor(message) {
 
 function handleApi(request, url) {
   const path = url.pathname;
-  if (path === "/api/garage/services") return json(services);
+  if (path === "/api/garage/services") return json([]);
   if (path === "/api/garage/testimonials") {
-    return json([
-      { id: 1, name: "Melissa R.", city: "Marietta", rating: 5, quote: "They arrived quickly, explained every option, and left the door quieter than ever.", service: "Emergency spring repair" },
-      { id: 2, name: "David K.", city: "Roswell", rating: 5, quote: "Straightforward estimate, clean installation, and excellent communication.", service: "Smart opener installation" },
-      { id: 3, name: "Jordan T.", city: "Alpharetta", rating: 5, quote: "No pressure and no mystery fees.", service: "Cable repair" },
-    ]);
+    return json([]);
   }
   if (path === "/api/garage/reviews") return json(reviews, 200, { "cache-control": "public, max-age=300" });
   if (path === "/api/garage/site-settings") return json(publicSettings);
@@ -99,8 +102,7 @@ function handleApi(request, url) {
   }
   if (path === "/api/garage/availability") {
     const zip = url.searchParams.get("zip") || "";
-    const available = /^\d{5}(-\d{4})?$/.test(zip);
-    return json({ available, zip, eta: available ? "Technician available today" : "Call for availability", message: available ? "You're in our service area. Same-day windows are open." : "We may still be able to help—call our dispatch team." });
+    return json({ available: false, zip, eta: "Availability confirmation required", message: "Submit a request and the business will confirm service coverage and timing." });
   }
   if (path === "/api/garage/requests") {
     if (request.method === "POST") {
@@ -131,7 +133,7 @@ function handleApi(request, url) {
       const asksSchedule = /schedule|appointment|available|availability|how soon|same.?day|when can/i.test(normalized);
       const asksServices = /what.*(?:do|can).*repair|what services|services.*offer|help with/i.test(normalized);
       const safetyLevel = urgent ? "urgent" : issue ? "caution" : "safe";
-      const suggestedService = suggestedServiceFor(normalized);
+      const suggestedService = "Service assessment";
       const service = services.find((item) => item.name === suggestedService);
       const reply = thanks
         ? "You’re welcome. If anything changes with the door, just tell me what you’re noticing and I’ll help you figure out the next step."
@@ -144,15 +146,15 @@ function handleApi(request, url) {
               : asksServiceArea
                 ? `${settings.serviceArea}. Send me the job ZIP code and I’ll help you confirm the best next step.`
                 : asksContact
-                  ? `You can reach the Summit team at ${settings.phone} or ${settings.email}. If it’s easier, I can also carry this conversation into the service-request form.`
+                  ? "Verified contact details are not published in this preview. You can use the service-request form, but the business must confirm receipt and availability."
                   : asksPrice
                     ? service
-                      ? `${service.name} starts at $${service.startingPrice}. The final price depends on the door, the failed part, and any related damage, so the technician will inspect it and explain the options before work begins.`
-                      : "Our service pages show starting prices, and the technician confirms the final price after inspecting the door and explaining the options. Tell me what the door is doing and I can point you to the closest service."
+                      ? `The preview catalog includes ${service.name}, but pricing has not been verified. A technician must inspect the door and explain the final price before work begins.`
+                      : "Pricing has not been verified. A technician must inspect the door and explain the final price before work begins."
                     : asksSchedule
-                      ? "Most requests are answered within 45 minutes during business hours. Priority help is available for stuck-open, off-track, hanging, or vehicle-blocking doors, but I don’t want to promise a specific arrival time before the team reviews the request."
-                      : asksServices
-                        ? "We help with broken springs, openers and sensors, off-track doors, cables and rollers, new-door installation, and annual safety tune-ups. What’s the door doing today?"
+                      ? "A submitted request is not a confirmed appointment. The business must confirm service coverage, response timing, and availability."
+                       : asksServices
+                         ? "The public service catalog has not been verified in this preview, so I can’t claim which services this business offers. Tell me what the door is doing and I can share general safety guidance or help prepare a request for the business to review."
               : issue
                 ? "That sounds frustrating, especially when you’re trying to get on with your day. If the door feels unusually heavy, crooked, or makes a sharp pop, stop using it and keep everyone clear. What are you seeing—stuck open, noisy, slow, or is the opener not responding?"
                 : casual
@@ -209,6 +211,7 @@ async function serveAsset(request, url, context) {
         "cache-control": assetPath === "/index.html" ? "public, max-age=60" : "public, max-age=31536000, immutable",
         "content-security-policy": "frame-ancestors 'self' https://creativecoders.tech https://*.creativecoders.tech",
         "x-content-type-options": "nosniff",
+        "x-robots-tag": "noindex, nofollow, noarchive",
         "referrer-policy": "strict-origin-when-cross-origin",
       },
     });

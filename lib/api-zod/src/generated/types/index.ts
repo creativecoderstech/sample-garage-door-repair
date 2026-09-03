@@ -24,6 +24,8 @@ export * from './googleReviewFeedMode';
 export * from './googleReviewSource';
 export * from './healthStatus';
 export * from './publicBusinessSettings';
+export * from './publicBusinessSettingsVerificationStatus';
+export * from './publicTrustProfile';
 export * from './serviceRequest';
 export * from './serviceRequestInput';
 export * from './serviceRequestInputUrgency';

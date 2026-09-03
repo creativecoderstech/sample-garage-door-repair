@@ -19,7 +19,6 @@ import { shadcn } from '@clerk/themes';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { FloatingChat } from '@/components/floating-chat';
-import { ThemeSwatch } from '@/components/theme-swatch';
 import { getPublicSectionRouterHref, scrollToPublicSectionId, type PublicSection } from '@/lib/public-navigation';
 
 import HomePage from '@/pages/home';
@@ -148,7 +147,6 @@ function Router() {
         {!isAdmin && (
           <>
             <SiteFooter />
-            <ThemeSwatch />
             <FloatingChat />
           </>
         )}
@@ -194,7 +192,7 @@ function SignInPage() {
 function SignInShellHeader() {
   return (
     <div className="mb-5 text-center">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Summit Garage Door Co.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Garage Door Service Preview</p>
       <h1 className="mt-2 font-display text-2xl font-bold text-foreground">Staff operations sign-in</h1>
       <p className="mt-2 text-sm text-muted-foreground">Use your approved staff account to access customer requests.</p>
     </div>

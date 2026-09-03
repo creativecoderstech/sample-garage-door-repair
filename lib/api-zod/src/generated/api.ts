@@ -86,7 +86,18 @@ export const GetPublicBusinessSettingsResponse = zod.object({
   "theme": zod.string(),
   "emergencyEnabled": zod.boolean(),
   "heroImage": zod.string(),
-  "galleryImages": zod.array(zod.string())
+  "galleryImages": zod.array(zod.string()),
+  "verificationStatus": zod.enum(['verified', 'unverified']),
+  "trustProfile": zod.object({
+  "hours": zod.string().nullable(),
+  "ownerTeam": zod.string().nullable(),
+  "yearsInBusiness": zod.string().nullable(),
+  "brandsServiced": zod.string().nullable(),
+  "paymentOptions": zod.string().nullable(),
+  "financing": zod.string().nullable(),
+  "licenseInsurance": zod.string().nullable(),
+  "warranty": zod.string().nullable()
+})
 })
 
 

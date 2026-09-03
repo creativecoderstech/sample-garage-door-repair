@@ -23,52 +23,25 @@ const services = [
   { id: 6, slug: "maintenance", name: "Safety Tune-Up", description: "A 25-point inspection, balance test, lubrication and safety-reversal verification.", startingPrice: 89, duration: "45 min", emergency: false },
 ];
 
-const testimonials = [
-  { id: 1, name: "Melissa R.", city: "Arlington", rating: 5, quote: "The spring snapped before school drop-off. They arrived in under an hour, explained every option, and left the door quieter than it has ever been.", service: "Emergency spring repair" },
-  { id: 2, name: "David K.", city: "Plano", rating: 5, quote: "Straightforward estimate, clean installation, and the new smart opener was connected to our phones before the technician left.", service: "Smart opener installation" },
-  { id: 3, name: "Jordan T.", city: "Frisco", rating: 5, quote: "No pressure and no mystery fees. They repaired the cable instead of trying to sell us a whole new door.", service: "Cable repair" },
-];
-
-const defaultGoogleReviews = [
-  {
-    googleReviewId: "default-google-1",
-    reviewerName: "Melissa R.",
-    reviewerPhotoUrl: null,
-    rating: 5,
-    comment: "Our spring broke before school drop-off. Summit arrived quickly, explained every option, and left the door quieter than it has been in years.",
-    publishedAt: new Date("2026-08-26T14:00:00.000Z"),
-    relativeTime: "1 week ago",
-    isDefault: true,
-  },
-  {
-    googleReviewId: "default-google-2",
-    reviewerName: "David K.",
-    reviewerPhotoUrl: null,
-    rating: 5,
-    comment: "Straightforward estimate and a very clean opener installation. The technician connected the remotes, keypad, and our phones before leaving.",
-    publishedAt: new Date("2026-08-18T16:30:00.000Z"),
-    relativeTime: "2 weeks ago",
-    isDefault: true,
-  },
-  {
-    googleReviewId: "default-google-3",
-    reviewerName: "Jordan T.",
-    reviewerPhotoUrl: null,
-    rating: 5,
-    comment: "No pressure and no mystery fees. They repaired the damaged cable and rollers instead of trying to sell us a whole new door.",
-    publishedAt: new Date("2026-08-05T19:10:00.000Z"),
-    relativeTime: "4 weeks ago",
-    isDefault: true,
-  },
-];
+const testimonials: Array<{
+  id: number;
+  name: string;
+  city: string;
+  rating: number;
+  quote: string;
+  service: string;
+}> = [];
 
 const googlePlaceId = () => process.env.GOOGLE_PLACE_ID?.trim();
 const googlePlacesApiKey = () => process.env.GOOGLE_PLACES_API_KEY?.trim();
 let lastGoogleSyncAt = 0;
 let googleSyncPromise: Promise<void> | null = null;
-
-const isExcellentGoogleReview = (review: { rating: number; comment: string }) =>
-  review.rating === 5 && review.comment.trim().length >= 40;
+let lastGooglePlaceSummary: {
+  locationName: string;
+  aggregateRating: number;
+  totalReviewCount: number;
+  profileUrl: string | null;
+} | null = null;
 
 const relativeGoogleTime = (publishedAt: Date) => {
   const days = Math.max(1, Math.floor((Date.now() - publishedAt.getTime()) / 86_400_000));
@@ -79,12 +52,6 @@ const relativeGoogleTime = (publishedAt: Date) => {
   return `${months} month${months === 1 ? "" : "s"} ago`;
 };
 
-async function ensureDefaultGoogleReviews() {
-  await db.insert(googleReviews).values(defaultGoogleReviews).onConflictDoNothing({
-    target: googleReviews.googleReviewId,
-  });
-}
-
 async function syncGoogleReviews() {
   const placeId = googlePlaceId();
   const apiKey = googlePlacesApiKey();
@@ -93,12 +60,16 @@ async function syncGoogleReviews() {
 
   googleSyncPromise = (async () => {
     try {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=reviews&key=${encodeURIComponent(apiKey)}`;
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=name,rating,user_ratings_total,url,reviews&key=${encodeURIComponent(apiKey)}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(`Google Places returned ${response.status}`);
       const payload = (await response.json()) as {
         status?: string;
         result?: {
+          name?: string;
+          rating?: number;
+          user_ratings_total?: number;
+          url?: string;
           reviews?: Array<{
             author_name?: string;
             profile_photo_url?: string;
@@ -109,6 +80,12 @@ async function syncGoogleReviews() {
         };
       };
       if (payload.status !== "OK" || !payload.result) throw new Error(`Google Places status: ${payload.status}`);
+      lastGooglePlaceSummary = {
+        locationName: payload.result.name?.trim() || "Connected Google Business Profile",
+        aggregateRating: payload.result.rating ?? 0,
+        totalReviewCount: payload.result.user_ratings_total ?? 0,
+        profileUrl: payload.result.url ?? null,
+      };
 
       const syncedAt = new Date();
       const rows = (payload.result.reviews ?? [])
@@ -144,7 +121,6 @@ async function syncGoogleReviews() {
 }
 
 async function getGoogleReviewFeed() {
-  await ensureDefaultGoogleReviews();
   await syncGoogleReviews();
 
   const connected = Boolean(googlePlaceId() && googlePlacesApiKey());
@@ -152,17 +128,17 @@ async function getGoogleReviewFeed() {
     .select()
     .from(googleReviews)
     .orderBy(desc(googleReviews.rating), desc(googleReviews.publishedAt));
-  const liveReviews = stored.filter((review) => !review.isDefault && isExcellentGoogleReview(review));
-  const selected = (liveReviews.length > 0 ? liveReviews : connected ? [] : stored.filter((review) => review.isDefault)).slice(0, 3);
+  const liveReviews = stored.filter((review) => !review.isDefault);
+  const selected = connected ? liveReviews.slice(0, 5) : [];
 
   return {
-    mode: liveReviews.length > 0 ? "live" as const : "demo" as const,
-    connectionStatus: connected ? "connected" as const : "disconnected" as const,
-    locationName: "Summit Garage Door Co.",
-    aggregateRating: selected.length > 0 ? selected.reduce((sum, review) => sum + review.rating, 0) / selected.length : 0,
-    totalReviewCount: selected.length,
+    mode: "live" as const,
+    connectionStatus: connected && lastGooglePlaceSummary ? "connected" as const : "disconnected" as const,
+    locationName: lastGooglePlaceSummary?.locationName ?? "Google Business Profile not connected",
+    aggregateRating: lastGooglePlaceSummary?.aggregateRating ?? 0,
+    totalReviewCount: lastGooglePlaceSummary?.totalReviewCount ?? 0,
     lastSyncedAt: liveReviews[0]?.syncedAt?.toISOString() ?? null,
-    profileUrl: null,
+    profileUrl: lastGooglePlaceSummary?.profileUrl ?? null,
     reviews: selected.map((review) => ({
       id: review.googleReviewId,
       reviewerName: review.reviewerName,
@@ -227,22 +203,53 @@ const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect)
   ),
 });
 
-const toPublicSettings = (
-  settings: typeof businessSettings.$inferSelect | typeof defaultSettings,
-) => ({
-  businessName: settings.businessName,
-  phone: settings.phone,
-  email: settings.email,
-  serviceArea: settings.serviceArea,
-  theme: settings.theme,
-  emergencyEnabled: settings.emergencyEnabled,
-  heroImage: settings.heroImage,
-  galleryImages: settings.galleryImages,
+const getPublicIdentity = () => ({
+    businessName: process.env.PUBLIC_BUSINESS_NAME?.trim() || "",
+    phone: process.env.PUBLIC_BUSINESS_PHONE?.trim() || "",
+    email: process.env.PUBLIC_BUSINESS_EMAIL?.trim() || "",
+    serviceArea: process.env.PUBLIC_SERVICE_AREA?.trim() || "",
 });
 
+const isPublicBusinessVerified = () =>
+    process.env.PUBLIC_BUSINESS_VERIFIED === "true" &&
+    Object.values(getPublicIdentity()).every(Boolean);
+
+const isPublicServiceCatalogVerified = () =>
+  isPublicBusinessVerified() &&
+  process.env.PUBLIC_SERVICE_CATALOG_VERIFIED === "true";
+
+const toPublicSettings = (
+  settings: typeof businessSettings.$inferSelect | typeof defaultSettings,
+) => {
+  const publicIdentity = getPublicIdentity();
+  const verified = isPublicBusinessVerified();
+  const trustValue = (key: string) => verified ? process.env[key]?.trim() || null : null;
+  return {
+  businessName: verified ? publicIdentity.businessName : "Garage Door Service Preview",
+  phone: verified ? publicIdentity.phone : "",
+  email: verified ? publicIdentity.email : "",
+  serviceArea: verified ? publicIdentity.serviceArea : "Service area awaiting verification",
+  theme: settings.theme,
+  emergencyEnabled: verified && process.env.PUBLIC_PRIORITY_REQUESTS_ENABLED === "true",
+  heroImage: settings.heroImage,
+  galleryImages: settings.galleryImages,
+  verificationStatus: verified ? "verified" as const : "unverified" as const,
+  trustProfile: {
+    hours: trustValue("PUBLIC_BUSINESS_HOURS"),
+    ownerTeam: trustValue("PUBLIC_OWNER_TEAM"),
+    yearsInBusiness: trustValue("PUBLIC_YEARS_IN_BUSINESS"),
+    brandsServiced: trustValue("PUBLIC_BRANDS_SERVICED"),
+    paymentOptions: trustValue("PUBLIC_PAYMENT_OPTIONS"),
+    financing: trustValue("PUBLIC_FINANCING_DETAILS"),
+    licenseInsurance: trustValue("PUBLIC_LICENSE_INSURANCE"),
+    warranty: trustValue("PUBLIC_WARRANTY_DETAILS"),
+  },
+  };
+};
+
 const customerCareFaqs = [
-  ["Service area", "We serve Metro Atlanta and nearby Georgia communities. Customers can send a ZIP code or call to confirm coverage."],
-  ["Response time", "Most requests are answered within 45 minutes during business hours. Priority scheduling is available for security concerns, stuck-open doors, and dangerous damage, but this is not a guaranteed same-day appointment."],
+  ["Service area", "Coverage is not confirmed unless the verified public profile states it. Customers can submit a ZIP code and the business must confirm coverage."],
+  ["Response time", "Response and arrival times depend on verified service coverage, published business hours, and current scheduling. A submitted request is not a confirmed appointment."],
   ["Estimates", "A technician inspects the system, explains what failed, and gives clear options before work begins. No additional work is added without customer approval."],
   ["Why a door will not open", "Common causes include a broken spring, failed opener, blocked sensor, damaged cable, power issue, or off-track door. Customers should stop pressing the opener if the door strains, lifts unevenly, or makes a sharp popping sound."],
   ["Broken springs", "A loud bang, a gap in the spring, an unusually heavy door, or an opener that lifts only a few inches can indicate a broken spring. Springs are under extreme tension and must not be touched, unwound, or replaced by a customer."],
@@ -251,23 +258,24 @@ const customerCareFaqs = [
   ["Off-track or hanging door", "Stop using the door, keep people, pets, and vehicles away, and do not pull cables, loosen brackets, or force rollers back into place. A trained technician should stabilize it."],
   ["Repair or replacement", "Repair is often sensible when panels and tracks are sound. Extensive damage, recurring failures, corrosion, poor insulation, or outdated safety performance can make replacement a better value. A technician can explain both options."],
   ["Maintenance", "A professional inspection once a year is a good preventive schedule for most homes. Customers should watch for frayed cables, loose parts, uneven movement, or new noises without touching high-tension components."],
-  ["Pricing", "The website lists starting prices by service, but the final price depends on the failed part, door size and weight, parts availability, and related damage. The technician provides the price after diagnosis and before repairs."],
-  ["Emergency service", "Priority help is available when enabled in business settings for stuck-open, off-track, hanging, or vehicle-blocking doors. An unstable door must remain untouched with the area clear."],
+  ["Pricing", "Pricing is not confirmed unless the verified public profile explicitly states it. A technician must provide the final price after diagnosis and before repairs."],
+  ["Urgent requests", "Urgent availability and timing must be confirmed by the business. An unstable door must remain untouched with the area clear."],
 ];
 
 async function getCustomerCareContext() {
   const [storedSettings] = await db.select().from(businessSettings).limit(1);
-  const settings = storedSettings ? withRefreshedSeedImages(storedSettings) : defaultSettings;
+  const storedOrDefault = storedSettings ? withRefreshedSeedImages(storedSettings) : defaultSettings;
+  const settings = toPublicSettings(storedOrDefault);
   const emergencyGuidance = settings.emergencyEnabled
     ? "Priority help is enabled for urgent door problems; never promise a specific arrival time."
-    : "Priority help is not currently enabled in settings; direct customers to call the business for availability.";
-  const serviceLines = services
-    .map((service) => `- ${service.name} (${service.slug}): ${service.description} Starting at $${service.startingPrice}; typical duration ${service.duration}; ${service.emergency ? "priority situations may apply" : "standard scheduling"}.`)
-    .join("\n");
+    : "Urgent-service availability is not verified; never imply that priority or after-hours service is available.";
+  const serviceCatalogVerified = isPublicServiceCatalogVerified();
+  const serviceLines = serviceCatalogVerified
+    ? services
+        .map((service) => `- ${service.name} (${service.slug}): ${service.description} Published starting estimate $${service.startingPrice}; typical duration ${service.duration}. Final price and timing still require confirmation.`)
+        .join("\n")
+    : "- No public service catalog is verified. Discuss only general garage-door safety and the request process; do not claim this business offers a particular service.";
   const faqLines = customerCareFaqs.map(([question, answer]) => `- ${question}: ${answer}`).join("\n");
-  const reviewLines = testimonials
-    .map((review) => `- ${review.name} in ${review.city} praised ${review.service}: "${review.quote}"`)
-    .join("\n");
 
   return [
     "AUTHORITATIVE WEBSITE AND BUSINESS CONTEXT — use only these facts.",
@@ -276,15 +284,15 @@ async function getCustomerCareContext() {
     `Email: ${settings.email}`,
     `Service area: ${settings.serviceArea}`,
     `Emergency setting: ${settings.emergencyEnabled ? "enabled" : "not enabled"}. ${emergencyGuidance}`,
-    "Response expectation: the website says most requests are answered within 45 minutes during business hours. Business hours themselves are not published.",
+    "Response expectation: a submitted request is not a confirmed appointment. Do not promise response or arrival timing.",
     "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Photos and videos remain local on the customer's device until they choose to share them.",
+    `Service catalog verification: ${serviceCatalogVerified ? "verified for published starting estimates and typical durations" : "not verified; do not quote any price, duration, or availability from internal service data"}.`,
     "Estimate policy: technicians inspect the system and explain options before work; do not promise a free estimate unless the website context says so.",
     "Services:",
     serviceLines,
     "Frequently asked questions:",
     faqLines,
-    "Customer review previews:",
-    reviewLines,
+    "Reviews: discuss Google reviews only when the connected feed provides them. Do not invent testimonials or ratings.",
     "The gallery and before/after sections show representative website project imagery; do not infer guarantees, pricing, or availability from photos.",
     "Never invent hours, appointment slots, guarantees, warranties, refunds, final prices, or service coverage outside this context. If something is not listed, say that plainly and offer the phone number or a service request.",
   ].join("\n");
@@ -345,8 +353,10 @@ async function recordStaffAudit(
   });
 }
 
-router.get("/garage/services", (_req, res) => res.json(services));
-router.get("/garage/testimonials", (_req, res) => res.json(testimonials));
+router.get("/garage/services", (_req, res) => {
+  res.json(isPublicServiceCatalogVerified() ? services : []);
+});
+router.get("/garage/testimonials", (_req, res) => res.json([]));
 router.get("/garage/reviews", async (_req, res) => {
   res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
   res.json(await getGoogleReviewFeed());
@@ -355,12 +365,14 @@ router.get("/garage/reviews", async (_req, res) => {
 router.get("/garage/availability", (req, res) => {
   const parsed = GetAvailabilityQueryParams.safeParse(req.query);
   if (!parsed.success) return res.status(400).json({ error: "Enter a valid ZIP code." });
-  const available = /^\d{5}(-\d{4})?$/.test(parsed.data.zip);
+  const validZip = /^\d{5}(-\d{4})?$/.test(parsed.data.zip);
   return res.json({
-    available,
+    available: false,
     zip: parsed.data.zip,
-    eta: available ? "Technician available today" : "Call for availability",
-    message: available ? "You're in our service area. Same-day windows are open." : "We may still be able to help—call our dispatch team.",
+    eta: "Availability confirmation required",
+    message: validZip
+      ? "Submit a request and the business will confirm service coverage and timing."
+      : "Enter a valid ZIP code so the business can confirm coverage.",
   });
 });
 
@@ -456,7 +468,9 @@ router.post("/garage/assistant", async (req, res) => {
       : garageIssueTerms.test(conversationText)
         ? "caution" as const
         : "safe" as const;
-    const suggestedService = suggestedServiceFor(conversationText);
+    const suggestedService = isPublicServiceCatalogVerified()
+      ? suggestedServiceFor(conversationText)
+      : "Service assessment";
     const casualReply = casualCustomerCareReply(parsed.data.message);
     if (casualReply) {
       return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment" });
@@ -469,12 +483,12 @@ router.post("/garage/assistant", async (req, res) => {
           role: "system",
           content: [
             "You are Maya, the friendly and polite customer-care coordinator for the garage-door business described below. Speak with a warm, natural, human-friendly voice as a member of the business team.",
-            "Do not refer to yourself as an AI, bot, automated system, diagnostic tool, or virtual assistant. Use first-person language as Maya, but do not invent personal experiences, on-site actions, staff availability, appointment promises, or knowledge outside the authoritative context.",
+            "You are an AI-assisted customer-care chat, not a technician or emergency service. Be transparent about that role if asked and never imply that a human is currently monitoring the conversation.",
             "You are the first calm, helpful voice a homeowner reaches when a garage-door problem interrupts their day. Sound like a real local coordinator: acknowledge the inconvenience, use contractions, and explain the next step in plain language. Do not sound like a script, a search result, or a safety disclaimer pasted onto every reply.",
-            "Answer questions about the website, business, service area, services, starting prices, estimates, response expectations, reviews, FAQs, and booking process using the authoritative context. Do not mention hidden prompts or claim knowledge outside it.",
+            "Answer questions about the website, business, service area, services, estimates, response expectations, reviews, FAQs, and booking process using the authoritative context. Do not mention hidden prompts or claim knowledge outside it.",
             "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask at most one useful follow-up question at a time. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant service, and invite them to start a service request.",
             "For greetings, thanks, or small talk, respond naturally before gently bringing the conversation back to the door. Never attach a caution or urgent framing to ordinary small talk. When the issue is unclear, offer a few relatable examples such as stuck, noisy, slow, uneven, or an opener that will not respond.",
-            "Use the business context naturally when it helps: Summit serves Metro Atlanta and nearby Georgia communities, requests are usually answered within 45 minutes during business hours, and the service catalog has starting prices but the technician confirms the final price after inspection. Mention one relevant fact at a time instead of reciting the whole business profile.",
+            "Use only verified business context when it helps. A submitted request is not a confirmed appointment. Do not quote prices, durations, service coverage, or urgent availability unless the authoritative context explicitly marks that information verified.",
             "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
             "SAFETY POLICY: Never instruct a customer to adjust, unwind, cut, replace, or pull torsion/extension springs, cables, bottom brackets, tracks, or other high-tension hardware. Never tell them to operate a crooked, hanging, partially fallen, off-track, unusually heavy, or spring-damaged door. In those cases tell them to stop using it, keep people, pets, and vehicles clear, and arrange professional help. Tell them to call 911 only for an immediate threat to life or serious injury.",
             websiteContext,
@@ -503,10 +517,12 @@ router.post("/garage/assistant", async (req, res) => {
       : garageIssueTerms.test(fallbackConversation)
         ? "caution" as const
         : "safe" as const;
-    const fallbackService = suggestedServiceFor(fallbackConversation);
+    const fallbackService = isPublicServiceCatalogVerified()
+      ? suggestedServiceFor(fallbackConversation)
+      : "Service assessment";
     const reply = fallbackSafetyLevel === "urgent"
-      ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can call our team or start a service request, and we’ll help identify the safest next step."
-      : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or call our team and we’ll help you figure out the right next step.";
+      ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can start a service request for the business to review."
+      : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or start a request for the business to review.";
     return res.json({ reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService });
   }
 });

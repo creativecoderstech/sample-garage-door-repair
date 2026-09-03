@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGetGoogleReviewFeed, useListGarageServices, useListTestimonials, useGetPublicBusinessSettings } from '@workspace/api-client-react';
-import type { GoogleReviewFeed, Testimonial } from '@workspace/api-client-react';
+import { useGetGoogleReviewFeed, useListGarageServices, useGetPublicBusinessSettings } from '@workspace/api-client-react';
+import type { GoogleReviewFeed } from '@workspace/api-client-react';
 import { SiGoogle } from 'react-icons/si';
 import { useListFaqs, useListTasks } from '@/lib/demo-store';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,6 @@ const defaultGalleryImages = [
 export default function HomePage() {
   const { data: settings } = useGetPublicBusinessSettings();
   const { data: services } = useListGarageServices();
-  const { data: testimonials } = useListTestimonials();
   const { data: googleFeed, isLoading: isLoadingReviews, isError: isErrorReviews } = useGetGoogleReviewFeed();
   const { data: faqs } = useListFaqs();
   const { data: tasks } = useListTasks();
@@ -60,7 +59,7 @@ export default function HomePage() {
     elements.forEach((el) => observerRef.current?.observe(el));
 
     return () => observerRef.current?.disconnect();
-  }, [services, testimonials, faqs, tasks]);
+  }, [services, faqs, tasks]);
 
   useEffect(() => {
     const booking = document.getElementById('booking');
@@ -97,6 +96,19 @@ export default function HomePage() {
   const visibleGalleryImages = showAllGallery ? galleryImages : galleryImages.slice(0, 4);
   const visibleBeforeAfterTasks = showAllBeforeAfter ? (tasks || []) : (tasks || []).slice(0, 2);
   const visibleFaqs = showAllFaqs ? (faqs || []) : (faqs || []).slice(0, 6);
+  const isVerified = settings?.verificationStatus === 'verified';
+  const trustItems = settings?.trustProfile
+    ? [
+        ['Hours', settings.trustProfile.hours],
+        ['Owner & team', settings.trustProfile.ownerTeam],
+        ['Years in business', settings.trustProfile.yearsInBusiness],
+        ['Brands serviced', settings.trustProfile.brandsServiced],
+        ['Payment options', settings.trustProfile.paymentOptions],
+        ['Financing', settings.trustProfile.financing],
+        ['License & insurance', settings.trustProfile.licenseInsurance],
+        ['Warranty', settings.trustProfile.warranty],
+      ].filter((item): item is [string, string] => Boolean(item[1]))
+    : [];
   
   return (
     <div className="min-h-screen bg-background noise-overlay" id="main-content">
@@ -105,20 +117,20 @@ export default function HomePage() {
         {/* Mobile View */}
         <div className="phi-hero lg:hidden relative">
           <div className="absolute inset-0 w-full h-full">
-            <img src={heroImage} alt="Three premium residential garage doors on a Georgia craftsman home" className="w-full h-full object-cover object-[62%_center]" />
+             <img src={heroImage} alt="Representative residential garage-door design" className="w-full h-full object-cover object-[62%_center]" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/25" />
           
           <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-12 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 backdrop-blur-sm text-white text-xs font-bold tracking-wide uppercase">
               <Shield className="w-3 h-3 shrink-0" />
-              Fully Licensed & Insured
+               {isVerified ? 'Verified business profile' : 'Website preview — details unverified'}
             </div>
             <h1 className="phi-hero-title text-white">
               Don't let a broken door <span className="text-primary">hold your day hostage.</span>
             </h1>
             <p className="pr-[var(--phi-space-4)] text-white/80 text-sm leading-relaxed">
-              Fast, professional garage door repair and installation. We secure your home's largest moving object so you can get back to life.
+               Request garage-door service information and scheduling. Coverage, timing, credentials, and final pricing are confirmed by the business.
             </p>
             <div className="flex gap-3 pt-2 pr-[var(--phi-space-5)]">
               <Button asChild size="lg" className="flex-1 font-display font-bold shadow-xl glow-primary">
@@ -135,7 +147,7 @@ export default function HomePage() {
         <div className="phi-hero relative hidden border-b lg:flex lg:items-center">
           <img
             src={heroImage}
-            alt="Three premium residential garage doors on a Georgia craftsman home"
+            alt="Representative residential garage-door design"
             className="absolute inset-0 h-full w-full object-cover object-[center_60%]"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/72 to-slate-950/5" />
@@ -145,13 +157,13 @@ export default function HomePage() {
             <div className="max-w-2xl reveal-on-scroll">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white backdrop-blur-md">
                 <Shield className="h-3.5 w-3.5 shrink-0 text-primary" />
-                Local & Trusted Experts
+                 {isVerified ? 'Verified business information' : 'Website preview — business details pending'}
               </div>
               <h1 className="phi-hero-title mb-6 text-white">
                 Don't let a broken door <br /><span className="text-primary">hold your day hostage.</span>
               </h1>
               <p className="mb-10 max-w-xl text-xl leading-relaxed text-white/78">
-                Fast, professional garage door repair and installation. We secure your home's largest moving object so you can get back to life.
+                 Explore repair and installation options, then send a request for the business to confirm coverage, timing, and pricing.
               </p>
               <div className="mb-[var(--phi-space-5)] flex gap-[var(--phi-space-3)]">
                 <Button asChild size="lg" className="h-14 px-8 font-display text-lg font-bold shadow-2xl glow-primary hover-elevate">
@@ -164,11 +176,11 @@ export default function HomePage() {
               <div className="grid max-w-xl grid-cols-2 gap-[var(--phi-space-3)] border-t border-white/25 pt-[var(--phi-space-4)] text-white">
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-semibold">Same-Day Service</span>
+                   <span className="text-sm font-semibold">Timing confirmed after request</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-semibold">Fully Insured</span>
+                   <span className="text-sm font-semibold">Final price after inspection</span>
                 </div>
               </div>
             </div>
@@ -181,10 +193,14 @@ export default function HomePage() {
         <div className="phi-container">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--phi-space-4)] mb-[var(--phi-space-5)] reveal-on-scroll">
             <div>
-               <h2 className="phi-section-title mb-4">Our Core Services</h2>
-               <p className="phi-copy text-muted-foreground text-lg leading-relaxed">Expert solutions for every component of your garage door system.</p>
+               <h2 className="phi-section-title mb-4">Garage Door Service Catalog</h2>
+               <p className="phi-copy text-muted-foreground text-lg leading-relaxed">
+                 {(services?.length ?? 0) > 0
+                   ? 'Published services with estimates that still require final confirmation.'
+                   : 'Service offerings appear here only after the business verifies its public catalog.'}
+               </p>
             </div>
-            <Button
+             {(services?.length ?? 0) > 0 && <Button
               type="button"
               variant="ghost"
               className="font-bold gap-1 text-primary hover:text-primary hover:bg-primary/10"
@@ -194,11 +210,15 @@ export default function HomePage() {
             >
               {showAllServices ? 'Show featured services' : 'See full catalog'}
               <ArrowRight className={`h-4 w-4 transition-transform ${showAllServices ? 'rotate-90' : ''}`} />
-            </Button>
+             </Button>}
           </div>
 
            <div id="services-grid" className="grid grid-cols-1 md:grid-cols-3 gap-[var(--phi-space-4)]">
-            {visibleServices.map((service, i) => (
+             {visibleServices.length === 0 ? (
+               <div className="phi-card border bg-card p-[var(--phi-space-5)] text-center text-muted-foreground md:col-span-3">
+                 The public service catalog, pricing, and typical durations are awaiting business verification.
+               </div>
+             ) : visibleServices.map((service, i) => (
                <div key={service.id} className="phi-card phi-card-interactive group bg-card border p-[var(--phi-space-4)] flex flex-col h-full reveal-on-scroll" style={{ transitionDelay: `${i * 100}ms` }}>
                 <div className="bg-primary/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground text-primary transition-colors">
                   <Wrench className="h-7 w-7" />
@@ -206,7 +226,9 @@ export default function HomePage() {
                 <h3 className="text-2xl font-bold font-display mb-3">{service.name}</h3>
                 <p className="text-muted-foreground mb-6 flex-1 leading-relaxed">{service.description}</p>
                 <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/50">
-                  <span className="font-bold text-lg">From ${service.startingPrice}</span>
+                   <span className="font-bold text-sm">
+                     {isVerified ? `Starting estimate $${service.startingPrice} · final after inspection` : 'Pricing awaiting verification'}
+                   </span>
                   <Button variant="ghost" size="sm" asChild className="rounded-full">
                     <a href="#booking">Book <ChevronRight className="h-4 w-4 ml-1"/></a>
                   </Button>
@@ -221,8 +243,9 @@ export default function HomePage() {
         <section id="work" className="scroll-mt-[112px] phi-section border-y bg-background">
            <div className="phi-container">
              <div className="text-center phi-copy mx-auto mb-[var(--phi-space-6)] reveal-on-scroll">
-               <p className="phi-eyebrow text-primary mb-3">Recent Field Work</p>
-               <h2 className="phi-section-title mx-auto">Doors we’re proud to stand behind</h2>
+               <p className="phi-eyebrow text-primary mb-3">Representative imagery</p>
+               <h2 className="phi-section-title mx-auto">Examples of garage-door styles and settings</h2>
+               <p className="mt-4 text-muted-foreground">These images demonstrate website presentation and are not claimed as completed customer projects.</p>
             </div>
              <div id="full-gallery-grid" className="gallery-grid reveal-on-scroll">
                {visibleGalleryImages.map((img, i) => (
@@ -255,9 +278,9 @@ export default function HomePage() {
          <div className="phi-container">
            <div className="flex flex-col md:flex-row md:items-end justify-between gap-[var(--phi-space-4)] mb-[var(--phi-space-5)] reveal-on-scroll">
             <div className="max-w-2xl">
-               <p className="phi-eyebrow text-primary mb-3">Real Transformations</p>
-               <h2 className="phi-section-title mb-4">See the difference a new door makes</h2>
-               <p className="text-muted-foreground text-lg leading-relaxed">Matched photographs show the same properties before and after their garage-door upgrades.</p>
+               <p className="phi-eyebrow text-primary mb-3">Illustrative comparisons</p>
+               <h2 className="phi-section-title mb-4">Preview a before-and-after presentation</h2>
+               <p className="text-muted-foreground text-lg leading-relaxed">These sample comparisons demonstrate the website layout and are not verified customer jobs.</p>
             </div>
              {tasks && tasks.length > 2 && (
                <Button
@@ -310,12 +333,47 @@ export default function HomePage() {
        <section className="hidden phi-section bg-background border-b md:block" id="testimonials">
          <div className="phi-container">
            <div className="phi-copy mb-[var(--phi-space-5)] reveal-on-scroll">
-             <p className="phi-eyebrow text-primary mb-3">Customer Stories</p>
-             <h2 className="phi-section-title mb-8">What our neighbors say</h2>
+              <p className="phi-eyebrow text-primary mb-3">Independent review source</p>
+              <h2 className="phi-section-title mb-8">Google Business Profile reviews</h2>
           </div>
-          <GoogleReviewsPresentation feed={googleFeed} isLoading={isLoadingReviews} isError={isErrorReviews} fallbackTestimonials={testimonials} />
+           <GoogleReviewsPresentation feed={googleFeed} isLoading={isLoadingReviews} isError={isErrorReviews} />
         </div>
       </section>
+
+       <section id="trust" className="scroll-mt-[112px] border-b bg-background py-[var(--phi-space-6)]">
+         <div className="phi-container">
+           <div className="grid gap-[var(--phi-space-5)] lg:grid-cols-[0.9fr_1.1fr]">
+             <div>
+               <p className="phi-eyebrow mb-3 text-primary">Trust & transparency</p>
+               <h2 className="phi-section-title">Know what is verified before you request service</h2>
+               <p className="mt-4 text-muted-foreground leading-7">
+                 {isVerified
+                   ? 'The business identity and contact profile have been marked verified. Specific credentials and policies appear only when supplied.'
+                   : 'This is a non-indexed website preview. Business identity, contacts, coverage, credentials, hours, warranties, and payment terms have not been verified and are intentionally withheld.'}
+               </p>
+             </div>
+             <div className="phi-card border bg-card p-[var(--phi-space-4)]">
+               {trustItems.length > 0 ? (
+                 <dl className="grid gap-4 sm:grid-cols-2">
+                   {trustItems.map(([label, value]) => (
+                     <div key={label}>
+                       <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{label}</dt>
+                       <dd className="mt-1 font-semibold">{value}</dd>
+                     </div>
+                   ))}
+                 </dl>
+               ) : (
+                 <p className="font-semibold">No credentials or commercial terms are published until the business supplies and verifies them.</p>
+               )}
+               <div className="mt-5 space-y-2 border-t pt-4 text-sm leading-6 text-muted-foreground">
+                 <p><strong className="text-foreground">Privacy:</strong> Request details are used to respond to the customer. Maya messages are processed by an AI service and stay in this browser session unless the customer copies them into a request.</p>
+                 <p><strong className="text-foreground">Terms:</strong> Submitting a form does not confirm service coverage, an appointment, arrival time, final price, warranty, or financing.</p>
+                 <p><strong className="text-foreground">Accessibility:</strong> The site supports keyboard navigation and readable labels. Contact details appear only after verification.</p>
+               </div>
+             </div>
+           </div>
+         </div>
+       </section>
 
       {/* FAQ */}
         <section className="scroll-mt-[112px] phi-section bg-muted/10" id="faq">
@@ -386,12 +444,10 @@ function GoogleReviewsPresentation({
   feed,
   isLoading,
   isError,
-  fallbackTestimonials,
 }: {
   feed: GoogleReviewFeed | undefined;
   isLoading: boolean;
   isError: boolean;
-  fallbackTestimonials: Testimonial[] | undefined;
 }) {
   if (isLoading) {
     return (
@@ -418,34 +474,9 @@ function GoogleReviewsPresentation({
   const hasNoReviews = !feed || !feed.reviews || feed.reviews.length === 0;
 
   if (isDisconnected || hasNoReviews) {
-    if (fallbackTestimonials && fallbackTestimonials.length > 0) {
-      return (
-        <div className="phi-grid-cards reveal-on-scroll">
-          {fallbackTestimonials.slice(0, 4).map((review) => (
-            <div key={review.id} className="phi-card bg-card border p-[var(--phi-space-4)] shadow-sm hover-elevate flex flex-col">
-              <div className="flex gap-1 mb-5 text-[#FBBC04]">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-muted/30 stroke-current'}`} />
-                ))}
-              </div>
-              <p className="text-muted-foreground leading-relaxed mb-7">"{review.quote}"</p>
-              <div className="mt-auto flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold font-display">
-                  {review.name.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-foreground">{review.name}</p>
-                  <p className="text-xs text-muted-foreground">{review.city} • {review.service}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
     return (
       <div className="phi-card text-center p-[var(--phi-space-5)] bg-muted/10 border border-border/50 text-muted-foreground">
-        No reviews available at this time.
+        No connected Google Business Profile review feed is available. The site does not substitute sample testimonials or preview ratings.
       </div>
     );
   }
@@ -454,11 +485,6 @@ function GoogleReviewsPresentation({
     <div className="space-y-[var(--phi-space-6)] reveal-on-scroll">
       {/* Aggregate Header */}
       <div className="phi-card flex flex-col gap-[var(--phi-space-4)] md:flex-row md:items-center md:justify-between bg-card border p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] shadow-sm relative overflow-hidden">
-        {feed.mode === 'demo' && (
-          <div className="absolute top-0 right-0 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 border-b border-l border-primary/20">
-            Preview Data
-          </div>
-        )}
         <div className="relative z-10 flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-50 shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 sm:h-20 sm:w-20">
             <SiGoogle className="h-8 w-8 text-slate-700 dark:text-slate-300 sm:h-10 sm:w-10" />
@@ -473,7 +499,7 @@ function GoogleReviewsPresentation({
               </div>
             </div>
             <p className="break-words text-sm font-medium text-muted-foreground">
-              {feed.mode === 'demo' ? 'Previewing' : 'Based on'} {feed.totalReviewCount} Google reviews for <strong className="text-foreground">{feed.locationName}</strong>
+              Based on {feed.totalReviewCount} Google reviews for <strong className="text-foreground">{feed.locationName}</strong>
             </p>
           </div>
         </div>

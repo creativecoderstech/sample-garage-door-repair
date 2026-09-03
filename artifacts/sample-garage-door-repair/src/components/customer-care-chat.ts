@@ -19,8 +19,8 @@ export type ServiceRequestDraft = {
 export const CUSTOMER_CARE_NAME = "Maya";
 export const SERVICE_REQUEST_DRAFT_EVENT = "garage-service-request-draft";
 
-export const customerCareWelcome = (businessName = "Summit Garage Door Co.") =>
-  `Hi! I’m Maya from ${businessName}. What’s going on with the door today? You don’t need to know the repair name—just tell me what you’re seeing, and I’ll help with the next step.`;
+export const customerCareWelcome = (businessName = "Garage Door Service Preview") =>
+  `Hi, I’m Maya, an AI-assisted customer-care guide for ${businessName}. Tell me what your garage door is doing and I’ll share general service information and the safest next step. A human must confirm coverage, timing, and any appointment.`;
 
 const storageKey = "garage_customer_care_messages";
 
@@ -160,6 +160,6 @@ export function useCustomerCareChat() {
     startServiceRequest,
     isPending: askMutation.isPending,
     hasUserMessages: messages.some((message) => message.role === "user"),
-    businessName: settings?.businessName || "Summit Garage Door Co.",
+    businessName: settings?.businessName || "Garage Door Service Preview",
   };
 }

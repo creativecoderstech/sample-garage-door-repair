@@ -11,6 +11,7 @@ A customer-facing garage door repair website and operations admin with booking, 
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
 - Staff authorization fails closed. Provision the initial owner explicitly with `pnpm --filter @workspace/api-server provision:garage-owner -- user_<clerk-user-id>` after that person appears in the Auth pane, or set `GARAGE_OWNER_USER_IDS` to a comma-separated allowlist of Clerk user IDs before they first sign in.
+- Public business claims fail closed. `PUBLIC_BUSINESS_VERIFIED=true` takes effect only when `PUBLIC_BUSINESS_NAME`, `PUBLIC_BUSINESS_PHONE`, `PUBLIC_BUSINESS_EMAIL`, and `PUBLIC_SERVICE_AREA` are all set. Optional verified trust fields use `PUBLIC_BUSINESS_HOURS`, `PUBLIC_OWNER_TEAM`, `PUBLIC_YEARS_IN_BUSINESS`, `PUBLIC_BRANDS_SERVICED`, `PUBLIC_PAYMENT_OPTIONS`, `PUBLIC_FINANCING_DETAILS`, `PUBLIC_LICENSE_INSURANCE`, and `PUBLIC_WARRANTY_DETAILS`.
 
 ## Stack
 

@@ -197,6 +197,33 @@ export interface BusinessSettings {
   galleryImages: string[];
 }
 
+export type PublicBusinessSettingsVerificationStatus = typeof PublicBusinessSettingsVerificationStatus[keyof typeof PublicBusinessSettingsVerificationStatus];
+
+
+export const PublicBusinessSettingsVerificationStatus = {
+  verified: 'verified',
+  unverified: 'unverified',
+} as const;
+
+export interface PublicTrustProfile {
+  /** @nullable */
+  hours: string | null;
+  /** @nullable */
+  ownerTeam: string | null;
+  /** @nullable */
+  yearsInBusiness: string | null;
+  /** @nullable */
+  brandsServiced: string | null;
+  /** @nullable */
+  paymentOptions: string | null;
+  /** @nullable */
+  financing: string | null;
+  /** @nullable */
+  licenseInsurance: string | null;
+  /** @nullable */
+  warranty: string | null;
+}
+
 export interface PublicBusinessSettings {
   businessName: string;
   phone: string;
@@ -206,6 +233,8 @@ export interface PublicBusinessSettings {
   emergencyEnabled: boolean;
   heroImage: string;
   galleryImages: string[];
+  verificationStatus: PublicBusinessSettingsVerificationStatus;
+  trustProfile: PublicTrustProfile;
 }
 
 export interface BusinessSettingsInput {

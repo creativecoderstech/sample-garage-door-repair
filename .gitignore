@@ -2,6 +2,11 @@
 
 # compiled output
 dist
+!artifacts/sample-garage-door-repair/dist/
+!artifacts/sample-garage-door-repair/dist/public/
+!artifacts/sample-garage-door-repair/dist/public/assets/
+!artifacts/sample-garage-door-repair/dist/public/assets/*.js
+!artifacts/sample-garage-door-repair/dist/public/assets/*.css
 tmp
 out-tsc
 *.tsbuildinfo

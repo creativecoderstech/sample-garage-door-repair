@@ -44,7 +44,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       {message.role === "assistant" && (
         <div className="relative mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
           M
-          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-emerald-500" aria-label="Maya is available" />
+          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-amber-500" aria-hidden="true" />
         </div>
       )}
       <div
@@ -80,7 +80,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
           </div>
           <div>
             <h3 className="text-sm font-bold">{CUSTOMER_CARE_NAME}</h3>
-            <p className="text-xs text-primary-foreground/80">Customer care at {chat.businessName}</p>
+            <p className="text-xs text-primary-foreground/80">AI-assisted service information</p>
           </div>
         </div>
         {onClose && (
@@ -93,6 +93,10 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
             <ChevronDown className="h-5 w-5" />
           </button>
         )}
+      </div>
+
+      <div className="border-b bg-muted/30 px-3 py-2 text-[11px] leading-4 text-muted-foreground">
+        Maya is an AI assistant, not a technician or emergency service. Messages are processed to answer questions and can be copied into a request you choose to send to staff. Responses and appointment times are not guaranteed.
       </div>
 
       <ScrollArea className={`p-[var(--phi-space-3)] ${isFloating ? "h-[380px] bg-muted/10" : "flex-1"}`} ref={scrollRef}>
@@ -117,7 +121,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
           <Button type="button" onClick={chat.startServiceRequest} className="w-full font-bold">
              Share details with our team
           </Button>
-           <p className="mt-1.5 text-center text-[11px] text-muted-foreground">I’ll carry this conversation into the request form.</p>
+            <p className="mt-1.5 text-center text-[11px] text-muted-foreground">You can review the copied conversation before sending it to staff.</p>
         </div>
       )}
 

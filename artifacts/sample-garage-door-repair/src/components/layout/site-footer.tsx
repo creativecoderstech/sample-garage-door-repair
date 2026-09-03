@@ -6,6 +6,7 @@ import { getPublicSectionHref } from "@/lib/public-navigation";
 
 export function SiteFooter() {
   const { data: settings } = useGetPublicBusinessSettings();
+  const isVerified = settings?.verificationStatus === "verified";
   
   return (
     <footer className="phi-site-footer bg-foreground text-background mt-auto">
@@ -13,14 +14,14 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)]">
           <div className="md:col-span-2">
             <h3 className="font-display font-bold text-2xl mb-4 text-background">
-              {settings?.businessName || "Summit Garage Door Co."}
+              {settings?.businessName || "Garage Door Service Preview"}
             </h3>
             <p className="text-background/70 mb-6 max-w-md leading-relaxed">
-              Professional garage door repair, installation, and maintenance. We secure your home's largest moving object safely and efficiently.
+              This preview demonstrates a garage-door service website. Business identity, coverage, credentials, and policies must be verified before publication.
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/10 text-background/90 text-xs font-bold tracking-wide uppercase">
               <Shield className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-              Fully Licensed & Insured
+              {isVerified ? "Business profile verified" : "Business details awaiting verification"}
             </div>
           </div>
           
@@ -37,19 +38,19 @@ export function SiteFooter() {
           <div className="min-w-0">
             <h4 className="font-bold text-lg mb-4 text-background">Contact</h4>
             <ul className="space-y-3 text-background/70">
-              <li className="flex items-start gap-2">
+              {settings?.phone && <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 mt-1 shrink-0" />
-                <span>{settings?.phone || "(555) 123-4567"}</span>
-              </li>
-              <li className="flex items-start gap-2">
+                <span>{settings.phone}</span>
+              </li>}
+              {settings?.email && <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 mt-1 shrink-0" />
                 <a
-                  href={`mailto:${settings?.email || "service@summitgaragedoor.demo"}`}
+                  href={`mailto:${settings.email}`}
                   className="min-w-0 break-all hover:text-background transition-colors"
                 >
-                  {settings?.email || "service@summitgaragedoor.demo"}
+                  {settings.email}
                 </a>
-              </li>
+              </li>}
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-1 shrink-0" />
                 <span>{settings?.serviceArea || "Greater Metropolitan Area"}</span>
@@ -59,8 +60,10 @@ export function SiteFooter() {
         </div>
         
         <div className="mt-[var(--phi-space-6)] pt-[var(--phi-space-4)] border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-[var(--phi-space-3)] text-background/50 text-sm">
-          <p>© {format(new Date(), 'yyyy')} {settings?.businessName || "Summit Garage Door Co."}. All rights reserved.</p>
+          <p>© {format(new Date(), 'yyyy')} {settings?.businessName || "Garage Door Service Preview"}. All rights reserved.</p>
           <div className="flex gap-6">
+            <a href="#trust" className="hover:text-background transition-colors">Privacy & terms</a>
+            <a href="#trust" className="hover:text-background transition-colors">Accessibility</a>
             <Link href="/login" className="hover:text-background transition-colors">Admin Login</Link>
           </div>
         </div>

@@ -234,7 +234,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
       onSuccess: () => {
         toast({
           title: "Request Received!",
-          description: "We'll be in touch shortly to confirm your appointment.",
+          description: "Your request was sent. The business must confirm coverage, timing, and any appointment.",
         });
         form.reset();
         revokePreviews(photos);
@@ -244,7 +244,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
       onError: () => {
         toast({
           title: "Error",
-          description: "Something went wrong. Please call us directly.",
+          description: "Something went wrong. Please try again later.",
           variant: "destructive"
         });
       }
@@ -257,7 +257,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
         <h3 className="text-2xl font-display font-bold flex items-center gap-2">
           <CalendarCheck className="w-6 h-6" /> Book Service
         </h3>
-        <p className="text-primary-foreground/80 mt-2 text-sm">Most requests are answered within 45 minutes.</p>
+         <p className="text-primary-foreground/80 mt-2 text-sm">This sends a request, not a confirmed appointment. Coverage and timing are confirmed by the business.</p>
       </div>
       {assistantDraft && (
         <div className="mx-6 mt-6 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
@@ -278,7 +278,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             <FormField control={form.control} name="phone" render={({ field }) => (
               <FormItem>
                 <FormLabel>Phone Number *</FormLabel>
-                <FormControl><Input type="tel" placeholder="(555) 123-4567" {...field} /></FormControl>
+                <FormControl><Input type="tel" placeholder="Phone number" autoComplete="tel" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -347,9 +347,9 @@ export function BookingForm({ className = "" }: { className?: string }) {
                   />
                 </FormControl>
                 {availability && (
-                  <p className={`text-xs mt-1 font-medium flex items-center gap-1 ${availability.available ? 'text-emerald-600' : 'text-destructive'}`}>
+                  <p className={`text-xs mt-1 font-medium flex items-center gap-1 ${availability.available ? 'text-emerald-600' : 'text-amber-700 dark:text-amber-400'}`}>
                     {availability.available ? <ShieldCheck className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
-                    {availability.message}
+                    {availability.available ? availability.message : `Coverage confirmation required. ${availability.message}`}
                   </p>
                 )}
                 <FormMessage />

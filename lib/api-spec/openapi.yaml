@@ -310,7 +310,7 @@ components:
           items: { type: string }
     PublicBusinessSettings:
       type: object
-      required: [businessName, phone, email, serviceArea, theme, emergencyEnabled, heroImage, galleryImages]
+      required: [businessName, phone, email, serviceArea, theme, emergencyEnabled, heroImage, galleryImages, verificationStatus, trustProfile]
       properties:
         businessName: { type: string }
         phone: { type: string }
@@ -322,6 +322,23 @@ components:
         galleryImages:
           type: array
           items: { type: string }
+        verificationStatus:
+          type: string
+          enum: [verified, unverified]
+        trustProfile:
+          $ref: "#/components/schemas/PublicTrustProfile"
+    PublicTrustProfile:
+      type: object
+      required: [hours, ownerTeam, yearsInBusiness, brandsServiced, paymentOptions, financing, licenseInsurance, warranty]
+      properties:
+        hours: { type: [string, "null"] }
+        ownerTeam: { type: [string, "null"] }
+        yearsInBusiness: { type: [string, "null"] }
+        brandsServiced: { type: [string, "null"] }
+        paymentOptions: { type: [string, "null"] }
+        financing: { type: [string, "null"] }
+        licenseInsurance: { type: [string, "null"] }
+        warranty: { type: [string, "null"] }
     BusinessSettingsInput:
       type: object
       properties:

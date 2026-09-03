@@ -26,7 +26,8 @@ export function SiteHeader() {
     typeof window === 'undefined' ? '' : window.location.hash.slice(1),
   );
 
-  const phoneDisplay = settings?.phone?.trim() || '(555) 123-4567';
+  const phoneDisplay = settings?.phone?.trim();
+  const isVerified = settings?.verificationStatus === "verified";
 
   useEffect(() => {
     if (location !== '/') {
@@ -87,7 +88,7 @@ export function SiteHeader() {
                 <Wrench className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <span className="font-display font-bold text-lg sm:text-xl truncate tracking-tight">
-                {settings?.businessName || "Summit Garage Door Co."}
+                 {settings?.businessName || "Garage Door Service Preview"}
               </span>
             </Link>
           </div>
@@ -111,12 +112,12 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="hidden md:flex items-center gap-2 text-sm font-bold text-primary mr-2">
+            {phoneDisplay && <a href={`tel:${phoneDisplay.replace(/[^\d+]/g, "")}`} className="hidden md:flex items-center gap-2 text-sm font-bold text-primary mr-2">
                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                  <Phone className="w-3.5 h-3.5" />
                </span>
                {phoneDisplay}
-            </div>
+            </a>}
             <Button
               asChild
               size="sm"
@@ -159,7 +160,7 @@ export function SiteHeader() {
               <Wrench className="w-5 h-5" />
             </div>
             <span className="font-display font-bold text-lg truncate tracking-tight">
-              {settings?.businessName || "Summit Garage Door Co."}
+              {settings?.businessName || "Garage Door Service Preview"}
             </span>
           </div>
 
@@ -195,7 +196,7 @@ export function SiteHeader() {
           </nav>
 
           {/* Phone number at the bottom */}
-          <div className="mt-6 pt-6 border-t border-border">
+          {phoneDisplay && <div className="mt-6 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-semibold">Call or text</p>
             <div className="flex items-center gap-2 text-lg font-bold text-primary">
               <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -203,14 +204,14 @@ export function SiteHeader() {
               </div>
               {phoneDisplay}
             </div>
-          </div>
+          </div>}
         </SheetContent>
       </Sheet>
       
-      {settings?.emergencyEnabled && (
+      {isVerified && settings.emergencyEnabled && (
         <div className="bg-destructive text-destructive-foreground py-1.5 px-4 text-center text-sm font-semibold flex items-center justify-center gap-2">
           <Shield className="w-4 h-4" />
-          24/7 Emergency Service Available
+          Priority requests accepted — timing confirmed by the team
         </div>
       )}
     </>
