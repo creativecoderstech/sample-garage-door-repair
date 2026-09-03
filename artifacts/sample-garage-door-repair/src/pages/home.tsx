@@ -241,8 +241,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <ServiceAreaSection serviceArea={settings?.serviceArea} isVerified={isVerified} />
-
       {/* GALLERY TEASER */}
         <section id="work" className="scroll-mt-[112px] phi-section border-y bg-background">
            <div className="phi-container">
@@ -343,6 +341,8 @@ export default function HomePage() {
            <GoogleReviewsPresentation feed={googleFeed} isLoading={isLoadingReviews} isError={isErrorReviews} />
         </div>
       </section>
+
+       <ServiceAreaSection serviceArea={settings?.serviceArea} isVerified={isVerified} />
 
        <section id="trust" className="scroll-mt-[112px] border-b bg-background py-[var(--phi-space-6)]">
          <div className="phi-container">
