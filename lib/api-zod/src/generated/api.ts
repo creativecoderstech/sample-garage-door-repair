@@ -283,7 +283,8 @@ export const AskGarageAssistantBody = zod.object({
 export const AskGarageAssistantResponse = zod.object({
   "reply": zod.string(),
   "safetyLevel": zod.enum(['safe', 'caution', 'urgent']),
-  "suggestedService": zod.string()
+  "suggestedService": zod.string(),
+  "serviceRequestRecommended": zod.boolean()
 })
 
 

@@ -312,8 +312,27 @@ function suggestedServiceFor(message: string) {
   return "Service assessment";
 }
 
-const urgentGarageTerms = /broken spring|spring (?:snapped|broke|broken)|off.?track|hanging|crooked|uneven|loose cable|frayed cable|stuck open|door fell|trapped|dangerous/i;
+const urgentGarageTerms = /broken spring|spring (?:snapped|broke|broken)|gap in (?:the )?spring|loud bang|opens? only (?:a )?few inches|unusually heavy|off.?track|hanging|crooked|uneven|loose cable|frayed cable|stuck open|door fell|trapped|dangerous/i;
 const garageIssueTerms = /garage|door|opener|spring|cable|repair|service|quote|estimate|schedule|book|track|roller|hinge|sensor|motor/i;
+const actionableGarageTerms = /broken|stuck|won't|will not|not (?:open|close)|noisy|noise|slow|uneven|crooked|hanging|fell|off.?track|spring|cable|roller|hinge|sensor|opener|remote|keypad|motor|repair|replace|install/i;
+const businessFollowupTerms = /price|cost|quote|estimate|coverage|service area|zip|hour|open|available|availability|schedule|appointment|book|arrival|warranty|guarantee|licensed|insured|credential|review|rating|payment|financing/i;
+const uncertaintyTerms = /(?:i (?:do not|don't|can(?:not|'t)) (?:know|confirm|verify|find|answer)|not (?:listed|confirmed|verified|available) (?:here|in the context)|the business (?:must|will need to) confirm)/i;
+
+function shouldRecommendServiceRequest(message: string, safetyLevel: "safe" | "caution" | "urgent", reply = "") {
+  const normalized = message.trim();
+  if (!normalized) return false;
+  if (/^(?:hi|hello|hey|good morning|good afternoon|good evening|thanks|thank you|thx|ty|how are you|how'?s it going)[!?. ]*$/i.test(normalized)) return false;
+  return safetyLevel === "urgent" ||
+    actionableGarageTerms.test(normalized) ||
+    businessFollowupTerms.test(normalized) ||
+    uncertaintyTerms.test(reply) ||
+    !garageIssueTerms.test(normalized);
+}
+
+function withServiceRequestGuidance(reply: string, recommended: boolean) {
+  if (!recommended || /service request/i.test(reply)) return reply;
+  return `${reply}\n\nIf you’d like the business to review the details, you can start a service request here.`;
+}
 
 function casualCustomerCareReply(message: string, businessName: string) {
   const normalized = message.trim().toLowerCase();
@@ -469,7 +488,7 @@ router.post("/garage/assistant", async (req, res) => {
       : "Service assessment";
     const casualReply = casualCustomerCareReply(parsed.data.message, settings.businessName);
     if (casualReply) {
-      return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment" });
+      return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment", serviceRequestRecommended: false });
     }
     const completion = await openai.chat.completions.create({
       model: "gpt-5.4-mini",
@@ -485,6 +504,7 @@ router.post("/garage/assistant", async (req, res) => {
             "Keep replies warm, concise, and practical: usually 2-5 short sentences. Ask only the next useful follow-up question, and never ask more than one question in a reply. When a visitor describes a problem, acknowledge it, give safe next steps, identify the most relevant verified service when possible, and invite them to start a service request without pressure.",
             "For greetings, thanks, or small talk, respond naturally before gently bringing the conversation back to the door. Never attach a caution or urgent framing to ordinary small talk. When the issue is unclear, offer a few relatable examples such as stuck, noisy, slow, uneven, or an opener that will not respond.",
             "For service discovery, connect the customer’s plain-language symptom to one relevant service instead of listing the whole catalog. For pricing, explain what is and is not verified and that the technician confirms the final price after diagnosis. For coverage, use only the exact verified service-area wording; otherwise say the business must confirm the customer’s ZIP. For timing, explain that a request is reviewed by the business and is not a confirmed appointment.",
+            "If the authoritative context does not answer the question, say plainly that you do not have that detail confirmed. Do not guess. Invite the customer to start a service request so the business can review it.",
             "When the customer would benefit from business follow-up, say plainly that they can start a service request. This should be an invitation to review and send details, never a claim that the request books an appointment automatically.",
             "Use only verified business context when it helps. A submitted request is not a confirmed appointment. Do not quote prices, durations, service coverage, or urgent availability unless the authoritative context explicitly marks that information verified.",
             "Prioritize creating a service request, but never pressure the customer. You may collect the issue, urgency, job location or ZIP, preferred timing, name, phone, and email. Do not promise an appointment, arrival time, final price, warranty, refund, or coverage that is not in the context.",
@@ -499,11 +519,13 @@ router.post("/garage/assistant", async (req, res) => {
         { role: "user", content: parsed.data.message },
       ],
     });
-    let reply = completion.choices[0]?.message?.content?.trim() ?? "I can help connect you with the right garage-door service.";
+    let reply = completion.choices[0]?.message?.content?.trim() ?? "I don’t have that information confirmed here.";
     if (safetyLevel === "urgent" && !/stop|do not|don't|keep .* clear|professional/i.test(reply)) {
       reply = `For safety, stop using the door and keep people, pets, and vehicles clear. Please arrange professional help rather than trying to move or repair it yourself.\n\n${reply}`;
     }
-    return res.json({ reply, safetyLevel, suggestedService });
+    const serviceRequestRecommended = shouldRecommendServiceRequest(parsed.data.message, safetyLevel, reply);
+    reply = withServiceRequestGuidance(reply, serviceRequestRecommended);
+    return res.json({ reply, safetyLevel, suggestedService, serviceRequestRecommended });
   } catch (error) {
     req.log.error({ error }, "Garage assistant failed");
     const fallbackConversation = [
@@ -521,7 +543,7 @@ router.post("/garage/assistant", async (req, res) => {
     const reply = fallbackSafetyLevel === "urgent"
       ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can start a service request for the business to review."
       : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or start a service request for the business to review.";
-    return res.json({ reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService });
+    return res.json({ reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService, serviceRequestRecommended: true });
   }
 });
 

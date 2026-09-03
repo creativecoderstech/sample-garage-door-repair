@@ -371,8 +371,9 @@ components:
         content: { type: string, minLength: 1, maxLength: 1000 }
     AssistantReply:
       type: object
-      required: [reply, safetyLevel, suggestedService]
+      required: [reply, safetyLevel, suggestedService, serviceRequestRecommended]
       properties:
         reply: { type: string }
         safetyLevel: { type: string, enum: [safe, caution, urgent] }
         suggestedService: { type: string }
+        serviceRequestRecommended: { type: boolean }

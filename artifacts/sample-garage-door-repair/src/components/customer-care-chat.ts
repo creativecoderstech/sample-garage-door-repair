@@ -183,11 +183,13 @@ export function useCustomerCareChat() {
             content: data.reply,
             safety: data.safetyLevel,
             service: data.suggestedService,
-            showServiceRequestLink: shouldOfferServiceRequestLink(
-              data.reply,
-              data.suggestedService,
-              data.safetyLevel,
-            ),
+            showServiceRequestLink:
+              data.serviceRequestRecommended ??
+              shouldOfferServiceRequestLink(
+                data.reply,
+                data.suggestedService,
+                data.safetyLevel,
+              ),
           });
         },
         onError: () => {

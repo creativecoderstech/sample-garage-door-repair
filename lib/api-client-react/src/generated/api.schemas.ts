@@ -289,6 +289,7 @@ export interface AssistantReply {
   reply: string;
   safetyLevel: AssistantReplySafetyLevel;
   suggestedService: string;
+  serviceRequestRecommended: boolean;
 }
 
 export type GetAvailabilityParams = {
