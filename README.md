@@ -6,12 +6,12 @@ Modern garage door repair sample application for Creative Coders.
 ```json
 {
   "schemaVersion": 1,
-  "runtime": "worker",
+  "runtime": "pages",
   "appDirectory": "artifacts/sample-garage-door-repair",
   "healthPath": "/",
   "commands": {
-    "build": "PORT=22004 BASE_PATH=/ pnpm --filter @workspace/sample-garage-door-repair run build",
-    "deploy": "wrangler deploy --config wrangler.client.json"
+    "build": "PORT=22004 BASE_PATH=/ pnpm --filter @workspace/sample-garage-door-repair run build:pages",
+    "deploy": "wrangler pages deploy dist/public --project-name sample-garage-door-repair"
   },
   "resources": {
     "d1": false,
@@ -20,11 +20,11 @@ Modern garage door repair sample application for Creative Coders.
     "ai": false,
     "email": false
   },
-  "worker": {
+  "pages": {
+    "project": "sample-garage-door-repair",
     "package": "@workspace/sample-garage-door-repair",
-    "entry": "cloudflare/worker.mjs",
     "assetsDirectory": "dist/public",
-    "assetsBinding": "ASSETS",
+    "functionsEntry": "dist/public/_worker.js",
     "bindings": {}
   }
 }

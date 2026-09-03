@@ -32,8 +32,8 @@ A customer-facing garage door repair website and operations admin with booking, 
 
 ## Deployment preference
 
-- When the user says “deploy,” first commit and push the code to GitHub, then deploy the GitHub-backed project to Cloudflare Workers using the documented Cloudflare production architecture.
-- Treat this GitHub-to-Cloudflare Workers flow as the default production deployment target; do not use Replit Deployments unless the user explicitly requests another platform.
+- When the user says “deploy,” first commit and push the code to GitHub, then deploy the GitHub-backed project to Cloudflare Pages with its advanced-mode Pages Function using the documented Cloudflare production architecture.
+- Treat this GitHub-to-Cloudflare Pages flow as the default production deployment target; keep the standalone Worker only as a rollback path and do not use Replit Deployments unless the user explicitly requests another platform.
 
 ## Architecture decisions
 
@@ -41,8 +41,8 @@ A customer-facing garage door repair website and operations admin with booking, 
 - The imported Sample Handyman application is the visual and feature reference; garage-door changes should adapt its content and safety workflows without introducing a separate design direction.
 - Media is admin-configurable through hosted image URLs now; R2 is the Cloudflare production upload target.
 - The AI assistant is constrained to safe intake guidance and must never coach customers through high-tension repairs.
-- API contracts remain provider-neutral so the Express preview adapter can be moved to Workers + D1 without redesigning the frontend.
-- The current Cloudflare demo Worker serves public customer APIs only. Staff leads, dashboard, request mutations, and full settings APIs deliberately return 501 until the Worker is connected to a protected persistent admin backend.
+- API contracts remain provider-neutral so the Express preview adapter can be moved to Pages Functions + D1 without redesigning the frontend.
+- The current Cloudflare Pages Function serves public customer APIs only. Staff leads, dashboard, request mutations, and full settings APIs deliberately return 501 until it is connected to a protected persistent admin backend.
 
 ## Product
 

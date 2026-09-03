@@ -185,7 +185,30 @@ const mimeTypes = {
   ".webp": "image/webp",
 };
 
-async function serveAsset(request, url, context) {
+function withAssetHeaders(response, assetPath) {
+  const headers = new Headers(response.headers);
+  headers.set(
+    "cache-control",
+    assetPath === "/index.html"
+      ? "public, max-age=60"
+      : "public, max-age=31536000, immutable",
+  );
+  headers.set(
+    "content-security-policy",
+    "frame-ancestors 'self' https://creativecoders.tech https://*.creativecoders.tech",
+  );
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("x-robots-tag", "noindex, nofollow, noarchive");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+async function serveAsset(request, url, context, env) {
   const requestPath =
     url.pathname === ARTIFACT_BASE_PATH
       ? "/"
@@ -194,6 +217,16 @@ async function serveAsset(request, url, context) {
         : url.pathname;
   const hasExtension = /\.[a-z0-9]+$/i.test(requestPath);
   const assetPath = requestPath === "/" || !hasExtension ? "/index.html" : requestPath;
+
+  if (env?.ASSETS) {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = assetPath;
+    const assetResponse = await env.ASSETS.fetch(
+      new Request(assetUrl, request),
+    );
+    return withAssetHeaders(assetResponse, assetPath);
+  }
+
   const sourceUrl = `${REPOSITORY}/${ASSET_REVISION}/${BUILD_ROOT}${assetPath}`;
   const cache = caches.default;
   const cacheKey = new Request(`${url.origin}${assetPath}?revision=${ASSET_REVISION}`, { method: "GET" });
@@ -208,23 +241,19 @@ async function serveAsset(request, url, context) {
     response = new Response(upstream.body, {
       headers: {
         "content-type": mimeTypes[extension] || upstream.headers.get("content-type") || "application/octet-stream",
-        "cache-control": assetPath === "/index.html" ? "public, max-age=60" : "public, max-age=31536000, immutable",
-        "content-security-policy": "frame-ancestors 'self' https://creativecoders.tech https://*.creativecoders.tech",
-        "x-content-type-options": "nosniff",
-        "x-robots-tag": "noindex, nofollow, noarchive",
-        "referrer-policy": "strict-origin-when-cross-origin",
       },
     });
+    response = withAssetHeaders(response, assetPath);
     context.waitUntil(cache.put(cacheKey, response.clone()));
   }
   return response;
 }
 
 export default {
-  async fetch(request, _env, context) {
+  async fetch(request, env, context) {
     const url = new URL(request.url);
     return url.pathname.startsWith("/api/")
       ? handleApi(request, url)
-      : serveAsset(request, url, context);
+      : serveAsset(request, url, context, env);
   },
 };

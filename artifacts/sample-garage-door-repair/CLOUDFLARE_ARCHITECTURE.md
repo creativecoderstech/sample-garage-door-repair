@@ -4,7 +4,7 @@ The application is organized around portable HTTP contracts so the same customer
 
 ## Target topology
 
-- **Cloudflare Workers + Static Assets** serve the Vite SPA globally.
+- **Cloudflare Pages + Pages Functions** serve the Vite SPA and public API globally.
 - **D1** stores service requests, business settings, theme choice, Creative Coders service ID, and media metadata.
 - **R2** stores business-uploaded hero and gallery photography. The current admin also accepts licensed stock-photo URLs, making the media surface usable before an R2 upload workflow is connected.
 - **Workers AI** is the production target for the safety-constrained garage-door assistant. Local preview uses Replit AI Integrations and does not require a user API key.
@@ -32,26 +32,27 @@ Create separate preview and production resources. Bind them with these names:
 - `DB`: D1 database
 - `MEDIA`: R2 bucket
 - `AI`: Workers AI
-- `ASSETS`: Worker static assets
+- `ASSETS`: Pages' built-in static asset binding
 
 Never commit Cloudflare IDs or secrets. Resource identifiers belong in deployment configuration and secrets belong in Cloudflare's encrypted secret store.
 
 ## Release procedure
 
-The Worker fetches immutable build assets from the GitHub revision recorded in
-`cloudflare/release.json`. A Git push does not promote the Worker by itself.
+The production target is the `sample-garage-door-repair` Cloudflare Pages
+project. Its advanced-mode Pages Function is generated as
+`dist/public/_worker.js`, and non-API requests are served through Pages'
+`ASSETS` binding.
 
-1. Build the web artifact with its production `PORT` and `BASE_PATH` values.
-2. Commit and push the generated `dist/public` bundle.
-3. Copy the full pushed Git SHA into both `cloudflare/release.json` and the
-   Worker's `ASSET_REVISION`.
-4. Run `pnpm run verify:cloudflare-release` from this artifact directory.
-5. Upload `cloudflare/worker.mjs` to the existing
-   `sample-garage-door-repair` Worker through the configured Cloudflare
-   connection.
-6. Verify `/`, `/sample-garage-door-repair/`, the generated JavaScript and CSS,
-   and representative public API responses on the attached production hostname.
+1. Run `PORT=22004 BASE_PATH=/ pnpm run build:pages` from this artifact
+   directory.
+2. Confirm `dist/public/_worker.js`, `index.html`, and the generated assets
+   exist.
+3. Commit and push the source changes to `main` for Git-connected deployments,
+   or run `wrangler pages deploy dist/public --project-name
+   sample-garage-door-repair` for a direct upload.
+4. Verify `/`, `/sample-garage-door-repair/`, generated JavaScript and CSS, and
+   representative public API responses on the Pages deployment.
 
-The Git revision belongs in source control because it is not a secret. Account
-IDs, zone IDs, API credentials, and other Cloudflare resource identifiers must
-remain outside the repository.
+The previous standalone Worker release metadata remains available only as a
+rollback path. Account IDs, zone IDs, API credentials, and other Cloudflare
+resource identifiers must remain outside the repository.
