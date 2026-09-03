@@ -13,9 +13,9 @@ import {
 
 const NAV_LINKS = [
   { id: 'services', label: 'Services', section: 'services' },
-  { id: 'service-area', label: 'Where I Work', section: 'serviceArea' },
   { id: 'gallery', label: 'Gallery', section: 'gallery' },
   { id: 'before-after', label: 'Before & After', section: 'beforeAfter' },
+  { id: 'service-area', label: 'Where I Work', section: 'serviceArea' },
   { id: 'faqs', label: 'FAQs', section: 'faqs' },
 ] as const;
 
@@ -42,11 +42,16 @@ export function SiteHeader() {
       animationFrame = requestAnimationFrame(() => {
         const marker = window.scrollY + 140 + window.innerHeight * 0.45;
         let current = '';
+        let currentTop = -Infinity;
 
         for (const link of NAV_LINKS) {
           const section = document.getElementById(getPublicSectionId(link.section));
-          if (section && section.offsetTop <= marker) {
+          if (!section) continue;
+
+          const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+          if (sectionTop <= marker && sectionTop > currentTop) {
             current = getPublicSectionId(link.section);
+            currentTop = sectionTop;
           }
         }
 
@@ -74,8 +79,6 @@ export function SiteHeader() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, section: PublicSection) => {
     e.preventDefault();
-    const id = getPublicSectionId(section);
-    setActiveSection(id);
     navigateToPublicSection(section);
   };
 
