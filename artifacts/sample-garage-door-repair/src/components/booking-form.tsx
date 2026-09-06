@@ -1,3 +1,4 @@
+import { clearServiceRequestDraft } from "@/lib/service-request-draft";
 import { useState, useRef, useEffect } from 'react';
 import { useCreateServiceRequest, type ServiceRequestInput } from '@workspace/api-client-react';
 import { z } from "zod";
@@ -257,7 +258,13 @@ export function BookingForm({ className = "" }: { className?: string }) {
           title: "Request Received!",
           description: "Your request was sent. The business must confirm coverage, timing, and any appointment.",
         });
-        form.reset();
+        clearServiceRequestDraft(window.sessionStorage);
+        setAssistantDraft(null);
+        form.reset({
+          customerName: "", phone: "", email: "", streetAddress: "", city: "",
+          state: "GA", zip: "", service: "repair", urgency: "flexible",
+          preferredDate: "", preferredTime: "", details: "",
+        });
         revokePreviews(photos);
         setPhotos([]);
         setVideos([]);

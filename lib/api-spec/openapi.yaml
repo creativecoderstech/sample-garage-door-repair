@@ -82,6 +82,75 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/PublicBusinessSettings" }
+  /garage/content:
+    get:
+      operationId: listGarageContent
+      tags: [public]
+      responses:
+        "200":
+          description: Published, publicly safe website content
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GarageContent" }
+  /garage/admin/content:
+    get:
+      operationId: listAdminGarageContent
+      tags: [admin]
+      responses:
+        "200":
+          description: All website content
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GarageContent" }
+    post:
+      operationId: createGarageContent
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GarageContentInput" }
+      responses:
+        "201":
+          description: Content created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageContent" }
+  /garage/admin/content/{id}:
+    put:
+      operationId: updateGarageContent
+      tags: [admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GarageContentInput" }
+      responses:
+        "200":
+          description: Content updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageContent" }
+    delete:
+      operationId: deleteGarageContent
+      tags: [admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        "204":
+          description: Content deleted
   /garage/requests:
     get:
       operationId: listServiceRequests
@@ -192,7 +261,7 @@ components:
         slug: { type: string }
         name: { type: string }
         description: { type: string }
-        startingPrice: { type: number }
+        startingPrice: { type: ["number", "null"] }
         duration: { type: string }
         emergency: { type: boolean }
     Testimonial:
@@ -239,6 +308,58 @@ components:
         zip: { type: string }
         eta: { type: string }
         message: { type: string }
+    GarageContent:
+      type: object
+      required: [id, kind, slug, aliases, title, summary, body, imageUrl, imageAlt, beforeImageUrl, seoTitle, seoDescription, parentId, sortOrder, status, verificationStatus, featured, serviceCode, updatedAt]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [page, service, location, article, faq, project, trust] }
+        slug: { type: string }
+        aliases:
+          type: array
+          items: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        body: { type: string }
+        imageUrl: { type: string }
+        imageAlt: { type: string }
+        beforeImageUrl: { type: string }
+        seoTitle: { type: string }
+        seoDescription: { type: string }
+        parentId: { type: ["string", "null"] }
+        sortOrder: { type: number, multipleOf: 1 }
+        status: { type: string, enum: [draft, published] }
+        verificationStatus: { type: string, enum: [unverified, verified] }
+        featured: { type: boolean }
+        serviceCode: { type: string }
+        updatedAt: { type: string }
+    GarageContentInput:
+      type: object
+      required: [kind, slug, aliases, title, summary, body, imageUrl, imageAlt, beforeImageUrl, seoTitle, seoDescription, sortOrder, status, verificationStatus, featured, serviceCode]
+      properties:
+        kind: { type: string, enum: [page, service, location, article, faq, project, trust] }
+        slug: { type: string, minLength: 1, maxLength: 100, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+        aliases:
+          type: array
+          maxItems: 25
+          uniqueItems: true
+          items: { type: string, minLength: 1, maxLength: 100, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+        title: { type: string, minLength: 1, maxLength: 160 }
+        summary: { type: string, maxLength: 500 }
+        body: { type: string, maxLength: 20000 }
+        imageUrl: { type: string, maxLength: 2048 }
+        imageAlt: { type: string, maxLength: 300 }
+        beforeImageUrl: { type: string, maxLength: 2048 }
+        seoTitle: { type: string, maxLength: 160 }
+        seoDescription: { type: string, maxLength: 320 }
+        parentId: { type: ["string", "null"], maxLength: 100 }
+        sortOrder: { type: number, multipleOf: 1, minimum: -100000, maximum: 100000 }
+        status: { type: string, enum: [draft, published] }
+        verificationStatus: { type: string, enum: [unverified, verified] }
+        featured: { type: boolean }
+        serviceCode: { type: string, maxLength: 100, pattern: "^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$" }
+        verificationAcknowledged:
+          type: boolean
     ServiceRequest:
       type: object
       required: [id, customerName, phone, email, streetAddress, city, state, zip, service, urgency, status, preferredDate, preferredTime, createdAt]
@@ -295,7 +416,7 @@ components:
           items: { $ref: "#/components/schemas/ServiceRequest" }
     BusinessSettings:
       type: object
-      required: [businessName, phone, email, serviceArea, theme, serviceId, emergencyEnabled, heroImage, galleryImages]
+      required: [businessName, phone, email, serviceArea, theme, serviceId, emergencyEnabled, heroImage, galleryImages, verificationStatus, trustProfile]
       properties:
         businessName: { type: string }
         phone: { type: string }
@@ -308,6 +429,8 @@ components:
         galleryImages:
           type: array
           items: { type: string }
+        verificationStatus: { type: string, enum: [verified, unverified] }
+        trustProfile: { $ref: "#/components/schemas/PublicTrustProfile" }
     PublicBusinessSettings:
       type: object
       required: [businessName, phone, email, serviceArea, theme, emergencyEnabled, heroImage, galleryImages, verificationStatus, trustProfile]
@@ -353,6 +476,9 @@ components:
         galleryImages:
           type: array
           items: { type: string }
+        verificationStatus: { type: string, enum: [verified, unverified] }
+        verificationAcknowledged: { type: boolean }
+        trustProfile: { $ref: "#/components/schemas/PublicTrustProfile" }
     AssistantInput:
       type: object
       required: [message]

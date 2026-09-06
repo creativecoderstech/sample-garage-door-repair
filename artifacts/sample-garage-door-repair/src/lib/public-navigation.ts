@@ -1,3 +1,5 @@
+import { activePublicBasePath } from "./asset-url";
+
 export const PUBLIC_SECTION_IDS = {
   services: "services",
   serviceArea: "service-area",
@@ -15,12 +17,19 @@ export function getPublicSectionId(section: PublicSection) {
   return PUBLIC_SECTION_IDS[section];
 }
 
-export function getPublicSectionHref(section: PublicSection) {
-  return `${import.meta.env.BASE_URL}#${getPublicSectionId(section)}`;
+export function getPublicSectionRouterHref(section: PublicSection) {
+  switch (section) {
+    case "services": return "/services";
+    case "serviceArea": return "/service-area";
+    case "gallery": return "/gallery";
+    case "beforeAfter": return "/gallery#before-after";
+    case "booking": return "/#booking";
+    case "faqs": return "/faqs";
+  }
 }
 
-export function getPublicSectionRouterHref(section: PublicSection) {
-  return `/#${getPublicSectionId(section)}`;
+export function getPublicSectionHref(section: PublicSection) {
+  return `${activePublicBasePath()}${getPublicSectionRouterHref(section)}`;
 }
 
 export function scrollToPublicSectionId(id: string, behavior: ScrollBehavior = "smooth") {
@@ -41,17 +50,25 @@ export function scrollToPublicSection(section: PublicSection, behavior: ScrollBe
 export function navigateToPublicSection(section: PublicSection, behavior: ScrollBehavior = "smooth") {
   if (typeof window === "undefined") return;
 
-  const id = getPublicSectionId(section);
-  const basePath = new URL(import.meta.env.BASE_URL, window.location.origin).pathname.replace(/\/$/, "") || "/";
+  const href = getPublicSectionRouterHref(section);
+  const basePath = activePublicBasePath() || "/";
   const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+  
+  const [path, hash] = href.split('#');
+  
+  const targetPath = `${basePath === "/" ? "" : basePath}${path}`;
 
-  if (currentPath !== basePath) {
-    window.location.assign(`${basePath === "/" ? "/" : `${basePath}/`}#${id}`);
+  if (currentPath !== (targetPath.replace(/\/$/, "") || "/")) {
+    window.location.assign(hash ? `${targetPath}#${hash}` : targetPath);
     return;
   }
 
-  if (window.location.hash !== `#${id}`) {
-    window.history.pushState(null, "", `#${id}`);
+  if (hash) {
+    if (window.location.hash !== `#${hash}`) {
+      window.history.pushState(null, "", `#${hash}`);
+    }
+    scrollToPublicSectionId(hash, behavior);
+  } else {
+    window.scrollTo({ top: 0, behavior });
   }
-  scrollToPublicSection(section, behavior);
 }

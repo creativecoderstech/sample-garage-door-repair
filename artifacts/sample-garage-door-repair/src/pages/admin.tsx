@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { ServiceRequestUpdateStatus } from "@workspace/api-client-react";
 
 import AdminSettingsPage from './admin-settings';
+import AdminContentPage from './admin-content';
 import { 
   useListFaqs, useSaveFaq, useDeleteFaq, 
   useListTasks, useSaveTask, useDeleteTask, 
@@ -62,6 +63,10 @@ type AdminTab =
   | 'gallery'
   | 'faqs'
   | 'services'
+  | 'pages'
+  | 'locations'
+  | 'blog'
+  | 'trust'
   | 'reviews'
   | 'settings'
   | 'users';
@@ -75,6 +80,10 @@ const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> 
   gallery: { title: 'Gallery', description: 'Curate the garage-door project photography customers see online.' },
   faqs: { title: 'FAQs', description: 'Keep customer answers accurate, useful, and safety focused.' },
   services: { title: 'Services', description: 'Maintain your service catalog, starting prices, and publishing status.' },
+  pages: { title: 'Pages', description: 'Manage standalone and core website page content.' },
+  locations: { title: 'Locations', description: 'Publish accurate service-area landing pages.' },
+  blog: { title: 'Blog', description: 'Create educational articles and homeowner guidance.' },
+  trust: { title: 'Trust', description: 'Verify business facts, credentials, warranties, and trust copy before publishing.' },
   reviews: { title: 'Reviews', description: 'Manage Google review previews and testimonials collected on your site.' },
   settings: { title: 'Site settings', description: 'Configure your storefront, photography, and operational preferences.' },
   users: { title: 'Users', description: 'Manage staff access and operating roles.' },
@@ -84,7 +93,7 @@ const adminCardClass = 'phi-admin-card border-2 border-slate-200 bg-white dark:b
 export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>(() => {
     const requestedTab = window.location.hash.slice(1) as AdminTab;
-    const availableTabs: AdminTab[] = ['overview', 'service-requests', 'bookings', 'chats', 'tasks', 'gallery', 'faqs', 'services', 'reviews', 'settings', 'users'];
+    const availableTabs: AdminTab[] = ['overview', 'service-requests', 'bookings', 'chats', 'tasks', 'gallery', 'faqs', 'services', 'pages', 'locations', 'blog', 'trust', 'reviews', 'settings', 'users'];
     return availableTabs.includes(requestedTab) ? requestedTab : 'overview';
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -106,10 +115,14 @@ export default function AdminPage() {
     {
       title: 'Website',
       items: [
+        { id: 'pages', label: 'Pages', icon: LayoutGrid },
         { id: 'services', label: 'Services', icon: Wrench },
+        { id: 'locations', label: 'Locations', icon: MapPin },
+        { id: 'blog', label: 'Blog', icon: Edit2 },
         { id: 'gallery', label: 'Gallery', icon: ImageIcon },
         { id: 'tasks', label: 'Before & after', icon: SplitSquareHorizontal },
         { id: 'faqs', label: 'FAQs', icon: HelpCircle },
+        { id: 'trust', label: 'Trust', icon: CheckCircle2 },
         { id: 'reviews', label: 'Reviews', icon: Star },
       ]
     },
@@ -234,15 +247,23 @@ export default function AdminPage() {
       <main className="phi-admin-main flex-1 overflow-x-hidden">
         <div className="w-full max-w-[var(--phi-content)]">
            <AdminPageHeader title={ADMIN_PAGE_COPY[tab].title} description={ADMIN_PAGE_COPY[tab].description} userEmail={userEmail} />
+         <div className="mb-[var(--phi-space-4)] flex items-start gap-3 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100" role="alert">
+           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+           <div><p className="text-sm font-bold">LOCAL DEMO ADMIN — no authentication</p><p className="text-xs leading-5">Anyone with this development URL can change content. Do not enter real customer, employee, business, credential, or financial data. Production admin access is disabled until staff authorization is configured.</p></div>
+         </div>
         {tab === 'overview' ? <OverviewTab setTab={setTab} pendingCount={pendingCount} dashboard={dashboard} /> :
          tab === 'settings' ? <AdminSettingsPage /> :
          tab === 'service-requests' ? <ServiceRequestsAdmin /> :
-         tab === 'faqs' ? <FaqsAdmin /> :
-         tab === 'tasks' ? <TasksAdmin /> :
+          tab === 'faqs' ? <AdminContentPage kind="faq" /> :
+          tab === 'tasks' ? <AdminContentPage kind="project" /> :
          tab === 'bookings' ? <BookingsAdmin setTab={setTab} /> :
          tab === 'chats' ? <ChatsAdmin /> :
-         tab === 'gallery' ? <GalleryAdmin /> :
-         tab === 'services' ? <ServicesAdmin /> :
+          tab === 'gallery' ? <AdminContentPage kind="project" /> :
+          tab === 'services' ? <AdminContentPage kind="service" /> :
+          tab === 'pages' ? <AdminContentPage kind="page" /> :
+          tab === 'locations' ? <AdminContentPage kind="location" /> :
+          tab === 'blog' ? <AdminContentPage kind="article" /> :
+          tab === 'trust' ? <AdminContentPage kind="trust" /> :
          tab === 'reviews' ? <ReviewsAdmin /> :
          <UsersAdmin />
         }

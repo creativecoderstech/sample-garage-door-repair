@@ -3,6 +3,8 @@ import { useAskGarageAssistant, useGetPublicBusinessSettings } from "@workspace/
 import type { AssistantInput, AssistantReply } from "@workspace/api-client-react";
 import { navigateToPublicSection } from "@/lib/public-navigation";
 import { getInvisibleTurnstileToken } from "@/lib/cloudflare-turnstile";
+import { readServiceRequestDraft, SERVICE_REQUEST_DRAFT_KEY, type ServiceRequestDraft } from "@/lib/service-request-draft";
+export type { ServiceRequestDraft } from "@/lib/service-request-draft";
 
 export type CustomerCareMessage = {
   role: "user" | "assistant";
@@ -12,11 +14,6 @@ export type CustomerCareMessage = {
   showServiceRequestLink?: boolean;
 };
 
-export type ServiceRequestDraft = {
-  service: string;
-  urgency: "emergency" | "soon" | "flexible";
-  details: string;
-};
 
 export const CUSTOMER_CARE_NAME = "Maya";
 export const SERVICE_REQUEST_DRAFT_EVENT = "garage-service-request-draft";
@@ -59,13 +56,8 @@ function toBookingService(service?: string) {
 export function consumeServiceRequestDraft(): Partial<ServiceRequestDraft> | null {
   if (typeof window === "undefined") return null;
   try {
-    const saved = sessionStorage.getItem("garage_service_request_draft");
-    if (!saved) return null;
-    sessionStorage.removeItem("garage_service_request_draft");
-    const draft = JSON.parse(saved) as Partial<ServiceRequestDraft>;
-    return typeof draft.details === "string" ? draft : null;
+    return readServiceRequestDraft(window.sessionStorage);
   } catch {
-    sessionStorage.removeItem("garage_service_request_draft");
     return null;
   }
 }
@@ -191,7 +183,7 @@ export function useCustomerCareChat() {
       urgency: messages.some((message) => message.safety === "urgent") ? "emergency" : "flexible",
       details: `Started with customer care.\n\n${transcript}`,
     };
-    sessionStorage.setItem("garage_service_request_draft", JSON.stringify(draft));
+    sessionStorage.setItem(SERVICE_REQUEST_DRAFT_KEY, JSON.stringify(draft));
     window.dispatchEvent(new CustomEvent(SERVICE_REQUEST_DRAFT_EVENT, { detail: draft }));
     navigateToPublicSection("booking");
   };

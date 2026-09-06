@@ -14,7 +14,8 @@ export interface GarageService {
   slug: string;
   name: string;
   description: string;
-  startingPrice: number;
+  /** @nullable */
+  startingPrice: number | null;
   duration: string;
   emergency: boolean;
 }
@@ -87,6 +88,142 @@ export interface Availability {
   zip: string;
   eta: string;
   message: string;
+}
+
+export type GarageContentKind = typeof GarageContentKind[keyof typeof GarageContentKind];
+
+
+export const GarageContentKind = {
+  page: 'page',
+  service: 'service',
+  location: 'location',
+  article: 'article',
+  faq: 'faq',
+  project: 'project',
+  trust: 'trust',
+} as const;
+
+export type GarageContentStatus = typeof GarageContentStatus[keyof typeof GarageContentStatus];
+
+
+export const GarageContentStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+export type GarageContentVerificationStatus = typeof GarageContentVerificationStatus[keyof typeof GarageContentVerificationStatus];
+
+
+export const GarageContentVerificationStatus = {
+  unverified: 'unverified',
+  verified: 'verified',
+} as const;
+
+export interface GarageContent {
+  id: string;
+  kind: GarageContentKind;
+  slug: string;
+  aliases: string[];
+  title: string;
+  summary: string;
+  body: string;
+  imageUrl: string;
+  imageAlt: string;
+  beforeImageUrl: string;
+  seoTitle: string;
+  seoDescription: string;
+  /** @nullable */
+  parentId: string | null;
+  sortOrder: number;
+  status: GarageContentStatus;
+  verificationStatus: GarageContentVerificationStatus;
+  featured: boolean;
+  serviceCode: string;
+  updatedAt: string;
+}
+
+export type GarageContentInputKind = typeof GarageContentInputKind[keyof typeof GarageContentInputKind];
+
+
+export const GarageContentInputKind = {
+  page: 'page',
+  service: 'service',
+  location: 'location',
+  article: 'article',
+  faq: 'faq',
+  project: 'project',
+  trust: 'trust',
+} as const;
+
+export type GarageContentInputStatus = typeof GarageContentInputStatus[keyof typeof GarageContentInputStatus];
+
+
+export const GarageContentInputStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+export type GarageContentInputVerificationStatus = typeof GarageContentInputVerificationStatus[keyof typeof GarageContentInputVerificationStatus];
+
+
+export const GarageContentInputVerificationStatus = {
+  unverified: 'unverified',
+  verified: 'verified',
+} as const;
+
+export interface GarageContentInput {
+  kind: GarageContentInputKind;
+  /**
+     * @minLength 1
+     * @maxLength 100
+     * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+     */
+  slug: string;
+  /**
+     * @maxItems 25
+     * @items.minLength 1
+     * @items.maxLength 100
+     * @items.pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+     */
+  aliases: string[];
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  title: string;
+  /** @maxLength 500 */
+  summary: string;
+  /** @maxLength 20000 */
+  body: string;
+  /** @maxLength 2048 */
+  imageUrl: string;
+  /** @maxLength 300 */
+  imageAlt: string;
+  /** @maxLength 2048 */
+  beforeImageUrl: string;
+  /** @maxLength 160 */
+  seoTitle: string;
+  /** @maxLength 320 */
+  seoDescription: string;
+  /**
+     * @maxLength 100
+     * @nullable
+     */
+  parentId?: string | null;
+  /**
+     * @minimum -100000
+     * @maximum 100000
+     */
+  sortOrder: number;
+  status: GarageContentInputStatus;
+  verificationStatus: GarageContentInputVerificationStatus;
+  featured: boolean;
+  /**
+     * @maxLength 100
+     * @pattern ^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$
+     */
+  serviceCode: string;
+  verificationAcknowledged?: boolean;
 }
 
 export type ServiceRequestUrgency = typeof ServiceRequestUrgency[keyof typeof ServiceRequestUrgency];
@@ -185,22 +322,10 @@ export interface DashboardSummary {
   requests: ServiceRequest[];
 }
 
-export interface BusinessSettings {
-  businessName: string;
-  phone: string;
-  email: string;
-  serviceArea: string;
-  theme: string;
-  serviceId: string;
-  emergencyEnabled: boolean;
-  heroImage: string;
-  galleryImages: string[];
-}
-
-export type PublicBusinessSettingsVerificationStatus = typeof PublicBusinessSettingsVerificationStatus[keyof typeof PublicBusinessSettingsVerificationStatus];
+export type BusinessSettingsVerificationStatus = typeof BusinessSettingsVerificationStatus[keyof typeof BusinessSettingsVerificationStatus];
 
 
-export const PublicBusinessSettingsVerificationStatus = {
+export const BusinessSettingsVerificationStatus = {
   verified: 'verified',
   unverified: 'unverified',
 } as const;
@@ -224,6 +349,28 @@ export interface PublicTrustProfile {
   warranty: string | null;
 }
 
+export interface BusinessSettings {
+  businessName: string;
+  phone: string;
+  email: string;
+  serviceArea: string;
+  theme: string;
+  serviceId: string;
+  emergencyEnabled: boolean;
+  heroImage: string;
+  galleryImages: string[];
+  verificationStatus: BusinessSettingsVerificationStatus;
+  trustProfile: PublicTrustProfile;
+}
+
+export type PublicBusinessSettingsVerificationStatus = typeof PublicBusinessSettingsVerificationStatus[keyof typeof PublicBusinessSettingsVerificationStatus];
+
+
+export const PublicBusinessSettingsVerificationStatus = {
+  verified: 'verified',
+  unverified: 'unverified',
+} as const;
+
 export interface PublicBusinessSettings {
   businessName: string;
   phone: string;
@@ -237,6 +384,14 @@ export interface PublicBusinessSettings {
   trustProfile: PublicTrustProfile;
 }
 
+export type BusinessSettingsInputVerificationStatus = typeof BusinessSettingsInputVerificationStatus[keyof typeof BusinessSettingsInputVerificationStatus];
+
+
+export const BusinessSettingsInputVerificationStatus = {
+  verified: 'verified',
+  unverified: 'unverified',
+} as const;
+
 export interface BusinessSettingsInput {
   businessName?: string;
   phone?: string;
@@ -247,6 +402,9 @@ export interface BusinessSettingsInput {
   emergencyEnabled?: boolean;
   heroImage?: string;
   galleryImages?: string[];
+  verificationStatus?: BusinessSettingsInputVerificationStatus;
+  verificationAcknowledged?: boolean;
+  trustProfile?: PublicTrustProfile;
 }
 
 export type AssistantMessageRole = typeof AssistantMessageRole[keyof typeof AssistantMessageRole];

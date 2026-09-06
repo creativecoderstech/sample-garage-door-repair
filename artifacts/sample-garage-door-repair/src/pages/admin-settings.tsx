@@ -1,15 +1,16 @@
-import { useGetBusinessSettings, useUpdateBusinessSettings, getGetBusinessSettingsQueryKey } from "@workspace/api-client-react";
+import { useGetBusinessSettings, useUpdateBusinessSettings, getGetBusinessSettingsQueryKey, getGetPublicBusinessSettingsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { ShieldAlert, Store, Palette, Save, Loader2, Images, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, ShieldCheck, Store, Palette, Save, Loader2, Images, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { THEMES, type ThemeOption } from "@/lib/theme-options";
@@ -27,6 +28,17 @@ const settingsSchema = z.object({
   theme: z.string(),
   serviceId: z.string().min(1, "Service ID is required"),
   emergencyEnabled: z.boolean(),
+  verificationAcknowledged: z.boolean(),
+  trustProfile: z.object({
+    hours: z.string().max(500),
+    ownerTeam: z.string().max(500),
+    yearsInBusiness: z.string().max(500),
+    brandsServiced: z.string().max(500),
+    paymentOptions: z.string().max(500),
+    financing: z.string().max(500),
+    licenseInsurance: z.string().max(500),
+    warranty: z.string().max(500),
+  }),
   heroImage: imageLocation,
   galleryImagesText: z.string().superRefine((value, context) => {
     const invalid = value
@@ -79,7 +91,8 @@ function ThemePreview({ theme }: { theme: ThemeOption }) {
 }
 
 export default function AdminSettingsPage() {
-  const { data: settings, isLoading } = useGetBusinessSettings();
+  const settingsQuery = useGetBusinessSettings({ query: { queryKey: getGetBusinessSettingsQueryKey(), staleTime: 0, refetchOnMount: "always", refetchOnWindowFocus: true } });
+  const { data: settings, isLoading, isError, error } = settingsQuery;
   const updateSettings = useUpdateBusinessSettings();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -95,6 +108,17 @@ export default function AdminSettingsPage() {
       theme: "industrial",
       serviceId: "",
       emergencyEnabled: false,
+      verificationAcknowledged: false,
+      trustProfile: {
+        hours: "",
+        ownerTeam: "",
+        yearsInBusiness: "",
+        brandsServiced: "",
+        paymentOptions: "",
+        financing: "",
+        licenseInsurance: "",
+        warranty: "",
+      },
       heroImage: "",
       galleryImagesText: "",
     },
@@ -110,32 +134,78 @@ export default function AdminSettingsPage() {
         theme: settings.theme,
         serviceId: settings.serviceId,
         emergencyEnabled: settings.emergencyEnabled,
+        verificationAcknowledged: false,
+        trustProfile: {
+          hours: settings.trustProfile.hours ?? "",
+          ownerTeam: settings.trustProfile.ownerTeam ?? "",
+          yearsInBusiness: settings.trustProfile.yearsInBusiness ?? "",
+          brandsServiced: settings.trustProfile.brandsServiced ?? "",
+          paymentOptions: settings.trustProfile.paymentOptions ?? "",
+          financing: settings.trustProfile.financing ?? "",
+          licenseInsurance: settings.trustProfile.licenseInsurance ?? "",
+          warranty: settings.trustProfile.warranty ?? "",
+        },
         heroImage: settings.heroImage,
         galleryImagesText: settings.galleryImages.join("\n"),
       });
     }
   }, [settings, form]);
 
+  useEffect(() => {
+    const subscription = form.watch((_values, { name }) => {
+      const changesVerifiedFact = Boolean(name && (
+        ["businessName", "phone", "email", "serviceArea", "emergencyEnabled"].includes(name)
+        || name.startsWith("trustProfile.")
+      ));
+      if (changesVerifiedFact && form.getValues("verificationAcknowledged")) {
+        form.setValue("verificationAcknowledged", false, { shouldDirty: true });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   const onSubmit = (values: SettingsFormValues) => {
     setIsSaving(true);
-    const { galleryImagesText, ...settingsValues } = values;
+    const { galleryImagesText, verificationAcknowledged, trustProfile, ...settingsValues } = values;
+    const dirty = form.formState.dirtyFields;
+    const sensitiveChanged = Boolean(dirty.businessName || dirty.phone || dirty.email || dirty.serviceArea || dirty.emergencyEnabled || dirty.trustProfile);
+    const verificationStatus = verificationAcknowledged
+      ? "verified"
+      : sensitiveChanged
+        ? "unverified"
+        : settings?.verificationStatus ?? "unverified";
     updateSettings.mutate({ data: {
       ...settingsValues,
       galleryImages: galleryImagesText.split("\n").map((url) => url.trim()).filter(Boolean),
+      verificationStatus,
+      ...(verificationAcknowledged ? { verificationAcknowledged: true } : {}),
+      trustProfile: {
+        hours: trustProfile.hours.trim() || null,
+        ownerTeam: trustProfile.ownerTeam.trim() || null,
+        yearsInBusiness: trustProfile.yearsInBusiness.trim() || null,
+        brandsServiced: trustProfile.brandsServiced.trim() || null,
+        paymentOptions: trustProfile.paymentOptions.trim() || null,
+        financing: trustProfile.financing.trim() || null,
+        licenseInsurance: trustProfile.licenseInsurance.trim() || null,
+        warranty: trustProfile.warranty.trim() || null,
+      },
     } }, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetBusinessSettingsQueryKey() });
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: getGetBusinessSettingsQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getGetPublicBusinessSettingsQueryKey() }),
+        ]);
         toast({
           title: "Settings saved",
           description: "Business configuration has been updated successfully.",
         });
-        setTimeout(() => setIsSaving(false), 500);
+        setIsSaving(false);
       },
-      onError: () => {
+      onError: (saveError) => {
         setIsSaving(false);
         toast({
-          title: "Error",
-          description: "Failed to save settings. Please try again.",
+          title: "Settings were not saved",
+          description: saveError instanceof Error ? saveError.message : "The server could not save settings. Please try again.",
           variant: "destructive"
         });
       }
@@ -150,7 +220,24 @@ export default function AdminSettingsPage() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="rounded-xl border-2 border-red-200 bg-red-50 p-6 text-red-900 dark:border-red-900 dark:bg-red-950/30 dark:text-red-100">
+        <h2 className="font-display text-xl font-bold">Settings could not be loaded</h2>
+        <p className="mt-2 text-sm">{error instanceof Error ? error.message : "The server returned an unknown error."}</p>
+        <Button className="mt-4" variant="outline" onClick={() => settingsQuery.refetch()}>Try again</Button>
+      </div>
+    );
+  }
+
   const selectedTheme = form.watch("theme");
+  const dirty = form.formState.dirtyFields;
+  const sensitiveChanged = Boolean(dirty.businessName || dirty.phone || dirty.email || dirty.serviceArea || dirty.emergencyEnabled || dirty.trustProfile);
+  const displayedVerification = form.watch("verificationAcknowledged")
+    ? "verified"
+    : sensitiveChanged
+      ? "unverified"
+      : settings?.verificationStatus ?? "unverified";
 
   return (
     <div className="phi-admin-settings">
@@ -161,15 +248,19 @@ export default function AdminSettingsPage() {
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Workspace configuration</p>
               <div className="mt-1 flex flex-wrap items-center gap-3">
                 <h2 className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">Business controls</h2>
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">4 sections</span>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">5 sections</span>
               </div>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Keep the public identity, photography, visual theme, and dispatch settings aligned from one detailed workspace.
               </p>
             </div>
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Configuration loaded
-            </span>
+            <div className="flex flex-wrap gap-2">
+              <span className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${displayedVerification === "verified" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300" : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200"}`}>
+                {displayedVerification === "verified" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
+                {displayedVerification === "verified" ? "Business facts verified" : "Business facts unverified"}
+              </span>
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">Loaded from database</span>
+            </div>
           </div>
 
           <div className="grid gap-[var(--phi-space-2)] sm:grid-cols-2 lg:grid-cols-4">
@@ -237,6 +328,56 @@ export default function AdminSettingsPage() {
                   <FormItem>
                     <FormLabel>Service Area Description</FormLabel>
                     <FormControl><Input {...field} placeholder="e.g. Greater Seattle Area" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="phi-admin-card border-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-display"><ShieldCheck className="h-5 w-5 text-primary"/> Verified Trust Profile</CardTitle>
+              <CardDescription>Only enter accurate, supportable public business facts. Leave a field blank rather than estimating or inventing details.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="phi-field-grid grid grid-cols-1 md:grid-cols-2">
+                {([
+                  ["hours", "Business hours"],
+                  ["ownerTeam", "Owner / team"],
+                  ["yearsInBusiness", "Years in business"],
+                  ["brandsServiced", "Brands serviced"],
+                  ["paymentOptions", "Payment options"],
+                  ["financing", "Financing"],
+                  ["licenseInsurance", "License & insurance"],
+                  ["warranty", "Warranty"],
+                ] as const).map(([name, label]) => (
+                  <FormField
+                    key={name}
+                    control={form.control}
+                    name={`trustProfile.${name}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{label}</FormLabel>
+                        <FormControl><Input {...field} placeholder="Leave blank if not confirmed" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+              <FormField
+                control={form.control}
+                name="verificationAcknowledged"
+                render={({ field }) => (
+                  <FormItem className={`rounded-xl border-2 p-4 ${field.value ? "border-emerald-300 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/20" : "border-amber-300 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/20"}`}>
+                    <div className="flex items-start gap-3">
+                      <FormControl><Checkbox checked={field.value} onCheckedChange={(value) => field.onChange(value === true)} /></FormControl>
+                      <div>
+                        <FormLabel className="font-bold">I verified these public business details</FormLabel>
+                        <FormDescription>I acknowledge that the identity, service area, availability, and trust facts are current and accurate. Changing any of those details resets verification until this is checked again and saved.</FormDescription>
+                      </div>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

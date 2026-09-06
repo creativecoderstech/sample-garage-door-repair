@@ -5,6 +5,8 @@
  * Garage door repair customer and operations API
  * OpenAPI spec version: 0.1.0
  */
+import type { BusinessSettingsVerificationStatus } from './businessSettingsVerificationStatus';
+import type { PublicTrustProfile } from './publicTrustProfile';
 
 export interface BusinessSettings {
   businessName: string;
@@ -16,4 +18,6 @@ export interface BusinessSettings {
   emergencyEnabled: boolean;
   heroImage: string;
   galleryImages: string[];
+  verificationStatus: BusinessSettingsVerificationStatus;
+  trustProfile: PublicTrustProfile;
 }

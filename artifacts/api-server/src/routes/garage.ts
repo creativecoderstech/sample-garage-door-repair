@@ -1,11 +1,15 @@
 import { Router, type IRouter } from "express";
-import { desc, eq, sql } from "drizzle-orm";
-import { db, businessSettings, garageAuditLogs, googleReviews, serviceRequests } from "@workspace/db";
+import { asc, desc, eq, sql } from "drizzle-orm";
+import { db, businessSettings, GARAGE_CORE_PAGE_SLUGS, garageAuditLogs, garageContent, googleReviews, isSafeGarageImageUrl, serviceRequests } from "@workspace/db";
 import {
   AskGarageAssistantBody,
+  CreateGarageContentBody,
   CreateServiceRequestBody,
+  DeleteGarageContentParams,
   GetAvailabilityQueryParams,
   UpdateBusinessSettingsBody,
+  UpdateGarageContentBody,
+  UpdateGarageContentParams,
   UpdateServiceRequestBody,
   UpdateServiceRequestParams,
 } from "@workspace/api-zod";
@@ -13,14 +17,22 @@ import { openai } from "@workspace/integrations-openai-ai-server";
 
 const router: IRouter = Router();
 
-const services = [
-  { id: 1, slug: "broken-spring", name: "Broken Spring Repair", description: "High-cycle torsion and extension spring replacement with a complete safety inspection.", startingPrice: 189, duration: "60–90 min", emergency: true },
-  { id: 2, slug: "opener-repair", name: "Opener Repair & Installation", description: "Quiet smart openers, remotes, keypads, sensors, gears, and motor diagnostics.", startingPrice: 149, duration: "60–120 min", emergency: false },
-  { id: 3, slug: "off-track-door", name: "Off-Track Door Rescue", description: "Safe realignment of rollers, tracks and cables before the door causes more damage.", startingPrice: 169, duration: "60–90 min", emergency: true },
-  { id: 4, slug: "new-door", name: "New Garage Door Installation", description: "Insulated steel, carriage-house and modern glass doors measured and installed precisely.", startingPrice: 1299, duration: "4–6 hours", emergency: false },
-  { id: 5, slug: "cable-roller", name: "Cable, Roller & Hinge Repair", description: "Restore smooth, quiet travel with matched hardware and professional balancing.", startingPrice: 129, duration: "45–90 min", emergency: true },
-  { id: 6, slug: "maintenance", name: "Safety Tune-Up", description: "A 25-point inspection, balance test, lubrication and safety-reversal verification.", startingPrice: 89, duration: "45 min", emergency: false },
-];
+// Keep the requested login-free development demo without exposing staff data
+// or write access from a production process. Real staff authorization is a
+// separate prerequisite for enabling production administration.
+router.use((req, res, next) => {
+  const path = req.path.replace(/\/+$/, "");
+  const staffRoute = path === "/garage/admin" || path.startsWith("/garage/admin/") ||
+    path === "/garage/settings" || path === "/garage/dashboard" ||
+    path.startsWith("/garage/requests/") ||
+    (path === "/garage/requests" && req.method !== "POST") ||
+    (path === "/garage/media" && req.method !== "GET");
+  if (staffRoute && process.env.NODE_ENV !== "development") {
+    res.status(403).json({ error: "Production administration is disabled until staff authorization is configured. Use the local demo only." });
+    return;
+  }
+  next();
+});
 
 const testimonials: Array<{
   id: number;
@@ -171,6 +183,11 @@ const defaultSettings = {
     "/images/garage/gallery/garage-wood-panel.jpg",
     "/images/garage/gallery/garage-interior-ev.jpg",
   ],
+  verificationStatus: "unverified" as const,
+  trustProfile: {
+    hours: null, ownerTeam: null, yearsInBusiness: null, brandsServiced: null,
+    paymentOptions: null, financing: null, licenseInsurance: null, warranty: null,
+  },
 };
 
 const legacyHeroImage =
@@ -202,47 +219,21 @@ const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect)
   ),
 });
 
-const getPublicIdentity = () => ({
-    businessName: process.env.PUBLIC_BUSINESS_NAME?.trim() || "",
-    phone: process.env.PUBLIC_BUSINESS_PHONE?.trim() || "",
-    email: process.env.PUBLIC_BUSINESS_EMAIL?.trim() || "",
-    serviceArea: process.env.PUBLIC_SERVICE_AREA?.trim() || "",
-});
-
-const isPublicBusinessVerified = () =>
-    process.env.PUBLIC_BUSINESS_VERIFIED === "true" &&
-    Object.values(getPublicIdentity()).every(Boolean);
-
-const isPublicServiceCatalogVerified = () =>
-  isPublicBusinessVerified() &&
-  process.env.PUBLIC_SERVICE_CATALOG_VERIFIED === "true";
-
 const toPublicSettings = (
   settings: typeof businessSettings.$inferSelect | typeof defaultSettings,
 ) => {
-  const publicIdentity = getPublicIdentity();
-  const verified = isPublicBusinessVerified();
-  const trustValue = (key: string) => verified ? process.env[key]?.trim() || null : null;
+  const verified = settings.verificationStatus === "verified";
   return {
-  businessName: verified ? publicIdentity.businessName : "Garage Door Service Preview",
-  phone: verified ? publicIdentity.phone : "",
-  email: verified ? publicIdentity.email : "",
-  serviceArea: verified ? publicIdentity.serviceArea : "Service area awaiting verification",
+  businessName: verified ? settings.businessName : "Garage Door Service Preview",
+  phone: verified ? settings.phone : "",
+  email: verified ? settings.email : "",
+  serviceArea: verified ? settings.serviceArea : "Service area awaiting verification",
   theme: settings.theme,
-  emergencyEnabled: verified && process.env.PUBLIC_PRIORITY_REQUESTS_ENABLED === "true",
+  emergencyEnabled: verified && settings.emergencyEnabled,
   heroImage: settings.heroImage,
   galleryImages: settings.galleryImages,
   verificationStatus: verified ? "verified" as const : "unverified" as const,
-  trustProfile: {
-    hours: trustValue("PUBLIC_BUSINESS_HOURS"),
-    ownerTeam: trustValue("PUBLIC_OWNER_TEAM"),
-    yearsInBusiness: trustValue("PUBLIC_YEARS_IN_BUSINESS"),
-    brandsServiced: trustValue("PUBLIC_BRANDS_SERVICED"),
-    paymentOptions: trustValue("PUBLIC_PAYMENT_OPTIONS"),
-    financing: trustValue("PUBLIC_FINANCING_DETAILS"),
-    licenseInsurance: trustValue("PUBLIC_LICENSE_INSURANCE"),
-    warranty: trustValue("PUBLIC_WARRANTY_DETAILS"),
-  },
+  trustProfile: verified ? settings.trustProfile : defaultSettings.trustProfile,
   };
 };
 
@@ -268,16 +259,22 @@ async function getCustomerCareContext() {
   const emergencyGuidance = settings.emergencyEnabled
     ? "Priority help is enabled for urgent door problems; never promise a specific arrival time."
     : "Urgent-service availability is not verified; never imply that priority or after-hours service is available.";
-  const serviceCatalogVerified = isPublicServiceCatalogVerified();
-  const serviceLines = serviceCatalogVerified
-    ? services
-        .map((service) => `- ${service.name} (${service.slug}): ${service.description} Published starting estimate $${service.startingPrice}; typical duration ${service.duration}. Final price and timing still require confirmation.`)
-        .join("\n")
-    : "- No public service catalog is verified. Discuss only general garage-door safety and the request process; do not claim this business offers a particular service.";
+  const publishedRows = await db.select().from(garageContent).where(eq(garageContent.status, "published")).orderBy(asc(garageContent.sortOrder));
+  const publicContent = publishedRows.map(toPublicContent).filter((item): item is NonNullable<typeof item> => item !== null);
+  const serviceContent = publicContent.filter((item) => item.kind === "service");
+  const serviceCatalogVerified = serviceContent.some((item) => item.verificationStatus === "verified");
+  const serviceLines = serviceContent.length
+    ? serviceContent.map((service) => `- ${service.title} (${service.serviceCode || service.slug}): ${service.summary} ${service.body}`).join("\n")
+    : "- No public service guidance is published. Discuss only general garage-door safety and the request process.";
   const faqLines = customerCareFaqs.map(([question, answer]) => `- ${question}: ${answer}`).join("\n");
+  const contentLines = publicContent
+    .filter((item) => ["service", "faq", "trust"].includes(item.kind))
+    .map((item) => `- ${item.title}: ${item.summary} ${item.body}`)
+    .join("\n");
 
   return {
     settings,
+    serviceCodes: new Set(serviceContent.map((item) => item.serviceCode).filter(Boolean)),
     text: [
       "AUTHORITATIVE WEBSITE AND BUSINESS CONTEXT — use only these facts.",
       `Business: ${settings.businessName}`,
@@ -287,12 +284,14 @@ async function getCustomerCareContext() {
       `Emergency setting: ${settings.emergencyEnabled ? "enabled" : "not enabled"}. ${emergencyGuidance}`,
       "Response expectation: a submitted request is not a confirmed appointment. Do not promise response or arrival timing.",
       "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Photos and videos remain local on the customer's device until they choose to share them.",
-      `Service catalog verification: ${serviceCatalogVerified ? "verified for published starting estimates and typical durations" : "not verified; do not quote any price, duration, or availability from internal service data"}.`,
+      `Business service-offering verification: ${serviceCatalogVerified ? "at least one published service record is verified" : "not verified; service records are educational guidance only and do not establish an offering, price, duration, or availability"}.`,
       "Estimate policy: technicians inspect the system and explain options before work; do not promise a free estimate unless the website context says so.",
       "Services:",
       serviceLines,
       "Frequently asked questions:",
       faqLines,
+      "Published website content:",
+      contentLines || "- No published website content is available.",
       "Reviews: discuss Google reviews only when the connected feed provides them. Do not invent testimonials or ratings.",
       "The gallery and before/after sections show representative website project imagery; do not infer guarantees, pricing, or availability from photos.",
       "Never invent hours, appointment slots, guarantees, warranties, refunds, final prices, or service coverage outside this context. If something is not listed, say that plainly and offer the phone number or a service request.",
@@ -302,12 +301,11 @@ async function getCustomerCareContext() {
 
 function suggestedServiceFor(message: string) {
   const normalized = message.toLowerCase();
-  if (/spring|torsion|extension/.test(normalized)) return "Broken Spring Repair";
-  if (/off.?track|track|roller/.test(normalized)) return "Off-Track Door Rescue";
-  if (/cable|hinge/.test(normalized)) return "Cable, Roller & Hinge Repair";
-  if (/opener|remote|keypad|sensor|motor/.test(normalized)) return "Opener Repair & Installation";
-  if (/new (?:garage )?door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "New Garage Door Installation";
-  if (/maint|inspect|tune|lubricat|annual|slow|noisy|noise|squeak|grind/.test(normalized)) return "Safety Tune-Up";
+  if (/spring|torsion|extension/.test(normalized)) return "springs";
+  if (/opener|remote|keypad|sensor|motor/.test(normalized)) return "opener";
+  if (/new (?:garage )?door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "installation";
+  if (/maint|inspect|tune|lubricat|annual/.test(normalized)) return "maintenance";
+  if (/off.?track|track|roller|cable|hinge|slow|noisy|noise|squeak|grind/.test(normalized)) return "repair";
   if (/price|cost|quote|estimate/.test(normalized)) return "Service assessment";
   return "Service assessment";
 }
@@ -354,6 +352,58 @@ const mapRequest = (row: typeof serviceRequests.$inferSelect) => ({
   createdAt: row.createdAt.toISOString(),
 });
 
+const mapContent = (row: typeof garageContent.$inferSelect) => ({
+  ...row,
+  updatedAt: row.updatedAt.toISOString(),
+});
+
+function toPublicContent(row: typeof garageContent.$inferSelect) {
+  if (row.status !== "published") return null;
+  if (row.verificationStatus !== "verified" && !row.reviewedSeed) return null;
+  if (row.kind === "trust" && row.verificationStatus !== "verified") return null;
+  return mapContent(row);
+}
+
+function contentBoundaryError(input: {
+  imageUrl: string;
+  beforeImageUrl: string;
+  aliases: string[];
+  slug: string;
+}) {
+  if (!isSafeGarageImageUrl(input.imageUrl) || !isSafeGarageImageUrl(input.beforeImageUrl)) {
+    return "Image URLs must be empty, root-relative, or HTTPS.";
+  }
+  if (input.aliases.includes(input.slug)) return "Aliases cannot include the current slug.";
+  return null;
+}
+
+async function validateContentRelations(
+  input: { kind: string; slug: string; aliases: string[]; parentId?: string | null },
+  currentId?: string,
+) {
+  const rows = await db.select().from(garageContent);
+  const parent = input.parentId ? rows.find((row) => row.id === input.parentId) : null;
+  if (input.parentId && !parent) return "Parent content was not found.";
+  if (input.parentId === currentId) return "Content cannot be its own parent.";
+  if (parent && currentId) {
+    let cursor: typeof parent | undefined = parent;
+    const visited = new Set<string>();
+    while (cursor) {
+      if (cursor.id === currentId) return "Parent selection would create a cycle.";
+      if (visited.has(cursor.id)) break;
+      visited.add(cursor.id);
+      cursor = cursor.parentId ? rows.find((row) => row.id === cursor!.parentId) : undefined;
+    }
+  }
+  const routeNames = new Set([input.slug, ...input.aliases]);
+  const conflict = rows.some((row) =>
+    row.id !== currentId &&
+    row.kind === input.kind &&
+    ([row.slug, ...row.aliases].some((value) => routeNames.has(value)))
+  );
+  return conflict ? "Slug or alias is already in use for this content type." : null;
+}
+
 async function recordAdminAudit(
   action: string,
   resourceType: string,
@@ -370,8 +420,13 @@ async function recordAdminAudit(
   });
 }
 
-router.get("/garage/services", (_req, res) => {
-  res.json(isPublicServiceCatalogVerified() ? services : []);
+router.get("/garage/services", async (_req, res) => {
+  const rows = await db.select().from(garageContent).where(eq(garageContent.kind, "service")).orderBy(asc(garageContent.sortOrder));
+  const publicRows = rows.map(toPublicContent).filter((row): row is NonNullable<typeof row> => row !== null);
+  res.json(publicRows.map((service, index) => ({
+    id: index + 1, slug: service.serviceCode || service.slug, name: service.title,
+    description: service.summary, startingPrice: null, duration: "Assessment required", emergency: false,
+  })));
 });
 router.get("/garage/cloudflare-config", (_req, res) => {
   res.json({
@@ -402,6 +457,100 @@ router.get("/garage/availability", (req, res) => {
 router.get("/garage/site-settings", async (_req, res): Promise<void> => {
   const [settings] = await db.select().from(businessSettings).limit(1);
   res.json(toPublicSettings(settings ? withRefreshedSeedImages(settings) : defaultSettings));
+});
+
+router.get("/garage/content", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(garageContent).orderBy(asc(garageContent.sortOrder), asc(garageContent.title));
+  res.json(rows.map(toPublicContent).filter((row): row is NonNullable<typeof row> => row !== null));
+});
+
+router.get("/garage/admin/content", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(garageContent).orderBy(asc(garageContent.sortOrder), asc(garageContent.title));
+  res.json(rows.map(mapContent));
+});
+
+router.post("/garage/admin/content", async (req, res): Promise<void> => {
+  const parsed = CreateGarageContentBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid content fields." });
+    return;
+  }
+  if (parsed.data.status === "published" && parsed.data.verificationStatus === "verified" && parsed.data.verificationAcknowledged !== true) {
+    res.status(400).json({ error: "Explicit verification acknowledgement is required before publishing business claims." });
+    return;
+  }
+  const { verificationAcknowledged: _acknowledged, ...contentInput } = parsed.data;
+  const boundaryError = contentBoundaryError(contentInput);
+  const relationError = await validateContentRelations(contentInput);
+  if (boundaryError || relationError) {
+    res.status(400).json({ error: boundaryError ?? relationError });
+    return;
+  }
+  const id = crypto.randomUUID();
+  const [created] = await db.insert(garageContent).values({ id, ...contentInput, reviewedSeed: false }).returning();
+  await recordAdminAudit("garage_content.created", "garage_content", id, Object.keys(parsed.data));
+  res.status(201).json(mapContent(created));
+});
+
+router.put("/garage/admin/content/:id", async (req, res): Promise<void> => {
+  const params = UpdateGarageContentParams.safeParse(req.params);
+  const body = UpdateGarageContentBody.safeParse(req.body);
+  if (!params.success || !body.success) {
+    res.status(400).json({ error: "Invalid content update." });
+    return;
+  }
+  const [current] = await db.select().from(garageContent).where(eq(garageContent.id, params.data.id)).limit(1);
+  if (!current) {
+    res.status(404).json({ error: "Content not found." });
+    return;
+  }
+  if (current.kind === "page" && GARAGE_CORE_PAGE_SLUGS.has(current.slug) && (body.data.slug !== current.slug || body.data.kind !== "page")) {
+    res.status(409).json({ error: "Core page slugs and types cannot be changed." });
+    return;
+  }
+  if (body.data.status === "published" && body.data.verificationStatus === "verified" && body.data.verificationAcknowledged !== true) {
+    res.status(400).json({ error: "Explicit verification acknowledgement is required before publishing business claims." });
+    return;
+  }
+  const { verificationAcknowledged: _acknowledged, ...updateInput } = body.data;
+  const aliases = current.kind !== "page" && updateInput.slug !== current.slug
+    ? [...new Set([...body.data.aliases, current.slug])].slice(0, 25)
+    : updateInput.aliases;
+  const next = { ...updateInput, aliases };
+  const boundaryError = contentBoundaryError(next);
+  const relationError = await validateContentRelations(next, current.id);
+  if (boundaryError || relationError) {
+    res.status(400).json({ error: boundaryError ?? relationError });
+    return;
+  }
+  const [updated] = await db.update(garageContent).set({ ...next, reviewedSeed: false, updatedAt: new Date() }).where(eq(garageContent.id, current.id)).returning();
+  await recordAdminAudit("garage_content.updated", "garage_content", current.id, Object.keys(next));
+  res.json(mapContent(updated));
+});
+
+router.delete("/garage/admin/content/:id", async (req, res): Promise<void> => {
+  const params = DeleteGarageContentParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: "Invalid content id." });
+    return;
+  }
+  const [current] = await db.select().from(garageContent).where(eq(garageContent.id, params.data.id)).limit(1);
+  if (!current) {
+    res.status(404).json({ error: "Content not found." });
+    return;
+  }
+  if (current.kind === "page" && GARAGE_CORE_PAGE_SLUGS.has(current.slug)) {
+    res.status(409).json({ error: "Core pages cannot be deleted; set their status to draft instead." });
+    return;
+  }
+  const [child] = await db.select({ id: garageContent.id }).from(garageContent).where(eq(garageContent.parentId, current.id)).limit(1);
+  if (child) {
+    res.status(409).json({ error: "Move or delete child content before deleting its parent." });
+    return;
+  }
+  await db.delete(garageContent).where(eq(garageContent.id, current.id));
+  await recordAdminAudit("garage_content.deleted", "garage_content", current.id, []);
+  res.status(204).send();
 });
 
 router.get("/garage/requests", async (_req, res): Promise<void> => {
@@ -444,7 +593,7 @@ router.get("/garage/dashboard", async (_req, res): Promise<void> => {
     scheduledToday: rows.filter((r) => r.status === "scheduled").length,
     emergencyCalls: rows.filter((r) => r.urgency === "emergency" && r.status !== "completed").length,
     completedThisWeek: rows.filter((r) => r.status === "completed").length,
-    estimatedRevenue: rows.reduce((total, r) => total + (services.find((s) => s.slug === r.service)?.startingPrice ?? 149), 0),
+    estimatedRevenue: 0,
     requests: rows.slice(0, 8).map(mapRequest),
   });
 });
@@ -464,15 +613,33 @@ router.patch("/garage/settings", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Invalid settings." });
     return;
   }
-  const [settings] = await db.insert(businessSettings).values({ ...defaultSettings, ...parsed.data }).onConflictDoUpdate({
+  const [storedSettings] = await db.select().from(businessSettings).limit(1);
+  const currentSettings = storedSettings ? withRefreshedSeedImages(storedSettings) : defaultSettings;
+  const sensitiveKeys = ["businessName", "phone", "email", "serviceArea", "emergencyEnabled", "trustProfile"] as const;
+  const sensitiveChanged = sensitiveKeys.some((key) =>
+    key in parsed.data &&
+    JSON.stringify(parsed.data[key]) !== JSON.stringify(currentSettings[key])
+  );
+  if (parsed.data.verificationStatus === "verified" && parsed.data.verificationAcknowledged !== true) {
+    res.status(400).json({ error: "Explicit verification acknowledgement is required before publishing business claims." });
+    return;
+  }
+  const { verificationAcknowledged: _acknowledged, ...settingsInput } = parsed.data;
+  const verificationStatus = parsed.data.verificationStatus === "verified" && parsed.data.verificationAcknowledged === true
+    ? "verified" as const
+    : parsed.data.verificationStatus === "unverified" || sensitiveChanged
+      ? "unverified" as const
+      : currentSettings.verificationStatus;
+  const persistedInput = { ...settingsInput, verificationStatus };
+   const [settings] = await db.insert(businessSettings).values({ ...defaultSettings, ...persistedInput }).onConflictDoUpdate({
     target: businessSettings.id,
-    set: parsed.data,
+    set: persistedInput,
   }).returning();
   await recordAdminAudit(
     "business_settings.updated",
     "business_settings",
     String(settings.id),
-    Object.keys(parsed.data),
+    Object.keys(persistedInput),
   );
   res.json(settings);
 });
@@ -481,7 +648,7 @@ router.post("/garage/assistant", async (req, res) => {
   const parsed = AskGarageAssistantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Ask a question about your garage door." });
   try {
-    const { settings, text: websiteContext } = await getCustomerCareContext();
+    const { settings, serviceCodes, text: websiteContext } = await getCustomerCareContext();
     const userHistory = (parsed.data.history ?? []).filter((message) => message.role === "user");
     const conversationText = [...userHistory.map((message) => message.content), parsed.data.message].join("\n");
     const safetyLevel = urgentGarageTerms.test(conversationText)
@@ -489,9 +656,8 @@ router.post("/garage/assistant", async (req, res) => {
       : garageIssueTerms.test(conversationText)
         ? "caution" as const
         : "safe" as const;
-    const suggestedService = isPublicServiceCatalogVerified()
-      ? suggestedServiceFor(conversationText)
-      : "Service assessment";
+    const candidateService = suggestedServiceFor(conversationText);
+    const suggestedService = serviceCodes.has(candidateService) ? candidateService : "Service assessment";
     const casualReply = casualCustomerCareReply(parsed.data.message, settings.businessName);
     if (casualReply) {
       return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment", serviceRequestRecommended: false });
@@ -543,9 +709,7 @@ router.post("/garage/assistant", async (req, res) => {
       : garageIssueTerms.test(fallbackConversation)
         ? "caution" as const
         : "safe" as const;
-    const fallbackService = isPublicServiceCatalogVerified()
-      ? suggestedServiceFor(fallbackConversation)
-      : "Service assessment";
+    const fallbackService = "Service assessment";
     const reply = fallbackSafetyLevel === "urgent"
       ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can start a service request for the business to review."
       : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or start a service request for the business to review.";

@@ -18,7 +18,7 @@ export const ListGarageServicesResponseItem = zod.object({
   "slug": zod.string(),
   "name": zod.string(),
   "description": zod.string(),
-  "startingPrice": zod.number(),
+  "startingPrice": zod.number().nullable(),
   "duration": zod.string(),
   "emergency": zod.boolean()
 })
@@ -99,6 +99,253 @@ export const GetPublicBusinessSettingsResponse = zod.object({
   "warranty": zod.string().nullable()
 })
 })
+
+
+export const listGarageContentResponseSortOrderMultipleOf = 1;
+
+
+
+export const ListGarageContentResponseItem = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['page', 'service', 'location', 'article', 'faq', 'project', 'trust']),
+  "slug": zod.string(),
+  "aliases": zod.array(zod.string()),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "body": zod.string(),
+  "imageUrl": zod.string(),
+  "imageAlt": zod.string(),
+  "beforeImageUrl": zod.string(),
+  "seoTitle": zod.string(),
+  "seoDescription": zod.string(),
+  "parentId": zod.string().nullable(),
+  "sortOrder": zod.number().multipleOf(listGarageContentResponseSortOrderMultipleOf),
+  "status": zod.enum(['draft', 'published']),
+  "verificationStatus": zod.enum(['unverified', 'verified']),
+  "featured": zod.boolean(),
+  "serviceCode": zod.string(),
+  "updatedAt": zod.string()
+})
+export const ListGarageContentResponse = zod.array(ListGarageContentResponseItem)
+
+
+export const listAdminGarageContentResponseSortOrderMultipleOf = 1;
+
+
+
+export const ListAdminGarageContentResponseItem = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['page', 'service', 'location', 'article', 'faq', 'project', 'trust']),
+  "slug": zod.string(),
+  "aliases": zod.array(zod.string()),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "body": zod.string(),
+  "imageUrl": zod.string(),
+  "imageAlt": zod.string(),
+  "beforeImageUrl": zod.string(),
+  "seoTitle": zod.string(),
+  "seoDescription": zod.string(),
+  "parentId": zod.string().nullable(),
+  "sortOrder": zod.number().multipleOf(listAdminGarageContentResponseSortOrderMultipleOf),
+  "status": zod.enum(['draft', 'published']),
+  "verificationStatus": zod.enum(['unverified', 'verified']),
+  "featured": zod.boolean(),
+  "serviceCode": zod.string(),
+  "updatedAt": zod.string()
+})
+export const ListAdminGarageContentResponse = zod.array(ListAdminGarageContentResponseItem)
+
+
+export const createGarageContentBodySlugMax = 100;
+
+
+export const createGarageContentBodySlugRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+export const createGarageContentBodyAliasesItemMax = 100;
+
+
+export const createGarageContentBodyAliasesItemRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+export const createGarageContentBodyAliasesMax = 25;
+
+export const createGarageContentBodyTitleMax = 160;
+
+export const createGarageContentBodySummaryMax = 500;
+
+export const createGarageContentBodyBodyMax = 20000;
+
+export const createGarageContentBodyImageUrlMax = 2048;
+
+export const createGarageContentBodyImageAltMax = 300;
+
+export const createGarageContentBodyBeforeImageUrlMax = 2048;
+
+export const createGarageContentBodySeoTitleMax = 160;
+
+export const createGarageContentBodySeoDescriptionMax = 320;
+
+export const createGarageContentBodyParentIdMax = 100;
+
+export const createGarageContentBodySortOrderMin = -100000;
+export const createGarageContentBodySortOrderMax = 100000;
+export const createGarageContentBodySortOrderMultipleOf = 1;
+
+export const createGarageContentBodyServiceCodeMax = 100;
+
+
+export const createGarageContentBodyServiceCodeRegExp = new RegExp('^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$');
+
+
+export const CreateGarageContentBody = zod.object({
+  "kind": zod.enum(['page', 'service', 'location', 'article', 'faq', 'project', 'trust']),
+  "slug": zod.string().min(1).max(createGarageContentBodySlugMax).regex(createGarageContentBodySlugRegExp),
+  "aliases": zod.array(zod.string().min(1).max(createGarageContentBodyAliasesItemMax).regex(createGarageContentBodyAliasesItemRegExp)).max(createGarageContentBodyAliasesMax),
+  "title": zod.string().min(1).max(createGarageContentBodyTitleMax),
+  "summary": zod.string().max(createGarageContentBodySummaryMax),
+  "body": zod.string().max(createGarageContentBodyBodyMax),
+  "imageUrl": zod.string().max(createGarageContentBodyImageUrlMax),
+  "imageAlt": zod.string().max(createGarageContentBodyImageAltMax),
+  "beforeImageUrl": zod.string().max(createGarageContentBodyBeforeImageUrlMax),
+  "seoTitle": zod.string().max(createGarageContentBodySeoTitleMax),
+  "seoDescription": zod.string().max(createGarageContentBodySeoDescriptionMax),
+  "parentId": zod.string().max(createGarageContentBodyParentIdMax).nullish(),
+  "sortOrder": zod.number().min(createGarageContentBodySortOrderMin).max(createGarageContentBodySortOrderMax).multipleOf(createGarageContentBodySortOrderMultipleOf),
+  "status": zod.enum(['draft', 'published']),
+  "verificationStatus": zod.enum(['unverified', 'verified']),
+  "featured": zod.boolean(),
+  "serviceCode": zod.string().max(createGarageContentBodyServiceCodeMax).regex(createGarageContentBodyServiceCodeRegExp),
+  "verificationAcknowledged": zod.boolean().optional()
+})
+
+export const createGarageContentResponseSortOrderMultipleOf = 1;
+
+
+
+export const CreateGarageContentResponse = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['page', 'service', 'location', 'article', 'faq', 'project', 'trust']),
+  "slug": zod.string(),
+  "aliases": zod.array(zod.string()),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "body": zod.string(),
+  "imageUrl": zod.string(),
+  "imageAlt": zod.string(),
+  "beforeImageUrl": zod.string(),
+  "seoTitle": zod.string(),
+  "seoDescription": zod.string(),
+  "parentId": zod.string().nullable(),
+  "sortOrder": zod.number().multipleOf(createGarageContentResponseSortOrderMultipleOf),
+  "status": zod.enum(['draft', 'published']),
+  "verificationStatus": zod.enum(['unverified', 'verified']),
+  "featured": zod.boolean(),
+  "serviceCode": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+export const updateGarageContentPathIdMax = 100;
+
+
+
+export const UpdateGarageContentParams = zod.object({
+  "id": zod.coerce.string().min(1).max(updateGarageContentPathIdMax)
+})
+
+export const updateGarageContentBodySlugMax = 100;
+
+
+export const updateGarageContentBodySlugRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+export const updateGarageContentBodyAliasesItemMax = 100;
+
+
+export const updateGarageContentBodyAliasesItemRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+export const updateGarageContentBodyAliasesMax = 25;
+
+export const updateGarageContentBodyTitleMax = 160;
+
+export const updateGarageContentBodySummaryMax = 500;
+
+export const updateGarageContentBodyBodyMax = 20000;
+
+export const updateGarageContentBodyImageUrlMax = 2048;
+
+export const updateGarageContentBodyImageAltMax = 300;
+
+export const updateGarageContentBodyBeforeImageUrlMax = 2048;
+
+export const updateGarageContentBodySeoTitleMax = 160;
+
+export const updateGarageContentBodySeoDescriptionMax = 320;
+
+export const updateGarageContentBodyParentIdMax = 100;
+
+export const updateGarageContentBodySortOrderMin = -100000;
+export const updateGarageContentBodySortOrderMax = 100000;
+export const updateGarageContentBodySortOrderMultipleOf = 1;
+
+export const updateGarageContentBodyServiceCodeMax = 100;
+
+
+export const updateGarageContentBodyServiceCodeRegExp = new RegExp('^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$');
+
+
+export const UpdateGarageContentBody = zod.object({
+  "kind": zod.enum(['page', 'service', 'location', 'article', 'faq', 'project', 'trust']),
+  "slug": zod.string().min(1).max(updateGarageContentBodySlugMax).regex(updateGarageContentBodySlugRegExp),
+  "aliases": zod.array(zod.string().min(1).max(updateGarageContentBodyAliasesItemMax).regex(updateGarageContentBodyAliasesItemRegExp)).max(updateGarageContentBodyAliasesMax),
+  "title": zod.string().min(1).max(updateGarageContentBodyTitleMax),
+  "summary": zod.string().max(updateGarageContentBodySummaryMax),
+  "body": zod.string().max(updateGarageContentBodyBodyMax),
+  "imageUrl": zod.string().max(updateGarageContentBodyImageUrlMax),
+  "imageAlt": zod.string().max(updateGarageContentBodyImageAltMax),
+  "beforeImageUrl": zod.string().max(updateGarageContentBodyBeforeImageUrlMax),
+  "seoTitle": zod.string().max(updateGarageContentBodySeoTitleMax),
+  "seoDescription": zod.string().max(updateGarageContentBodySeoDescriptionMax),
+  "parentId": zod.string().max(updateGarageContentBodyParentIdMax).nullish(),
+  "sortOrder": zod.number().min(updateGarageContentBodySortOrderMin).max(updateGarageContentBodySortOrderMax).multipleOf(updateGarageContentBodySortOrderMultipleOf),
+  "status": zod.enum(['draft', 'published']),
+  "verificationStatus": zod.enum(['unverified', 'verified']),
+  "featured": zod.boolean(),
+  "serviceCode": zod.string().max(updateGarageContentBodyServiceCodeMax).regex(updateGarageContentBodyServiceCodeRegExp),
+  "verificationAcknowledged": zod.boolean().optional()
+})
+
+export const updateGarageContentResponseSortOrderMultipleOf = 1;
+
+
+
+export const UpdateGarageContentResponse = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['page', 'service', 'location', 'article', 'faq', 'project', 'trust']),
+  "slug": zod.string(),
+  "aliases": zod.array(zod.string()),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "body": zod.string(),
+  "imageUrl": zod.string(),
+  "imageAlt": zod.string(),
+  "beforeImageUrl": zod.string(),
+  "seoTitle": zod.string(),
+  "seoDescription": zod.string(),
+  "parentId": zod.string().nullable(),
+  "sortOrder": zod.number().multipleOf(updateGarageContentResponseSortOrderMultipleOf),
+  "status": zod.enum(['draft', 'published']),
+  "verificationStatus": zod.enum(['unverified', 'verified']),
+  "featured": zod.boolean(),
+  "serviceCode": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+export const deleteGarageContentPathIdMax = 100;
+
+
+
+export const DeleteGarageContentParams = zod.object({
+  "id": zod.coerce.string().min(1).max(deleteGarageContentPathIdMax)
+})
+
+export const DeleteGarageContentResponse = zod.void()
 
 
 export const ListServiceRequestsResponseItem = zod.object({
@@ -235,7 +482,18 @@ export const GetBusinessSettingsResponse = zod.object({
   "serviceId": zod.string(),
   "emergencyEnabled": zod.boolean(),
   "heroImage": zod.string(),
-  "galleryImages": zod.array(zod.string())
+  "galleryImages": zod.array(zod.string()),
+  "verificationStatus": zod.enum(['verified', 'unverified']),
+  "trustProfile": zod.object({
+  "hours": zod.string().nullable(),
+  "ownerTeam": zod.string().nullable(),
+  "yearsInBusiness": zod.string().nullable(),
+  "brandsServiced": zod.string().nullable(),
+  "paymentOptions": zod.string().nullable(),
+  "financing": zod.string().nullable(),
+  "licenseInsurance": zod.string().nullable(),
+  "warranty": zod.string().nullable()
+})
 })
 
 
@@ -248,7 +506,19 @@ export const UpdateBusinessSettingsBody = zod.object({
   "serviceId": zod.string().optional(),
   "emergencyEnabled": zod.boolean().optional(),
   "heroImage": zod.string().optional(),
-  "galleryImages": zod.array(zod.string()).optional()
+  "galleryImages": zod.array(zod.string()).optional(),
+  "verificationStatus": zod.enum(['verified', 'unverified']).optional(),
+  "verificationAcknowledged": zod.boolean().optional(),
+  "trustProfile": zod.object({
+  "hours": zod.string().nullable(),
+  "ownerTeam": zod.string().nullable(),
+  "yearsInBusiness": zod.string().nullable(),
+  "brandsServiced": zod.string().nullable(),
+  "paymentOptions": zod.string().nullable(),
+  "financing": zod.string().nullable(),
+  "licenseInsurance": zod.string().nullable(),
+  "warranty": zod.string().nullable()
+}).optional()
 })
 
 export const UpdateBusinessSettingsResponse = zod.object({
@@ -260,7 +530,18 @@ export const UpdateBusinessSettingsResponse = zod.object({
   "serviceId": zod.string(),
   "emergencyEnabled": zod.boolean(),
   "heroImage": zod.string(),
-  "galleryImages": zod.array(zod.string())
+  "galleryImages": zod.array(zod.string()),
+  "verificationStatus": zod.enum(['verified', 'unverified']),
+  "trustProfile": zod.object({
+  "hours": zod.string().nullable(),
+  "ownerTeam": zod.string().nullable(),
+  "yearsInBusiness": zod.string().nullable(),
+  "brandsServiced": zod.string().nullable(),
+  "paymentOptions": zod.string().nullable(),
+  "financing": zod.string().nullable(),
+  "licenseInsurance": zod.string().nullable(),
+  "warranty": zod.string().nullable()
+})
 })
 
 

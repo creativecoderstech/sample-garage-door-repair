@@ -1,75 +1,68 @@
-import { useState } from 'react';
-import { Link } from 'wouter';
-import { ChevronDown, Phone, ShieldCheck } from 'lucide-react';
-import { useListFaqs } from '@/lib/demo-store';
-import { useGetPublicBusinessSettings } from '@workspace/api-client-react';
-import { Button } from '@/components/ui/button';
-import { trackGarageEvent } from '@/lib/garage-analytics';
+import { useListGarageContent, useGetPublicBusinessSettings } from "@workspace/api-client-react";
+import { PageHeader } from "@/components/layout/page-header";
+import { Metadata } from "@/components/seo-metadata";
+import { HelpCircle } from "lucide-react";
 
 export default function FaqsPage() {
-  const { data: faqs } = useListFaqs();
-  const { data: settings } = useGetPublicBusinessSettings();
-  const [openId, setOpenId] = useState<string | null>(faqs?.[0]?.id ?? null);
+  const { data: content = [], isLoading: contentLoading } = useListGarageContent();
+  const { data: settings, isLoading: settingsLoading } = useGetPublicBusinessSettings();
+
+  const faqsPage = content.find(c => c.kind === "page" && c.slug === "faqs" && c.status === "published");
+  const faqs = content.filter(c => c.kind === "faq" && c.status === "published").sort((a, b) => a.sortOrder - b.sortOrder);
+  const isVerified = settings?.verificationStatus === "verified";
+  
+  if (contentLoading || settingsLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-pulse flex gap-2"><div className="w-3 h-3 bg-primary rounded-full"></div><div className="w-3 h-3 bg-primary rounded-full delay-75"></div><div className="w-3 h-3 bg-primary rounded-full delay-150"></div></div></div>;
+  }
 
   return (
-    <div className="min-h-screen bg-background noise-overlay">
-      <section className="phi-section-tight border-b bg-gradient-to-br from-primary/10 via-background to-background">
-        <div className="phi-container">
-          <div className="phi-copy">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              <ShieldCheck className="h-4 w-4" />
-              Garage-door safety and request guidance
+    <>
+      <Metadata 
+        title={faqsPage?.seoTitle || "Frequently Asked Questions"}
+        description={faqsPage?.seoDescription || faqsPage?.summary}
+        noindex={!isVerified}
+      />
+
+      <PageHeader 
+        title={faqsPage?.title || "FAQs"} 
+        subtitle={faqsPage?.summary || "Everything you need to know about our services"}
+        breadcrumbs={[{ label: "FAQs" }]}
+      />
+
+      <div className="phi-section bg-background">
+        <div className="phi-container max-w-4xl">
+          {faqsPage?.body && (
+            <div className="text-center mx-auto mb-16 text-lg text-muted-foreground font-medium leading-relaxed space-y-4">
+              {faqsPage.body.split('\n\n').map((paragraph, idx) => (
+                <p key={idx}>{paragraph}</p>
+              ))}
             </div>
-            <h1 className="phi-page-title mt-6">Frequently Asked Questions</h1>
-            <p className="mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground">
-              Helpful answers about appointments, estimates, safety, warranties, and professional garage-door service.
-            </p>
-          </div>
-        </div>
-      </section>
+          )}
 
-       <section className="phi-section">
-        <div className="phi-container grid gap-[var(--phi-space-5)] lg:grid-cols-[minmax(0,1fr)_minmax(18rem,25.956rem)]">
-          <div className="space-y-[var(--phi-space-3)]">
-            {faqs?.map((faq) => {
-              const isOpen = openId === faq.id;
-              return (
-                <article key={faq.id} className={`phi-card overflow-hidden border bg-card transition-all ${isOpen ? 'border-primary/30 shadow-lg' : 'hover:border-primary/20'}`}>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between gap-6 px-6 py-6 text-left font-display text-lg font-bold"
-                    onClick={() => setOpenId(isOpen ? null : faq.id)}
-                    aria-expanded={isOpen}
-                     aria-controls={`faq-page-answer-${faq.id}`}
-                  >
-                    {faq.question}
-                    <ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
-                  </button>
-                   <div id={`faq-page-answer-${faq.id}`} hidden={!isOpen}>
-                    <div className="overflow-hidden">
-                      <p className="px-6 pb-6 leading-relaxed text-muted-foreground">{faq.answer}</p>
-                    </div>
+          {faqs.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              {faqs.map(faq => (
+                <div key={faq.id} className="bg-card border border-border p-6 md:p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                  <h3 className="font-display text-2xl uppercase tracking-tighter mb-4 flex items-start gap-4">
+                    <span className="text-primary mt-1">Q.</span> {faq.title}
+                  </h3>
+                  <div className="text-muted-foreground pl-9 font-medium leading-relaxed prose prose-lg dark:prose-invert">
+                    {(faq.body || faq.summary).split('\n\n').map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
                   </div>
-                </article>
-              );
-            })}
-          </div>
-
-          <aside className="phi-card h-fit border bg-secondary p-[var(--phi-space-4)] text-secondary-foreground shadow-xl lg:sticky lg:top-28">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Still have a question?</p>
-            <h2 className="mt-4 font-display text-3xl font-bold">Talk with a garage-door specialist.</h2>
-            <p className="mt-4 leading-relaxed text-secondary-foreground/70">
-              If a door is crooked, hanging, or has a loose cable or broken spring, stop operating it and call for professional service.
-            </p>
-             {settings?.phone && <Button asChild size="lg" className="mt-7 w-full font-bold">
-               <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`} onClick={() => trackGarageEvent("phone_link_click")}><Phone className="mr-2 h-4 w-4" /> Call {settings.phone}</a>
-             </Button>}
-            <Button asChild variant="outline" size="lg" className="mt-3 w-full border-secondary-foreground/20 bg-transparent font-bold text-secondary-foreground hover:bg-secondary-foreground/10">
-              <Link href="/#booking">Request Service</Link>
-            </Button>
-          </aside>
+                </div>
+              ))}
+            </div>
+          ) : (
+             <div className="text-center py-24 bg-muted/20 border border-border rounded-xl">
+               <HelpCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+               <h3 className="font-display text-3xl uppercase tracking-tighter mb-4">No questions yet</h3>
+               <p className="font-serif italic text-xl text-muted-foreground">Contact us if you have any questions.</p>
+             </div>
+          )}
         </div>
-      </section>
-    </div>
+      </div>
+    </>
   );
 }

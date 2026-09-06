@@ -56,7 +56,15 @@ project. Its advanced-mode Pages Function is generated as
    directory.
 2. Apply the schema to the bound database with
    `D1_DATABASE_NAME=your-database-name pnpm run migrate:d1:remote`. The
-   database name is supplied at deploy time and is not committed.
+   database name is supplied at deploy time and is not committed. D1 applies
+   the numbered migrations in order and records each application; do not paste
+   the files into a startup handler or reset the database. Migration
+   `0002_garage_content.sql` is additive and uses `INSERT OR IGNORE`, preserving
+   owner edits and deletions on later deploys.
+
+The development PostgreSQL seed is also one-time: `seed:garage-content` writes
+the `garage-content-v1` marker and seed rows in one transaction. Once the marker
+exists, rerunning post-merge setup does not recreate content an owner deleted.
 3. Confirm `dist/public/_worker.js`, `index.html`, and the generated assets
    exist.
 4. Commit and push the source changes to `main` for Git-connected deployments,
@@ -64,6 +72,20 @@ project. Its advanced-mode Pages Function is generated as
    sample-garage-door-repair` for a direct upload.
 5. Verify `/`, `/sample-garage-door-repair/`, generated JavaScript and CSS, and
    representative public API responses on the Pages deployment.
+
+### Production administration safety gate
+
+The login-free admin is a local development demo, not production authorization.
+Express enables its demo staff APIs only with `NODE_ENV=development`. The Pages
+worker denies all staff reads/writes on public hosts. A local Worker test may
+set `LOCAL_DEMO_ADMIN=true`, but the request must also use a loopback hostname;
+this cannot enable access on a public hostname. Do not configure that test
+binding for a Pages deployment.
+
+Public content, educational guides, Maya, and service-request submission remain
+available. Production editing, settings, customer-request administration, and
+staff uploads require a separate real authorization implementation. No
+deployment or authentication-provider migration is part of this rebuild.
 
 The previous standalone Worker release metadata remains available only as a
 rollback path. Account IDs, zone IDs, API credentials, and other Cloudflare

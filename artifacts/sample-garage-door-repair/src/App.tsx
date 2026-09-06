@@ -19,20 +19,32 @@ import { FloatingChat } from '@/components/floating-chat';
 import { ThemeSwatch } from '@/components/theme-swatch';
 import { getPublicSectionRouterHref, scrollToPublicSectionId, type PublicSection } from '@/lib/public-navigation';
 import { trackPageReferral } from '@/lib/garage-analytics';
+import { activePublicBasePath } from '@/lib/asset-url';
 
 import HomePage from '@/pages/home';
+import ServicesPage from '@/pages/services';
+import ServiceDetailPage from '@/pages/service-detail';
+import ServiceAreaPage from '@/pages/service-area';
+import LocationDetailPage from '@/pages/location-detail';
+import AboutPage from '@/pages/about';
+import BlogPage from '@/pages/blog';
+import BlogDetailPage from '@/pages/blog-detail';
+import ContactPage from '@/pages/contact';
+import GalleryPage from '@/pages/gallery';
+import FaqsPage from '@/pages/faqs';
+import CustomPage from '@/pages/custom-page';
 import AdminPage from '@/pages/admin';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: true,
+      staleTime: 0,
+      refetchOnMount: true,
     },
   },
 });
 
-const configuredBasePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 function Router() {
   const [location] = useLocation();
@@ -58,21 +70,31 @@ function Router() {
         <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col outline-none">
           <Switch>
             <Route path="/" component={HomePage} />
-            <Route path="/services">
-              <LegacyPublicRoute section="services" />
+            <Route path="/services" component={ServicesPage} />
+            <Route path="/services/:slug" component={ServiceDetailPage} />
+            <Route path="/service-area" component={ServiceAreaPage} />
+            <Route path="/service-area/:slug" component={LocationDetailPage} />
+            <Route path="/about" component={AboutPage} />
+            <Route path="/blog" component={BlogPage} />
+            <Route path="/blog/:slug" component={BlogDetailPage} />
+            <Route path="/contact" component={ContactPage} />
+            <Route path="/gallery" component={GalleryPage} />
+            <Route path="/faqs" component={FaqsPage} />
+            <Route path="/pages/:slug" component={CustomPage} />
+            
+            <Route path="/book">
+              <LegacyPublicRoute section="booking" />
             </Route>
-            <Route path="/gallery">
-              <LegacyPublicRoute section="gallery" />
+            <Route path="/booking">
+              <LegacyPublicRoute section="booking" />
+            </Route>
+            <Route path="/faq">
+              <LegacyPublicRoute section="faqs" />
             </Route>
             <Route path="/before-after">
               <LegacyPublicRoute section="beforeAfter" />
             </Route>
-            <Route path="/faqs">
-              <LegacyPublicRoute section="faqs" />
-            </Route>
-            <Route path="/book">
-              <LegacyPublicRoute section="booking" />
-            </Route>
+            
              <Route path="/login">
                <Redirect to="/admin" />
              </Route>
@@ -146,12 +168,7 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function App() {
-  const routerBasePath =
-    configuredBasePath &&
-    (window.location.pathname === configuredBasePath ||
-      window.location.pathname.startsWith(`${configuredBasePath}/`))
-      ? configuredBasePath
-      : '';
+  const routerBasePath = activePublicBasePath();
 
   useEffect(() => {
     trackPageReferral();

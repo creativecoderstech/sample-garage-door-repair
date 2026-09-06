@@ -26,6 +26,8 @@ import type {
   BusinessSettings,
   BusinessSettingsInput,
   DashboardSummary,
+  GarageContent,
+  GarageContentInput,
   GarageService,
   GetAvailabilityParams,
   GoogleReviewFeed,
@@ -496,6 +498,344 @@ export function useGetPublicBusinessSettings<TData = Awaited<ReturnType<typeof g
 
 
 
+
+export const getListGarageContentUrl = () => {
+
+
+
+
+  return `/api/garage/content`
+}
+
+export const listGarageContent = async ( options?: Parameters<typeof customFetch>[1]): Promise<GarageContent[]> => {
+
+  return customFetch<GarageContent[]>(getListGarageContentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListGarageContentQueryKey = () => {
+    return [
+    `/api/garage/content`
+    ] as const;
+    }
+
+
+export const getListGarageContentQueryOptions = <TData = Awaited<ReturnType<typeof listGarageContent>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGarageContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListGarageContentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGarageContent>>> = ({ signal }) => listGarageContent({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGarageContent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListGarageContentQueryResult = NonNullable<Awaited<ReturnType<typeof listGarageContent>>>
+export type ListGarageContentQueryError = ErrorType<unknown>
+
+
+
+export function useListGarageContent<TData = Awaited<ReturnType<typeof listGarageContent>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGarageContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListGarageContentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminGarageContentUrl = () => {
+
+
+
+
+  return `/api/garage/admin/content`
+}
+
+export const listAdminGarageContent = async ( options?: Parameters<typeof customFetch>[1]): Promise<GarageContent[]> => {
+
+  return customFetch<GarageContent[]>(getListAdminGarageContentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminGarageContentQueryKey = () => {
+    return [
+    `/api/garage/admin/content`
+    ] as const;
+    }
+
+
+export const getListAdminGarageContentQueryOptions = <TData = Awaited<ReturnType<typeof listAdminGarageContent>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminGarageContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminGarageContentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminGarageContent>>> = ({ signal }) => listAdminGarageContent({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminGarageContent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminGarageContentQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminGarageContent>>>
+export type ListAdminGarageContentQueryError = ErrorType<unknown>
+
+
+
+export function useListAdminGarageContent<TData = Awaited<ReturnType<typeof listAdminGarageContent>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminGarageContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminGarageContentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateGarageContentUrl = () => {
+
+
+
+
+  return `/api/garage/admin/content`
+}
+
+export const createGarageContent = async (garageContentInput: GarageContentInput, options?: Parameters<typeof customFetch>[1]): Promise<GarageContent> => {
+
+  return customFetch<GarageContent>(getCreateGarageContentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(garageContentInput)
+  }
+);}
+
+
+
+
+
+export const getCreateGarageContentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGarageContent>>, TError,{data: BodyType<GarageContentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createGarageContent>>, TError,{data: BodyType<GarageContentInput>}, TContext> => {
+
+const mutationKey = ['createGarageContent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createGarageContent>>, {data: BodyType<GarageContentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createGarageContent(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateGarageContentMutationResult = NonNullable<Awaited<ReturnType<typeof createGarageContent>>>
+    export type CreateGarageContentMutationBody = BodyType<GarageContentInput>
+    export type CreateGarageContentMutationError = ErrorType<unknown>
+
+    export const useCreateGarageContent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGarageContent>>, TError,{data: BodyType<GarageContentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createGarageContent>>,
+        TError,
+        {data: BodyType<GarageContentInput>},
+        TContext
+      > => {
+      return useMutation(getCreateGarageContentMutationOptions(options));
+    }
+
+export const getUpdateGarageContentUrl = (id: string,) => {
+
+
+
+
+  return `/api/garage/admin/content/${id}`
+}
+
+export const updateGarageContent = async (id: string,
+    garageContentInput: GarageContentInput, options?: Parameters<typeof customFetch>[1]): Promise<GarageContent> => {
+
+  return customFetch<GarageContent>(getUpdateGarageContentUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(garageContentInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateGarageContentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGarageContent>>, TError,{id: string;data: BodyType<GarageContentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateGarageContent>>, TError,{id: string;data: BodyType<GarageContentInput>}, TContext> => {
+
+const mutationKey = ['updateGarageContent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateGarageContent>>, {id: string;data: BodyType<GarageContentInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateGarageContent(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateGarageContentMutationResult = NonNullable<Awaited<ReturnType<typeof updateGarageContent>>>
+    export type UpdateGarageContentMutationBody = BodyType<GarageContentInput>
+    export type UpdateGarageContentMutationError = ErrorType<unknown>
+
+    export const useUpdateGarageContent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGarageContent>>, TError,{id: string;data: BodyType<GarageContentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateGarageContent>>,
+        TError,
+        {id: string;data: BodyType<GarageContentInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateGarageContentMutationOptions(options));
+    }
+
+export const getDeleteGarageContentUrl = (id: string,) => {
+
+
+
+
+  return `/api/garage/admin/content/${id}`
+}
+
+export const deleteGarageContent = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteGarageContentUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteGarageContentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteGarageContent>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteGarageContent>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteGarageContent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteGarageContent>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteGarageContent(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteGarageContentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteGarageContent>>>
+
+    export type DeleteGarageContentMutationError = ErrorType<unknown>
+
+    export const useDeleteGarageContent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteGarageContent>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteGarageContent>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteGarageContentMutationOptions(options));
+    }
 
 export const getListServiceRequestsUrl = () => {
 

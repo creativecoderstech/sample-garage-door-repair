@@ -38,11 +38,12 @@ A customer-facing garage door repair website and operations admin with booking, 
 ## Architecture decisions
 
 - Customer site and admin share one responsive app so Creative Coders can embed a single service sample.
-- The imported Sample Handyman application is the visual and feature reference; garage-door changes should adapt its content and safety workflows without introducing a separate design direction.
+- The garage-door public site uses Cooper Family Garage Doors only as inspiration for local-service hierarchy and multi-page navigation. Do not copy its identity, photographs, prose, credentials, offers, reviews, or contact information. Preserve the existing booking form, Maya chat behavior, and five-theme system when changing the public design.
 - Media is admin-configurable through hosted image URLs now; R2 is the Cloudflare production upload target.
 - The AI assistant is constrained to safe intake guidance and must never coach customers through high-tension repairs.
 - API contracts remain provider-neutral so the Express preview adapter can be moved to Pages Functions + D1 without redesigning the frontend.
-- The current Cloudflare Pages Function serves public customer APIs only. Staff leads, dashboard, request mutations, and full settings APIs deliberately return 501 until it is connected to a protected persistent admin backend.
+- Express/PostgreSQL and the Cloudflare Pages Function/D1 share persistent content and settings. Authentication remains disabled for the local development demo only: keep a prominent warning and never use real customer data. Production staff APIs must remain disabled until real staff authorization is configured; keep every page non-indexed until access is secured.
+- Public CMS content comes from the API, not browser-local demo stores. Reviewed seed education is not evidence of verified business facts; owner edits require explicit acknowledgement before becoming public. Content/bootstrap migrations must not recreate records an owner deleted.
 
 ## Product
 

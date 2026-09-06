@@ -11,7 +11,8 @@ export interface GarageService {
   slug: string;
   name: string;
   description: string;
-  startingPrice: number;
+  /** @nullable */
+  startingPrice: number | null;
   duration: string;
   emergency: boolean;
 }
