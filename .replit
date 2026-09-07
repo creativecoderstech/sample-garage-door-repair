@@ -61,3 +61,6 @@ channel = "stable-25_05"
 
 [userenv.development]
 GARAGE_BOOTSTRAP_EMAIL = "creativecoderstech@gmail.com"
+
+[userenv.production]
+GARAGE_BOOTSTRAP_EMAIL = "creativecoderstech@gmail.com"
