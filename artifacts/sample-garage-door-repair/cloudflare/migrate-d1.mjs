@@ -12,7 +12,7 @@ const databaseName = process.env.D1_DATABASE_NAME;
 const databaseId = process.env.D1_DATABASE_ID;
 if (!databaseName || !databaseId) throw new Error("Set D1_DATABASE_NAME and D1_DATABASE_ID for the intended environment before applying migrations.");
 const directory = dirname(fileURLToPath(import.meta.url));
-await access(join(directory, "migrations", "0005_request_delivery.sql"));
+  await access(join(directory, "migrations", "0008_service_level_images.sql"));
 const temporary = await mkdtemp(join(tmpdir(), "garage-d1-migration-"));
 try {
   const configPath = join(temporary, "wrangler.json");
