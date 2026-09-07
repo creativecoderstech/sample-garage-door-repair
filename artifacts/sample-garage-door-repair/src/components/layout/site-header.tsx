@@ -36,29 +36,29 @@ export function SiteHeader() {
 
   const isActive = (href: string) => location === href || (href !== "/" && location.startsWith(`${href}/`));
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border shadow-sm">
-      <div className="mx-auto flex h-[72px] w-full max-w-[1400px] items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex min-w-0 items-center gap-3 sm:gap-4 h-full" aria-label={`${settings?.businessName || "Cumming Garage Door Service"} home`}>
-          <div className="bg-secondary text-secondary-foreground h-full flex flex-col justify-center px-4">
+    <header className="phi-site-header sticky top-0 z-50 border-b border-border bg-background shadow-sm">
+      <div className="flex h-[4.236rem] w-full items-center justify-between">
+        <Link href="/" className="flex h-full min-w-0 items-center gap-[var(--phi-space-2)] sm:gap-[var(--phi-space-3)]" aria-label={`${settings?.businessName || "Cumming Garage Door Service"} home`}>
+          <div className="flex h-full flex-col justify-center bg-secondary px-[var(--phi-space-3)] text-secondary-foreground">
             <Warehouse className="h-8 w-8 mx-auto" aria-hidden="true" />
             <span className="text-[10px] uppercase font-bold tracking-widest mt-1 text-center leading-none">Doors</span>
           </div>
-          <span className="garage-display text-xl sm:text-2xl leading-tight tracking-wide text-foreground mt-1 max-w-[190px] sm:max-w-none">
+          <span className="garage-display mt-1 max-w-[13rem] truncate whitespace-nowrap text-lg leading-tight tracking-wide text-foreground sm:max-w-none xl:text-xl">
             {settings?.businessName || "Cumming Garage Door Service"}
           </span>
         </Link>
 
         <div className="flex items-center h-full">
-          <nav aria-label="Main navigation" className="hidden h-full items-center lg:flex mr-6">
+          <nav aria-label="Main navigation" className="mr-[var(--phi-space-3)] hidden h-full items-center xl:flex">
             {primary.map(page => {
               const href = contentRoute(page);
               return <Link key={page.id} href={href} aria-current={isActive(href) ? "page" : undefined}
-                className={`px-4 text-sm font-semibold transition-colors hover:text-primary ${isActive(href) ? "text-primary" : "text-muted-foreground"}`}>
+                className={`px-[var(--phi-space-2)] text-sm font-semibold transition-colors hover:text-primary xl:px-[var(--phi-space-3)] ${isActive(href) ? "text-primary" : "text-muted-foreground"}`}>
                 {NAV_LABELS[page.slug] || page.title}
               </Link>;
             })}
             {more.length > 0 && <details data-site-menu className="group relative h-full flex items-center">
-              <summary className="flex cursor-pointer list-none items-center gap-1 px-4 text-sm font-semibold text-muted-foreground hover:text-primary">More <ChevronDown className="h-3 w-3" /></summary>
+              <summary className="flex cursor-pointer list-none items-center gap-1 px-[var(--phi-space-2)] text-sm font-semibold text-muted-foreground hover:text-primary xl:px-[var(--phi-space-3)]">More <ChevronDown className="h-3 w-3" /></summary>
               <div className="absolute right-0 top-full max-h-[65vh] w-64 overflow-y-auto rounded-b-md border-x border-b border-border bg-background p-2 shadow-xl">
                 {more.map(page => <Link key={page.id} href={contentRoute(page)}
                   className={`block rounded px-3 py-2 text-sm font-semibold hover:bg-muted ${page.parentId ? "pl-6" : ""}`}>
@@ -68,18 +68,18 @@ export function SiteHeader() {
             </details>}
           </nav>
 
-          <Button asChild className="rounded-none h-full px-6 text-sm font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 hidden sm:flex">
+          <Button asChild className="hidden h-full rounded-none bg-primary px-[var(--phi-space-3)] text-xs font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary/90 sm:flex">
             <Link href={bookingHref}>Request Service</Link>
           </Button>
 
-          <button className="ml-4 shrink-0 rounded p-2 hover:bg-muted lg:hidden" onClick={() => setMobileOpen(!mobileOpen)}
+          <button className="ml-[var(--phi-space-2)] shrink-0 rounded p-2 hover:bg-muted xl:hidden" onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} aria-controls="mobile-navigation">
             {mobileOpen ? <X /> : <Menu />}
           </button>
         </div>
       </div>
 
-      {mobileOpen && <nav id="mobile-navigation" aria-label="Mobile navigation" className="max-h-[calc(100dvh-72px)] overflow-y-auto border-t border-border bg-background p-5 lg:hidden shadow-inner">
+      {mobileOpen && <nav id="mobile-navigation" aria-label="Mobile navigation" className="max-h-[calc(100dvh-4.236rem)] overflow-y-auto border-t border-border bg-background p-5 shadow-inner xl:hidden">
         {pages.map(page => <Link key={page.id} href={contentRoute(page)}
           className={`block border-b border-border py-4 font-semibold text-foreground ${page.parentId ? "pl-5 text-muted-foreground" : ""}`}>
           {NAV_LABELS[page.slug] || page.title}

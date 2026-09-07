@@ -463,12 +463,12 @@
   }
 
   .phi-hero-title {
-    max-width: 42rem;
+    max-width: 55.45rem;
     font-family: var(--app-font-display);
-    font-size: clamp(2.618rem, 6.2vw, 6.854rem);
+    font-size: clamp(3.427rem, 7.5vw, 5.545rem);
     font-weight: 700;
-    line-height: 1.02;
-    letter-spacing: -0.055em;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
     text-wrap: balance;
   }
 

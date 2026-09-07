@@ -54,21 +54,21 @@ function HomePageContent() {
           <div className="absolute inset-0 z-0 bg-secondary noise-overlay" />
         )}
         
-        <div className="phi-container relative z-10 py-20 flex-grow flex flex-col justify-center">
-          <div className="max-w-4xl">
+        <div className="phi-container relative z-10 flex flex-grow flex-col justify-center py-[var(--phi-space-6)]">
+          <div className="max-w-[55.45rem]">
             {isVerified && settings?.trustProfile?.yearsInBusiness && (
               <span className="inline-block py-1 px-3 bg-primary text-primary-foreground font-bold tracking-widest text-xs uppercase mb-6 rounded-none">
                 {settings.trustProfile.yearsInBusiness}
               </span>
             )}
-            <h1 className="garage-display text-5xl md:text-7xl lg:text-[7rem] text-white uppercase mb-4 text-balance leading-[0.95]">
+            <h1 className="phi-hero-title mb-[var(--phi-space-3)] uppercase text-white">
               Garage Door Repair & Installation <br />
-              <span className="text-primary italic font-serif text-5xl md:text-7xl lg:text-[6rem] lowercase tracking-normal">Done Right.</span>
+              <span className="font-serif text-[clamp(2.618rem,6.2vw,4.236rem)] italic lowercase tracking-normal text-primary">Done Right.</span>
             </h1>
-            <p className="text-white/90 text-lg md:text-xl mb-10 max-w-2xl leading-relaxed font-medium">
+            <p className="mb-[var(--phi-space-4)] max-w-[42.36rem] text-lg font-medium leading-relaxed text-white/90 md:text-xl">
               {homePage?.summary || "Garage-door repair, opener service and new door installation for homes and businesses."}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-[var(--phi-space-3)] sm:flex-row">
               <Button asChild size="lg" className="rounded-none h-14 px-8 font-bold uppercase tracking-widest text-sm bg-primary text-primary-foreground hover:bg-primary/90">
                 <Link href="#booking">Request Service</Link>
               </Button>
