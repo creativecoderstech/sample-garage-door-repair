@@ -15,6 +15,12 @@ Immediately before a Pages release, confirm the configured production D1 ID stil
 
 **How to apply:** Treat a missing binding as infrastructure drift, not an application build failure. Preserve every other Pages binding and secret while repairing only the validated D1 reference.
 
+Treat the structured provisioning block as active infrastructure configuration; surrounding prose and commit messages do not override it.
+
+**Why:** A commit described itself as restoring the Pages contract while its structured block actually switched to a standalone Worker, after which the replacement D1 was deleted again.
+
+**How to apply:** Review the structured block itself before every infrastructure release. Reject any runtime, build, deploy, or binding shape that contradicts the approved Pages architecture.
+
 Keep the browser and runtime verification-config contract explicit: production returns Turnstile enabled plus its site key, while the local API explicitly returns Turnstile disabled.
 
 **Why:** A shape mismatch between the Pages config response and browser parser caused production to omit tokens, while a missing local config route blocked Maya before requests were posted.
