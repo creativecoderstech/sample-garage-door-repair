@@ -55,3 +55,5 @@ Thumbs.db
 
 # Local design references and uploaded source material
 attached_assets/
+**/.wrangler/
+screenshots/cooper-reference.png
