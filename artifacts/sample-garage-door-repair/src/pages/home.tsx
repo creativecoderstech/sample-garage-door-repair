@@ -63,7 +63,7 @@ function HomePageContent() {
             )}
             <h1 className="phi-hero-title mb-[var(--phi-space-3)] uppercase text-white">
               Garage Door Repair & Installation <br />
-              <span className="font-serif text-[clamp(2.618rem,6.2vw,4.236rem)] italic lowercase tracking-normal text-primary">Done Right.</span>
+              <span className="font-display text-[clamp(2.25rem,5vw,3.427rem)] font-extrabold uppercase leading-none tracking-[-0.045em] text-primary">Done Right.</span>
             </h1>
             <p className="mb-[var(--phi-space-4)] max-w-[42.36rem] text-lg font-medium leading-relaxed text-white/90 md:text-xl">
               {homePage?.summary || "Garage-door repair, opener service and new door installation for homes and businesses."}
