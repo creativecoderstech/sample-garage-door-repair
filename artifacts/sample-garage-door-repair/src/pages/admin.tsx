@@ -155,7 +155,7 @@ export default function AdminPage({ session, onSignOut }: { session: StaffSessio
   const SidebarContent = () => (
     <>
       <div className="p-[var(--phi-space-4)] pb-[var(--phi-space-3)]">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[var(--phi-space-2)]">
           <div className="bg-primary text-primary-foreground p-2 rounded-full shadow-sm">
             <Building2 className="w-5 h-5" />
           </div>
@@ -176,8 +176,8 @@ export default function AdminPage({ session, onSignOut }: { session: StaffSessio
 
       <ScrollArea className="flex-1 px-[var(--phi-space-3)] pb-[var(--phi-space-4)]">
         {navGroups.map((group, idx) => (
-          <div key={group.title} className={idx > 0 ? "mt-6" : ""}>
-            <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-3">
+          <div key={group.title} className={idx > 0 ? "mt-[var(--phi-space-4)]" : ""}>
+            <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-[var(--phi-space-1)] px-[var(--phi-space-2)]">
               {group.title}
             </h3>
             <div className="space-y-0.5">
@@ -191,13 +191,13 @@ export default function AdminPage({ session, onSignOut }: { session: StaffSessio
                       window.history.replaceState(null, '', `#${item.id}`);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`w-full flex items-center justify-between px-[var(--phi-space-2)] py-2.5 rounded-[var(--phi-radius)] text-sm font-medium transition-colors ${
                       isActive 
                         ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-[var(--phi-space-2)]">
                       <item.icon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : 'text-slate-400'}`} />
                       {item.label}
                     </div>
@@ -215,10 +215,10 @@ export default function AdminPage({ session, onSignOut }: { session: StaffSessio
           </div>
         ))}
         
-        <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <div className="mt-[var(--phi-space-4)] pt-[var(--phi-space-4)] border-t border-slate-100 dark:border-slate-800">
           <Link
             href="/"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+            className="w-full flex items-center gap-[var(--phi-space-2)] px-[var(--phi-space-2)] py-2.5 rounded-[var(--phi-radius)] text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
           >
             <ExternalLink className="w-4 h-4 text-slate-400" />
             View customer site
@@ -226,7 +226,7 @@ export default function AdminPage({ session, onSignOut }: { session: StaffSessio
           <button
             type="button"
             onClick={() => void onSignOut()}
-            className="mt-1 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+            className="mt-1 w-full flex items-center gap-[var(--phi-space-2)] px-[var(--phi-space-2)] py-2.5 rounded-[var(--phi-radius)] text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
@@ -238,8 +238,8 @@ export default function AdminPage({ session, onSignOut }: { session: StaffSessio
   return (
     <div className="phi-admin-shell min-h-[100dvh] bg-[#f8fafc] dark:bg-slate-950 flex flex-col md:flex-row w-full font-sans">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
-        <div className="flex items-center gap-2">
+      <div className="md:hidden flex items-center justify-between p-[var(--phi-space-3)] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+        <div className="flex items-center gap-[var(--phi-space-1)]">
            <div className="bg-primary text-primary-foreground p-1.5 rounded-full">
              <Building2 className="w-4 h-4" />
            </div>
@@ -296,13 +296,13 @@ function AdminPageHeader({ title, description, userEmail }: { title: string; des
   return (
     <header className="phi-admin-header flex flex-col gap-[var(--phi-space-3)] border-b border-slate-200 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
       <div>
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Cumming Garage Door Service</p>
+        <p className="mb-[var(--phi-space-1)] text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Cumming Garage Door Service</p>
         <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">{title}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
+        <p className="mt-[var(--phi-space-1)] max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-[var(--phi-space-2)]">
          <span className="text-xs text-slate-500">{userEmail}</span>
-        <Button variant="outline" className="h-10 rounded-xl border-2 bg-white font-semibold shadow-sm dark:bg-slate-900" asChild>
+        <Button variant="outline" className="h-10 rounded-[var(--phi-radius)] border-2 bg-white font-semibold shadow-sm dark:bg-slate-900" asChild>
           <Link href="/"><ExternalLink className="mr-2 h-4 w-4" /> View site</Link>
         </Button>
       </div>
@@ -327,16 +327,16 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
       {/* Hero Banner */}
       <div className="phi-admin-card bg-[#1e293b] p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] text-white relative overflow-hidden mb-[var(--phi-space-5)]">
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium text-white/90 mb-6 backdrop-blur-md uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-[var(--phi-space-2)] py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium text-white/90 mb-[var(--phi-space-4)] backdrop-blur-md uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Business overview
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight">Keep the good work moving.</h2>
-          <p className="text-slate-300 max-w-lg mb-8 text-sm sm:text-base leading-relaxed">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-[var(--phi-space-2)] tracking-tight">Keep the good work moving.</h2>
+          <p className="text-slate-300 max-w-lg mb-[var(--phi-space-4)] text-sm sm:text-base leading-relaxed">
             Start with the newest customer requests, then check your schedule. Everything else is one click away.
           </p>
           <Button 
             onClick={() => setTab('service-requests')} 
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg px-6 py-6 h-auto shadow-sm border-none transition-transform hover:translate-y-[-1px]"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-[var(--phi-radius)] px-[var(--phi-space-4)] py-[var(--phi-space-4)] h-auto shadow-sm border-none transition-transform hover:translate-y-[-1px]"
           >
             Open request queue <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
@@ -386,14 +386,14 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
           onLinkClick={() => setTab('service-requests')}
         >
           {dashboard?.requests && dashboard.requests.length > 0 ? dashboard.requests.slice(0, 3).map((req: any) => (
-             <div key={req.id} className="p-4 border-b border-slate-100 dark:border-slate-800 last:border-0 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => setTab('service-requests')}>
+             <div key={req.id} className="p-[var(--phi-space-3)] border-b border-slate-100 dark:border-slate-800 last:border-0 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => setTab('service-requests')}>
                <div>
                  <div className="font-semibold text-sm text-slate-900 dark:text-white mb-0.5">{req.customerName}</div>
                  <div className="text-xs text-slate-500">{req.service} &bull; <span className="capitalize">{req.urgency}</span></div>
                </div>
                <div className="text-xs text-slate-400">{new Date(req.createdAt).toLocaleDateString()}</div>
              </div>
-          )) : <div className="p-8 text-center text-sm text-slate-500">No pending requests.</div>}
+          )) : <div className="p-[var(--phi-space-4)] text-center text-sm text-slate-500">No pending requests.</div>}
         </ListCard>
 
         {/* Coming up list */}
@@ -405,14 +405,14 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
           onLinkClick={() => setTab('bookings')}
         >
           {bookings && bookings.length > 0 ? bookings.slice(0, 3).map((b: any) => (
-             <div key={b.id} className="p-4 border-b border-slate-100 dark:border-slate-800 last:border-0 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => setTab('bookings')}>
+             <div key={b.id} className="p-[var(--phi-space-3)] border-b border-slate-100 dark:border-slate-800 last:border-0 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => setTab('bookings')}>
                <div>
                  <div className="font-semibold text-sm text-slate-900 dark:text-white mb-0.5">{b.title}</div>
                  <div className="text-xs text-slate-500">{b.customer}</div>
                </div>
                <div className="text-[11px] font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{b.date}</div>
              </div>
-          )) : <div className="p-8 text-center text-sm text-slate-500">No upcoming bookings.</div>}
+          )) : <div className="p-[var(--phi-space-4)] text-center text-sm text-slate-500">No upcoming bookings.</div>}
         </ListCard>
       </div>
     </div>
@@ -425,7 +425,7 @@ function OverviewCard({ icon, iconBg, title, value, description, onClick }: any)
       onClick={onClick}
       className={`${adminCardClass} phi-card-interactive p-[var(--phi-space-3)] cursor-pointer group flex flex-col justify-between min-h-[150px]`}
     >
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-[var(--phi-space-3)]">
         <div className={`w-9 h-9 rounded-full flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
@@ -443,9 +443,9 @@ function OverviewCard({ icon, iconBg, title, value, description, onClick }: any)
 function ListCard({ icon, title, description, linkText, onLinkClick, children }: any) {
   return (
     <div className={`${adminCardClass} overflow-hidden flex flex-col`}>
-      <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div className="p-[var(--phi-space-3)] border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="flex justify-between items-start mb-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[var(--phi-space-1)]">
             {icon}
             <h3 className="font-bold text-[15px] text-slate-900 dark:text-white">{title}</h3>
           </div>
@@ -481,13 +481,13 @@ function AdminSectionHeader({
     <div className="phi-admin-section flex flex-col border-b border-slate-200 pb-[var(--phi-space-3)] sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{eyebrow}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-3">
+        <div className="mt-1 flex flex-wrap items-center gap-[var(--phi-space-2)]">
           <h2 className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">{title}</h2>
           {count ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{count}</span> : null}
         </div>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
       </div>
-      {action ? <div className="flex shrink-0 flex-wrap gap-2">{action}</div> : null}
+      {action ? <div className="flex shrink-0 flex-wrap gap-[var(--phi-space-1)]">{action}</div> : null}
     </div>
   );
 }
@@ -497,11 +497,11 @@ function AdminStatStrip({ stats }: { stats: { label: string; value: string | num
     <div className="grid gap-[var(--phi-space-2)] sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
         <div key={stat.label} className={`${adminCardClass} p-[var(--phi-space-3)]`}>
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-[var(--phi-space-2)]">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{stat.label}</p>
             <span className={`h-2 w-2 rounded-full ${stat.tone === "success" ? "bg-emerald-500" : stat.tone === "warning" ? "bg-amber-500" : "bg-primary"}`} />
           </div>
-          <p className={`mt-2 text-2xl font-bold tracking-tight ${stat.tone === "warning" ? "text-amber-700 dark:text-amber-300" : "text-slate-950 dark:text-white"}`}>{stat.value}</p>
+          <p className={`mt-[var(--phi-space-1)] text-2xl font-bold tracking-tight ${stat.tone === "warning" ? "text-amber-700 dark:text-amber-300" : "text-slate-950 dark:text-white"}`}>{stat.value}</p>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stat.detail}</p>
         </div>
       ))}
@@ -552,14 +552,14 @@ function ImageUploadField({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-[var(--phi-space-1)]">
       <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</label>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-[var(--phi-space-1)]">
         <Button
           type="button"
           size="sm"
           variant="outline"
-          className="h-9 rounded-lg"
+          className="h-9 rounded-[var(--phi-radius)]"
           onClick={() => inputRef.current?.click()}
         >
           <Upload className="mr-1.5 h-3.5 w-3.5" />
@@ -570,7 +570,7 @@ function ImageUploadField({
             type="button"
             size="sm"
             variant="ghost"
-            className="h-9 rounded-lg text-slate-500 hover:text-red-600"
+            className="h-9 rounded-[var(--phi-radius)] text-slate-500 hover:text-red-600"
             onClick={() => {
               onChange("");
               setError("");
@@ -592,9 +592,9 @@ function ImageUploadField({
         }}
       />
       {value && (
-        <div className="relative aspect-[4/3] max-w-[220px] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+        <div className="relative aspect-[4/3] max-w-[220px] overflow-hidden rounded-[var(--phi-radius)] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
           <img src={value} alt={`${label} preview`} className="h-full w-full object-cover" />
-          <span className="absolute bottom-2 left-2 rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          <span className="absolute bottom-[var(--phi-space-1)] left-[var(--phi-space-1)] rounded-full bg-slate-950/75 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
             Ready to save
           </span>
         </div>
@@ -673,13 +673,13 @@ function ReviewsAdmin() {
       ]} />
       {/* Google Business Profile Connection Panel */}
       <div className={`${adminCardClass} overflow-hidden`}>
-        <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="flex items-center gap-4">
+        <div className="p-[var(--phi-space-3)] sm:p-[var(--phi-space-4)] border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--phi-space-3)] bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex items-center gap-[var(--phi-space-3)]">
              <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
                <SiGoogle className="w-6 h-6 text-slate-700 dark:text-slate-300" />
              </div>
              <div>
-               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-[var(--phi-space-1)]">
                  Google Business Profile
                  {isLoading ? (
                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Checking...</span>
@@ -703,7 +703,7 @@ function ReviewsAdmin() {
 
         {/* Connection Details */}
         {!isLoading && feed && (
-          <div className="p-5 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-[var(--phi-space-3)] sm:p-[var(--phi-space-4)] grid grid-cols-1 md:grid-cols-3 gap-[var(--phi-space-4)]">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Status</p>
               <p className="text-sm font-medium text-slate-900 dark:text-white">
@@ -728,17 +728,17 @@ function ReviewsAdmin() {
       </div>
 
       {showConnectDialog && (
-         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowConnectDialog(false)}>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
-               <div className="p-6">
-                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5 border border-slate-200 dark:border-slate-700">
+         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-[var(--phi-space-3)]" onClick={() => setShowConnectDialog(false)}>
+            <div className="bg-white dark:bg-slate-900 rounded-[var(--phi-radius)] shadow-xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
+               <div className="p-[var(--phi-space-4)]">
+                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-[var(--phi-space-3)] border border-slate-200 dark:border-slate-700">
                    <SiGoogle className="w-6 h-6 text-slate-700 dark:text-slate-300" />
                  </div>
-                 <h2 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Google Authorization Required</h2>
-                 <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                 <h2 className="text-xl font-bold mb-[var(--phi-space-1)] text-slate-900 dark:text-white">Google Authorization Required</h2>
+                 <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-[var(--phi-space-4)]">
                    Secure OAuth setup is required to connect your Google Business Profile. For your security, this feature requires a registered domain and verified API credentials.
                  </p>
-                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4 mb-6">
+                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-[var(--phi-radius)] p-[var(--phi-space-3)] mb-[var(--phi-space-4)]">
                    <p className="text-sm text-blue-800 dark:text-blue-300 font-medium leading-relaxed">
                       Google Business Profile OAuth must be enabled for the live domain before this workspace can connect the owner's account.
                    </p>
@@ -819,7 +819,7 @@ function UsersAdmin() {
         count={`${rows.length} account${rows.length === 1 ? '' : 's'}`}
       />
       <div className={`${adminCardClass} p-[var(--phi-space-4)]`}>
-        <div className="grid gap-3 sm:grid-cols-[1fr_160px_auto]">
+        <div className="grid gap-[var(--phi-space-2)] sm:grid-cols-[1fr_160px_auto]">
           <Input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="staff@example.com" aria-label="Staff email" />
           <Select value={role} onValueChange={value => setRole(value as 'admin' | 'staff')}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -827,18 +827,18 @@ function UsersAdmin() {
           </Select>
           <Button disabled={busy || !email.trim()} onClick={() => void grant()}><Plus className="mr-2 h-4 w-4" /> Grant access</Button>
         </div>
-        {message ? <p role="alert" className="mt-3 text-sm font-semibold text-red-700">{message}</p> : null}
+        {message ? <p role="alert" className="mt-[var(--phi-space-2)] text-sm font-semibold text-red-700">{message}</p> : null}
       </div>
       <div className={`${adminCardClass} divide-y divide-slate-200 overflow-hidden dark:divide-slate-800`}>
-        {rows.map(row => <div key={row.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+        {rows.map(row => <div key={row.id} className="flex flex-col gap-[var(--phi-space-2)] p-[var(--phi-space-3)] sm:flex-row sm:items-center sm:justify-between">
           <div><p className="font-bold text-slate-950 dark:text-white">{row.email}</p><p className="text-xs text-slate-500">{row.status === 'pending' ? 'Pending first Google sign-in' : 'Active'}</p></div>
-          <div className="flex items-center gap-2"><StatusBadge value={row.role.replace('_', ' ')} /><StatusBadge value={row.status} />
+          <div className="flex items-center gap-[var(--phi-space-1)]"><StatusBadge value={row.role.replace('_', ' ')} /><StatusBadge value={row.status} />
             <Button variant="outline" size="sm" disabled={row.protectedOwner || busy} onClick={() => setRevoke(row)}>
               <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {row.protectedOwner ? 'Protected owner' : 'Revoke'}
             </Button>
           </div>
         </div>)}
-        {!rows.length ? <p className="p-6 text-sm text-slate-500">No access records found.</p> : null}
+        {!rows.length ? <p className="p-[var(--phi-space-4)] text-sm text-slate-500">No access records found.</p> : null}
       </div>
       <AlertDialog open={Boolean(revoke)} onOpenChange={open => !open && setRevoke(null)}>
         <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Revoke staff access?</AlertDialogTitle>
@@ -862,7 +862,7 @@ function AdminImagePreview({ src, alt }: { src: string; alt: string }) {
 
   if (hasError) {
     return (
-      <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-2 text-center text-[10px] font-medium text-slate-400 dark:border-slate-700 dark:bg-slate-950">
+      <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-[var(--phi-radius)] border border-dashed border-slate-300 bg-slate-50 px-2 text-center text-[10px] font-medium text-slate-400 dark:border-slate-700 dark:bg-slate-950">
         Image unavailable
       </div>
     );
@@ -872,7 +872,7 @@ function AdminImagePreview({ src, alt }: { src: string; alt: string }) {
     <img
       src={src}
       alt={alt}
-      className="h-16 w-24 shrink-0 rounded-lg border border-slate-200 bg-slate-100 object-cover dark:border-slate-700 dark:bg-slate-800"
+      className="h-16 w-24 shrink-0 rounded-[var(--phi-radius)] border border-slate-200 bg-slate-100 object-cover dark:border-slate-700 dark:bg-slate-800"
       onError={() => setHasError(true)}
     />
   );
@@ -981,7 +981,7 @@ function ContentModuleAdmin({
         title={title}
         description={description}
         count={`${rows.length} ${rows.length === 1 ? "item" : "items"}`}
-        action={<Button onClick={() => { setEditingId(null); setDraft(fields.map(() => "")); }} className="h-10 rounded-xl font-bold shadow-sm"><Plus className="mr-2 h-4 w-4" /> {addLabel}</Button>}
+        action={<Button onClick={() => { setEditingId(null); setDraft(fields.map(() => "")); }} className="h-10 rounded-[var(--phi-radius)] font-bold shadow-sm"><Plus className="mr-2 h-4 w-4" /> {addLabel}</Button>}
       />
 
       <AdminStatStrip stats={[
@@ -993,13 +993,13 @@ function ContentModuleAdmin({
 
       {draft && (
         <div className={`${adminCardClass} overflow-hidden border-primary/30`}>
-          <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
+          <div className="border-b border-slate-100 bg-slate-50/70 px-[var(--phi-space-3)] py-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-900/60">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{editingId ? "Edit record" : "New record"}</p>
             <h3 className="mt-1 font-display text-lg font-bold text-slate-950 dark:text-white">{editingId ? `Update ${title.toLowerCase()} details` : `Add to ${title.toLowerCase()}`}</h3>
             <p className="mt-1 text-sm text-slate-500">Complete each field so the customer-facing content stays clear and useful.</p>
           </div>
-          <div className="p-5 sm:p-6">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="p-[var(--phi-space-3)] sm:p-[var(--phi-space-4)]">
+          <div className="grid gap-[var(--phi-space-3)] md:grid-cols-2">
             {fields.map((field, index) => (
               <div key={field} className={field.toLowerCase().includes("description") || field.toLowerCase().includes("message") || field.toLowerCase().includes("quote") ? "md:col-span-2" : ""}>
                 <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">{field}</label>
@@ -1028,7 +1028,7 @@ function ContentModuleAdmin({
               </div>
             ))}
           </div>
-          <div className="mt-5 flex flex-wrap justify-end gap-2">
+          <div className="mt-[var(--phi-space-3)] flex flex-wrap justify-end gap-[var(--phi-space-1)]">
             <Button variant="outline" onClick={cancelDraft}>Cancel</Button>
             <Button onClick={addRow}><Check className="mr-2 h-4 w-4" /> {editingId ? "Save changes" : "Save record"}</Button>
           </div>
@@ -1036,28 +1036,28 @@ function ContentModuleAdmin({
         </div>
       )}
 
-      <div className="grid gap-4">
+      <div className="grid gap-[var(--phi-space-3)]">
         {rows.map((row) => (
           <article key={row.id} className={`${adminCardClass} overflow-hidden transition-shadow hover:shadow-lg`}>
-            <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
-              <div className="flex min-w-0 gap-4">
+            <div className="flex flex-col gap-[var(--phi-space-3)] border-b border-slate-100 p-[var(--phi-space-3)] sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
+              <div className="flex min-w-0 gap-[var(--phi-space-3)]">
                 {hasImages && row.values[imageIndex] ? <AdminImagePreview src={row.values[imageIndex]} alt={`${row.values[0] || title} preview`} /> : (
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-primary dark:bg-orange-950/30"><Wrench className="h-6 w-6" /></div>
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[var(--phi-radius)] bg-orange-50 text-primary dark:bg-orange-950/30"><Wrench className="h-6 w-6" /></div>
                 )}
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-[var(--phi-space-1)]">
                     <h3 className="truncate font-display text-lg font-bold text-slate-950 dark:text-white">{row.values[0] || "Untitled item"}</h3>
                     {row.values[row.values.length - 1] ? <StatusBadge value={row.values[row.values.length - 1]} /> : null}
                   </div>
                   <p className="mt-1 text-xs text-slate-400">{title} record · Browser demo state</p>
                 </div>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Button size="sm" variant="outline" className="h-9 gap-1.5 rounded-lg" onClick={() => startEdit(row)}><Edit2 className="h-3.5 w-3.5" /> Edit</Button>
-                <Button size="sm" variant="outline" className="h-9 gap-1.5 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setDeleteTarget(row)}><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
+              <div className="flex shrink-0 flex-wrap gap-[var(--phi-space-1)]">
+                <Button size="sm" variant="outline" className="h-9 gap-1.5 rounded-[var(--phi-radius)]" onClick={() => startEdit(row)}><Edit2 className="h-3.5 w-3.5" /> Edit</Button>
+                <Button size="sm" variant="outline" className="h-9 gap-1.5 rounded-[var(--phi-radius)] text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setDeleteTarget(row)}><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
               </div>
             </div>
-            <div className="grid gap-5 p-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-[var(--phi-space-3)] p-[var(--phi-space-3)] md:grid-cols-2 lg:grid-cols-4">
               {row.values.map((value, index) => {
                 const field = fields[index] || `Detail ${index + 1}`;
                 if (index === 0 || index === imageIndex) return null;
@@ -1114,7 +1114,7 @@ function normalizeContentRow(storageKey: string, row: ContentRow, fields: string
 
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className={`${adminCardClass} border-dashed px-6 py-14 text-center`}>
+    <div className={`${adminCardClass} border-dashed px-[var(--phi-space-4)] py-[var(--phi-space-5)] text-center`}>
       <p className="font-semibold text-slate-900 dark:text-white">{title}</p>
       <p className="mt-1 text-sm text-slate-500">{description}</p>
     </div>
@@ -1181,7 +1181,7 @@ function ServiceRequestsAdmin() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 p-8 flex items-center justify-center">
+      <div className="flex-1 p-[var(--phi-space-4)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
@@ -1195,30 +1195,30 @@ function ServiceRequestsAdmin() {
         description="Review new leads, confirm job details, and keep every request moving toward a safe, scheduled visit."
         count={`${filteredRequests.length} visible`}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className={`${adminCardClass} p-5`}>
-          <div className="flex items-center justify-between mb-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--phi-space-3)]">
+        <div className={`${adminCardClass} p-[var(--phi-space-3)]`}>
+          <div className="flex items-center justify-between mb-[var(--phi-space-2)]">
             <h4 className="text-sm font-medium text-slate-500">New Requests</h4>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <p className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{dashboard?.newRequests || 0}</p>
         </div>
-        <div className={`${adminCardClass} p-5 ${dashboard?.emergencyCalls ? '!border-red-200 !bg-red-50/30' : ''}`}>
-          <div className="flex items-center justify-between mb-3">
+        <div className={`${adminCardClass} p-[var(--phi-space-3)] ${dashboard?.emergencyCalls ? '!border-red-200 !bg-red-50/30' : ''}`}>
+          <div className="flex items-center justify-between mb-[var(--phi-space-2)]">
             <h4 className={`text-sm font-medium ${dashboard?.emergencyCalls ? 'text-red-600 font-bold' : 'text-slate-500'}`}>Emergencies</h4>
             <AlertTriangle className={`h-4 w-4 ${dashboard?.emergencyCalls ? 'text-red-500' : 'text-slate-400'}`} />
           </div>
           <p className={`text-3xl font-bold tracking-tight ${dashboard?.emergencyCalls ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>{dashboard?.emergencyCalls || 0}</p>
         </div>
-        <div className={`${adminCardClass} p-5`}>
-          <div className="flex items-center justify-between mb-3">
+        <div className={`${adminCardClass} p-[var(--phi-space-3)]`}>
+          <div className="flex items-center justify-between mb-[var(--phi-space-2)]">
             <h4 className="text-sm font-medium text-slate-500">Scheduled</h4>
             <Calendar className="h-4 w-4 text-blue-500" />
           </div>
           <p className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{dashboard?.scheduledToday || 0}</p>
         </div>
-        <div className={`${adminCardClass} p-5`}>
-          <div className="flex items-center justify-between mb-3">
+        <div className={`${adminCardClass} p-[var(--phi-space-3)]`}>
+          <div className="flex items-center justify-between mb-[var(--phi-space-2)]">
             <h4 className="text-sm font-medium text-slate-500">Pipeline Rev</h4>
             <Clock className="h-4 w-4 text-purple-500" />
           </div>
@@ -1226,8 +1226,8 @@ function ServiceRequestsAdmin() {
         </div>
       </div>
 
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <section className="space-y-[var(--phi-space-3)]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-[var(--phi-space-3)]">
           <div>
           <h3 className="font-bold text-lg text-slate-900 dark:text-white">Active Service Requests</h3>
             <p className="mt-1 text-sm text-slate-500">Each card includes the contact, location, schedule, and dispatch status.</p>
@@ -1245,12 +1245,12 @@ function ServiceRequestsAdmin() {
           {filteredRequests.length === 0 ? (
             <EmptyState title="No requests found" description="Try a different search or wait for a new customer request." />
           ) : (
-            <div className="grid gap-5">
+            <div className="grid gap-[var(--phi-space-3)]">
               {filteredRequests.map((req) => (
                 <article key={req.id} className={`${adminCardClass} overflow-hidden`}>
-                  <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6 dark:border-slate-800">
+                  <div className="flex flex-col gap-[var(--phi-space-2)] border-b border-slate-100 p-[var(--phi-space-3)] sm:flex-row sm:items-start sm:justify-between sm:p-[var(--phi-space-4)] dark:border-slate-800">
                     <div>
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-[var(--phi-space-1)]">
                         <h3 className="text-lg font-bold text-slate-950 dark:text-white">{req.customerName}</h3>
                         <Badge variant="outline" className="gap-1 capitalize">{getUrgencyIcon(req.urgency)}{req.urgency}</Badge>
                         <Badge variant="outline" className={`capitalize ${getStatusColor(req.status)}`}>{req.status}</Badge>
@@ -1258,7 +1258,7 @@ function ServiceRequestsAdmin() {
                       <p className="mt-1 text-xs text-slate-400">Request #{req.id} · {format(new Date(req.createdAt), 'MMM d, yyyy h:mm a')}</p>
                     </div>
                     <Select value={req.status} onValueChange={(val) => handleStatusChange(req.id, val as ServiceRequestUpdateStatus)}>
-                      <SelectTrigger className="w-full sm:w-52 h-10 rounded-xl border-2 bg-white font-semibold dark:bg-slate-900"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-full sm:w-52 h-10 rounded-[var(--phi-radius)] border-2 bg-white font-semibold dark:bg-slate-900"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="new">New / Unassigned</SelectItem>
                         <SelectItem value="scheduled">Scheduled</SelectItem>
@@ -1267,21 +1267,21 @@ function ServiceRequestsAdmin() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_1fr]">
-                    <div className="space-y-4">
+                  <div className="grid gap-[var(--phi-space-4)] p-[var(--phi-space-3)] sm:p-[var(--phi-space-4)] lg:grid-cols-[1fr_1fr]">
+                    <div className="space-y-[var(--phi-space-3)]">
                       <MetadataRow icon={<Phone />} label="Phone"><a className="font-semibold text-slate-900 hover:text-primary dark:text-white" href={`tel:${req.phone}`}>{req.phone}</a></MetadataRow>
                       <MetadataRow icon={<Mail />} label="Email"><a className="break-all font-semibold text-slate-900 hover:text-primary dark:text-white" href={`mailto:${req.email}`}>{req.email}</a></MetadataRow>
                       <MetadataRow icon={<MapPin />} label="Job location">{[req.streetAddress, req.city, req.state, req.zip].filter(Boolean).join(', ')}</MetadataRow>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-[var(--phi-space-3)]">
                       <MetadataRow icon={<Wrench />} label="Service">{req.service}</MetadataRow>
                       <MetadataRow icon={<CalendarDays />} label="Preferred schedule">{req.preferredDate || 'No date'}{req.preferredTime ? ` · ${TIME_WINDOW_LABELS[req.preferredTime] ?? req.preferredTime}` : ' · Any time'}</MetadataRow>
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                      <div className="rounded-[var(--phi-radius)] border border-slate-200 bg-slate-50 p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-950/50">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Job description</p>
-                        <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{req.details || 'No additional details provided.'}</p>
+                        <p className="mt-[var(--phi-space-1)] text-sm leading-6 text-slate-700 dark:text-slate-300">{req.details || 'No additional details provided.'}</p>
                       </div>
-                       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
-                         <div className="flex flex-wrap items-center justify-between gap-2">
+                       <div className="rounded-[var(--phi-radius)] border border-slate-200 bg-slate-50 p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-950/50">
+                         <div className="flex flex-wrap items-center justify-between gap-[var(--phi-space-1)]">
                            <div>
                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">External notification</p>
                              <p className="mt-1 text-sm font-semibold capitalize">{req.delivery?.status || "unconfigured"}</p>
@@ -1292,9 +1292,9 @@ function ServiceRequestsAdmin() {
                          </div>
                        </div>
                        {req.attachments?.length ? (
-                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                         <div className="rounded-[var(--phi-radius)] border border-slate-200 bg-slate-50 p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-950/50">
                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Private attachments</p>
-                           <div className="mt-2 space-y-1">
+                           <div className="mt-[var(--phi-space-1)] space-y-1">
                              {req.attachments.map((file: any) => file.status === "uploaded" ? (
                                <a key={file.id} className="block text-sm font-semibold text-primary underline" href={`/api/garage/requests/${req.id}/attachments/${file.id}`} target="_blank" rel="noreferrer">{file.originalName}</a>
                              ) : <span key={file.id} className="block text-sm text-slate-500">{file.originalName} (upload incomplete)</span>)}
@@ -1314,8 +1314,8 @@ function ServiceRequestsAdmin() {
 
 function MetadataRow({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
-    <div className="flex gap-3 text-sm text-slate-600 dark:text-slate-300">
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-primary [&>svg]:h-4 [&>svg]:w-4 dark:bg-orange-950/30">{icon}</span>
+    <div className="flex gap-[var(--phi-space-2)] text-sm text-slate-600 dark:text-slate-300">
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--phi-radius)] bg-orange-50 text-primary [&>svg]:h-4 [&>svg]:w-4 dark:bg-orange-950/30">{icon}</span>
       <div><p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p><div className="mt-0.5 font-medium">{children}</div></div>
     </div>
   );
@@ -1342,32 +1342,32 @@ function BookingsAdmin({ setTab }: { setTab: (tab: AdminTab) => void }) {
       {(!bookings || bookings.length === 0) ? (
         <EmptyState title="No bookings scheduled yet" description="Confirmed customer appointments will appear here." />
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-[var(--phi-space-3)]">
            {bookings.map(b => (
              <article key={b.id} className={`${adminCardClass} overflow-hidden`}>
-               <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
+               <div className="flex flex-col gap-[var(--phi-space-3)] border-b border-slate-100 p-[var(--phi-space-3)] sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
                  <div>
-                   <div className="flex flex-wrap items-center gap-2">
+                   <div className="flex flex-wrap items-center gap-[var(--phi-space-1)]">
                      <h3 className="font-display text-lg font-bold text-slate-950 dark:text-white">{b.title}</h3>
                      <StatusBadge value="Confirmed" />
                    </div>
                    <p className="mt-1 text-xs text-slate-400">Booking #{b.id} · Confirmed customer appointment</p>
                  </div>
-                 <div className="inline-flex items-center gap-2 rounded-xl border-2 border-primary/20 bg-orange-50 px-3 py-2 text-sm font-bold text-slate-900 dark:bg-orange-950/20 dark:text-white">
+                 <div className="inline-flex items-center gap-[var(--phi-space-1)] rounded-[var(--phi-radius)] border-2 border-primary/20 bg-orange-50 px-[var(--phi-space-2)] py-2 text-sm font-bold text-slate-900 dark:bg-orange-950/20 dark:text-white">
                    <CalendarDays className="h-4 w-4 text-primary" /> {b.date}
                  </div>
                </div>
-               <div className="grid gap-5 p-5 sm:grid-cols-3">
+               <div className="grid gap-[var(--phi-space-3)] p-[var(--phi-space-3)] sm:grid-cols-3">
                  <MetadataRow icon={<User />} label="Customer">{b.customer}</MetadataRow>
                  <MetadataRow icon={<Wrench />} label="Service">{b.title}</MetadataRow>
                  <MetadataRow icon={<Clock />} label="Dispatch note">Confirm arrival window before sending the technician.</MetadataRow>
                </div>
-               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3 dark:border-slate-800 dark:bg-slate-950/30">
+               <div className="flex flex-wrap items-center justify-between gap-[var(--phi-space-2)] border-t border-slate-100 bg-slate-50/70 px-[var(--phi-space-3)] py-[var(--phi-space-2)] dark:border-slate-800 dark:bg-slate-950/30">
                  <p className="text-xs text-slate-500">Use the service request record for phone, email, and full job location.</p>
                  <Button
                    variant="outline"
                    size="sm"
-                   className="rounded-lg"
+                   className="rounded-[var(--phi-radius)]"
                    onClick={() => {
                      setTab("service-requests");
                      window.history.replaceState(null, "", "#service-requests");

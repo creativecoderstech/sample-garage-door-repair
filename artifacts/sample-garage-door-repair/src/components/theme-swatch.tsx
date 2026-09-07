@@ -36,7 +36,7 @@ export function ThemeSwatch() {
           aria-label="Choose a website theme"
           className="phi-card absolute bottom-[var(--phi-space-5)] right-0 w-[min(calc(100vw-2rem),22rem)] overflow-hidden border bg-card p-[var(--phi-space-3)] text-card-foreground shadow-2xl"
         >
-          <div className="flex items-start justify-between gap-4 border-b pb-3">
+          <div className="flex items-start justify-between gap-[var(--phi-space-3)] border-b pb-3">
             <div>
               <p className="text-sm font-bold">Choose a business style</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
@@ -53,7 +53,7 @@ export function ThemeSwatch() {
             </button>
           </div>
 
-          <div className="mt-3 space-y-1.5">
+          <div className="mt-[var(--phi-space-2)] space-y-1.5">
             {THEMES.map((option) => {
               const isSelected = activeTheme === option.id;
               return (
@@ -62,7 +62,7 @@ export function ThemeSwatch() {
                   type="button"
                   onClick={() => setTheme(option.id)}
                   aria-pressed={isSelected}
-                  className={`flex w-full items-center gap-3 rounded-[var(--phi-radius)] border p-[var(--phi-space-2)] text-left transition-colors ${
+                  className={`flex w-full items-center gap-[var(--phi-space-2)] rounded-[var(--phi-radius)] border p-[var(--phi-space-2)] text-left transition-colors ${
                     isSelected
                       ? "border-primary bg-primary/10"
                       : "border-transparent hover:border-border hover:bg-muted/60"

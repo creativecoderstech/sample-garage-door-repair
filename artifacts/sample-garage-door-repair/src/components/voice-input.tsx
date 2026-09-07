@@ -164,7 +164,7 @@ export function VoiceInput({
   const elapsed = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-[var(--phi-space-2)] flex-wrap">
       {status === 'recording' ? (
         <Button type="button" variant="destructive" onClick={() => recorderRef.current?.stop()}>
           <Square className="w-4 h-4" />

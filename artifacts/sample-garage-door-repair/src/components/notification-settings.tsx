@@ -43,23 +43,23 @@ export function NotificationSettings() {
   }
 
   return (
-    <section className="phi-admin-card space-y-4 border-2 border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900" aria-labelledby="notification-heading">
-      <div className="flex items-start gap-3">
+    <section className="phi-admin-card space-y-[var(--phi-space-3)] border-2 border-slate-200 bg-white p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-900" aria-labelledby="notification-heading">
+      <div className="flex items-start gap-[var(--phi-space-2)]">
         <BellRing className="mt-0.5 h-5 w-5 text-primary" />
         <div>
           <h3 id="notification-heading" className="font-display text-lg font-bold">Request delivery</h3>
           <p className="mt-1 text-sm text-muted-foreground">Send completed new-request events to an owner-approved HTTPS webhook. A deployment owner must securely authorize the receiver’s exact domain; this screen cannot change that server allowlist.</p>
         </div>
       </div>
-      <label className="block space-y-2">
+      <label className="block space-y-[var(--phi-space-1)]">
         <span className="text-sm font-semibold">HTTPS webhook URL</span>
         <Input type="url" value={settings.webhookUrl || ""} onChange={event => setSettings(current => ({ ...current, webhookUrl: event.target.value }))} placeholder="https://your-provider.com/…" disabled={state !== "idle"} />
       </label>
-      <label className="flex items-center gap-2 text-sm font-semibold">
+      <label className="flex items-center gap-[var(--phi-space-1)] text-sm font-semibold">
         <input type="checkbox" checked={settings.enabled} onChange={event => setSettings(current => ({ ...current, enabled: event.target.checked }))} />
         Enable delivery after saving
       </label>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-[var(--phi-space-1)]">
         <Button type="button" onClick={() => send("/api/garage/admin/notifications", "saving")} disabled={state !== "idle"}>
           {state === "saving" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Save destination
         </Button>

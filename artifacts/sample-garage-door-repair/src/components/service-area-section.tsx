@@ -32,16 +32,16 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
     >
       <div className="phi-container">
         <div className="mx-auto mb-[var(--phi-space-6)] max-w-3xl text-center reveal-on-scroll">
-          <p className="phi-eyebrow mb-3 text-primary">Service area</p>
+          <p className="phi-eyebrow mb-[var(--phi-space-2)] text-primary">Service area</p>
           <h2 id="service-area-title" className="phi-section-title mx-auto">
             Where I Work
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-[var(--phi-space-3)] max-w-2xl text-lg leading-relaxed text-muted-foreground">
             {isVerified
               ? publishedArea
               : "The business has not published a verified service area yet."}
           </p>
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+          <p className="mx-auto mt-[var(--phi-space-1)] max-w-2xl text-sm leading-6 text-muted-foreground">
             {isVerified
               ? "Coverage is reviewed by the business when you send a service request."
               : "This preview keeps coverage details general until the business supplies and verifies them."}
@@ -104,11 +104,11 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
               <path d="M40 122 C 180 86 284 112 408 56" fill="none" stroke="#a9c5a5" strokeWidth="22" opacity="0.35" />
             </svg>
 
-            <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-6">
-              <div className="rounded-full border border-white/70 bg-white/85 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-200">
+            <div className="absolute inset-x-[var(--phi-space-3)] top-[var(--phi-space-3)] flex items-start justify-between gap-[var(--phi-space-2)] sm:inset-x-[var(--phi-space-4)] sm:top-[var(--phi-space-4)]">
+              <div className="rounded-full border border-white/70 bg-white/85 px-[var(--phi-space-2)] py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-200">
                 {isVerified ? "Published area" : "Coverage preview"}
               </div>
-              <div className="rounded-full border border-white/70 bg-white/85 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-300">
+              <div className="rounded-full border border-white/70 bg-white/85 px-[var(--phi-space-2)] py-1.5 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-300">
                 {isVerified ? "Visual guide" : "Not to scale"}
               </div>
             </div>
@@ -119,13 +119,13 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
                 <div className="relative flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-primary text-primary-foreground shadow-xl sm:h-14 sm:w-14">
                   <MapPin className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
                 </div>
-                <span className="absolute -top-10 rounded-full bg-slate-950/80 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                <span className="absolute -top-10 rounded-full bg-slate-950/80 px-[var(--phi-space-2)] py-1 text-xs font-bold text-white shadow-lg">
                   {isVerified ? "Service area" : "Preview center"}
                 </span>
               </div>
             </div>
 
-            <div className="absolute bottom-4 left-4 max-w-[15rem] rounded-xl border border-white/70 bg-white/85 px-3 py-2 text-xs leading-5 text-slate-600 shadow-sm backdrop-blur-sm sm:bottom-6 sm:left-6 dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-300">
+            <div className="absolute bottom-[var(--phi-space-3)] left-[var(--phi-space-3)] max-w-[15rem] rounded-[var(--phi-radius)] border border-white/70 bg-white/85 px-[var(--phi-space-2)] py-2 text-xs leading-5 text-slate-600 shadow-sm backdrop-blur-sm sm:bottom-[var(--phi-space-4)] sm:left-[var(--phi-space-4)] dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-300">
               {isVerified
                 ? "Coverage boundaries are reviewed when the business confirms your request."
                 : "A map boundary and community list will appear only after verification."}
@@ -133,7 +133,7 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
           </div>
 
           <div className="phi-card flex flex-col border bg-card p-[var(--phi-space-4)] shadow-sm sm:p-[var(--phi-space-5)]">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-[var(--phi-space-2)]">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <MapPin className="h-5 w-5" aria-hidden="true" />
               </div>
@@ -150,17 +150,17 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
             </div>
 
             {isVerified && areaItems.length > 0 ? (
-              <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <ul className="mt-[var(--phi-space-4)] grid gap-[var(--phi-space-2)] sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 {areaItems.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm font-semibold text-foreground/80">
+                  <li key={item} className="flex items-start gap-[var(--phi-space-1)] text-sm font-semibold text-foreground/80">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="mt-7 rounded-xl border border-dashed border-border bg-muted/30 p-4 text-sm leading-6 text-muted-foreground">
-                <div className="mb-2 flex items-center gap-2 font-bold text-foreground">
+              <div className="mt-[var(--phi-space-4)] rounded-[var(--phi-radius)] border border-dashed border-border bg-muted/30 p-[var(--phi-space-3)] text-sm leading-6 text-muted-foreground">
+                <div className="mb-[var(--phi-space-1)] flex items-center gap-[var(--phi-space-1)] font-bold text-foreground">
                   <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
                   Awaiting business verification
                 </div>
@@ -168,11 +168,11 @@ export function ServiceAreaSection({ serviceArea, isVerified }: ServiceAreaSecti
               </div>
             )}
 
-            <div className="mt-auto border-t border-border/70 pt-6">
+            <div className="mt-auto border-t border-border/70 pt-[var(--phi-space-4)]">
               <p className="text-sm leading-6 text-muted-foreground">
                 Have a garage-door issue or a location question? Send a request and the business can confirm coverage and timing.
               </p>
-              <Button asChild className="mt-5 w-full font-display font-bold shadow-md sm:w-auto">
+              <Button asChild className="mt-[var(--phi-space-3)] w-full font-display font-bold shadow-md sm:w-auto">
                 <a href="#booking">
                   Ask about availability
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />

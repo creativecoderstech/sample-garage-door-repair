@@ -56,12 +56,12 @@ function ServiceDetailPageContent() {
 
       <div className="phi-section bg-background">
         <div className="phi-container">
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          <div className="flex flex-col lg:flex-row gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)]">
             
             {/* Main Content */}
             <div className="w-full lg:w-[58%] xl:w-2/3">
               {service.imageUrl && (
-                <div className="w-full aspect-[16/9] overflow-hidden mb-10 bg-muted border border-border">
+                <div className="w-full aspect-[16/9] overflow-hidden mb-[var(--phi-space-5)] bg-muted border border-border">
                   <img src={publicAssetUrl(service.imageUrl)} alt={service.imageAlt || service.title} className="w-full h-full object-cover" />
                 </div>
               )}
@@ -74,11 +74,11 @@ function ServiceDetailPageContent() {
               
               {/* Service Structure */}
               {(service.symptoms && service.symptoms.length > 0) && (
-                 <div className="mt-12 bg-muted/30 p-8 border border-border">
-                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-6">Common Symptoms</h3>
-                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="mt-[var(--phi-space-5)] bg-muted/30 p-[var(--phi-space-4)] border border-border">
+                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-[var(--phi-space-4)]">Common Symptoms</h3>
+                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-[var(--phi-space-3)]">
                      {service.symptoms.map((symptom, idx) => (
-                       <li key={idx} className="flex items-start gap-3 text-muted-foreground font-medium">
+                       <li key={idx} className="flex items-start gap-[var(--phi-space-2)] text-muted-foreground font-medium">
                          <div className="w-6 h-6 rounded bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center mt-0.5">
                            <span className="text-xs font-bold">{idx + 1}</span>
                          </div>
@@ -90,11 +90,11 @@ function ServiceDetailPageContent() {
               )}
 
               {(service.expectations && service.expectations.length > 0) && (
-                 <div className="mt-12 border-t border-border pt-12">
-                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-6">Our Process</h3>
-                   <ul className="flex flex-col gap-4">
+                 <div className="mt-[var(--phi-space-5)] border-t border-border pt-[var(--phi-space-5)]">
+                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-[var(--phi-space-4)]">Our Process</h3>
+                   <ul className="flex flex-col gap-[var(--phi-space-3)]">
                      {service.expectations.map((step, idx) => (
-                       <li key={idx} className="flex items-start gap-4 text-foreground">
+                       <li key={idx} className="flex items-start gap-[var(--phi-space-3)] text-foreground">
                          <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                          <span className="text-lg font-medium">{step}</span>
                        </li>
@@ -104,12 +104,12 @@ function ServiceDetailPageContent() {
               )}
 
               {(service.serviceFaqs && service.serviceFaqs.length > 0) && (
-                 <div className="mt-12 border-t border-border pt-12">
-                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-8">Service FAQs</h3>
-                   <div className="flex flex-col gap-6">
+                 <div className="mt-[var(--phi-space-5)] border-t border-border pt-[var(--phi-space-5)]">
+                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-[var(--phi-space-4)]">Service FAQs</h3>
+                   <div className="flex flex-col gap-[var(--phi-space-4)]">
                      {service.serviceFaqs.map((faq, idx) => (
-                       <div key={idx} className="bg-card border border-border p-6 rounded-none">
-                         <h4 className="font-bold text-lg mb-2 flex items-start gap-3">
+                       <div key={idx} className="bg-card border border-border p-[var(--phi-space-4)] rounded-none">
+                         <h4 className="font-bold text-lg mb-[var(--phi-space-1)] flex items-start gap-[var(--phi-space-2)]">
                             <span className="text-primary mt-1">Q.</span> {faq.question}
                          </h4>
                          <p className="text-muted-foreground pl-6">{faq.answer}</p>
@@ -121,22 +121,22 @@ function ServiceDetailPageContent() {
 
               {/* Related Projects */}
               {relatedProjects.length > 0 && (
-                <div className="mt-16 pt-12 border-t border-border">
-                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-8">Related Work</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="mt-[var(--phi-space-6)] pt-[var(--phi-space-5)] border-t border-border">
+                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-[var(--phi-space-4)]">Related Work</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--phi-space-3)]">
                     {relatedProjects.map(project => (
                       <div key={project.id} className="group relative overflow-hidden rounded-none aspect-square bg-muted border border-border">
                         {project.imageUrl && (
                           <>
                             <img src={publicAssetUrl(project.imageUrl)} alt={project.imageAlt || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             {!isVerified && project.verificationStatus !== "verified" && (
-                              <div className="absolute top-2 right-2 bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-widest px-2 py-1 border border-border z-10">
+                              <div className="absolute top-[var(--phi-space-1)] right-[var(--phi-space-1)] bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-widest px-2 py-1 border border-border z-10">
                                 Style Inspiration
                               </div>
                             )}
                           </>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6 text-white">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-[var(--phi-space-4)] text-white">
                           <span className="garage-display text-xl uppercase tracking-wide transform translate-y-2 group-hover:translate-y-0 transition-transform">{project.title}</span>
                         </div>
                       </div>
@@ -148,7 +148,7 @@ function ServiceDetailPageContent() {
             
             {/* Sidebar */}
             <div className="w-full lg:w-[42%] xl:w-1/3">
-              <div className="sticky top-28 flex flex-col gap-8">
+              <div className="sticky top-[var(--phi-space-1)]8 flex flex-col gap-[var(--phi-space-4)]">
                 
                 {/* Booking Widget */}
                 <div id="booking" className="scroll-mt-28">
@@ -156,9 +156,9 @@ function ServiceDetailPageContent() {
                 </div>
                 
                 {/* Other Services */}
-                <div className="bg-muted/30 border border-border p-6">
-                  <h3 className="garage-display text-2xl uppercase tracking-wide mb-6">Other Services</h3>
-                  <ul className="flex flex-col gap-3">
+                <div className="bg-muted/30 border border-border p-[var(--phi-space-4)]">
+                  <h3 className="garage-display text-2xl uppercase tracking-wide mb-[var(--phi-space-4)]">Other Services</h3>
+                  <ul className="flex flex-col gap-[var(--phi-space-2)]">
                     {servicesList.filter(s => s.id !== service.id).map(s => (
                       <li key={s.id}>
                         <Link href={`/services/${s.slug}`} className="group flex items-center justify-between text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors py-2 border-b border-border/50">

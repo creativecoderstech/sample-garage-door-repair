@@ -57,7 +57,7 @@ function HomePageContent() {
         <div className="phi-container relative z-10 flex flex-grow flex-col justify-center py-[var(--phi-space-6)]">
           <div className="max-w-[55.45rem]">
             {isVerified && settings?.trustProfile?.yearsInBusiness && (
-              <span className="inline-block py-1 px-3 bg-primary text-primary-foreground font-bold tracking-widest text-xs uppercase mb-6 rounded-none">
+              <span className="inline-block py-1 px-[var(--phi-space-2)] bg-primary text-primary-foreground font-bold tracking-widest text-xs uppercase mb-[var(--phi-space-4)] rounded-none">
                 {settings.trustProfile.yearsInBusiness}
               </span>
             )}
@@ -69,10 +69,10 @@ function HomePageContent() {
               {homePage?.summary || "Garage-door repair, opener service and new door installation for homes and businesses."}
             </p>
             <div className="flex flex-col gap-[var(--phi-space-3)] sm:flex-row">
-              <Button asChild size="lg" className="rounded-none h-14 px-8 font-bold uppercase tracking-widest text-sm bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button asChild size="lg" className="rounded-none h-14 px-[var(--phi-space-4)] font-bold uppercase tracking-widest text-sm bg-primary text-primary-foreground hover:bg-primary/90">
                 <Link href="#booking">Request Service</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-none h-14 px-8 font-bold uppercase tracking-widest text-sm text-white border-white/30 hover:bg-white/10 hover:text-white backdrop-blur">
+              <Button asChild size="lg" variant="outline" className="rounded-none h-14 px-[var(--phi-space-4)] font-bold uppercase tracking-widest text-sm text-white border-white/30 hover:bg-white/10 hover:text-white backdrop-blur">
                 <Link href="#services">Explore Services</Link>
               </Button>
             </div>
@@ -84,20 +84,20 @@ function HomePageContent() {
       {/* Selected offerings, not unverified business credentials. */}
       <div className="bg-background border-b border-border">
         <div className="phi-container">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border/50 py-8">
-            <div className="flex flex-col items-center text-center px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border/50 py-[var(--phi-space-4)]">
+            <div className="flex flex-col items-center text-center px-[var(--phi-space-3)]">
               <span className="garage-display text-4xl mb-1">Repair</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Doors, springs & hardware</span>
             </div>
-            <div className="flex flex-col items-center text-center px-4">
+            <div className="flex flex-col items-center text-center px-[var(--phi-space-3)]">
               <span className="garage-display text-4xl mb-1">Openers</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Repair & installation</span>
             </div>
-            <div className="flex flex-col items-center text-center px-4">
+            <div className="flex flex-col items-center text-center px-[var(--phi-space-3)]">
               <span className="garage-display text-4xl mb-1 text-primary">New Doors</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Find your home's style</span>
             </div>
-            <div className="flex flex-col items-center text-center px-4">
+            <div className="flex flex-col items-center text-center px-[var(--phi-space-3)]">
               <span className="garage-display text-4xl mb-1">Commercial</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Service for your business</span>
             </div>
@@ -109,7 +109,7 @@ function HomePageContent() {
       {homePage?.body && (
         <section className="phi-section bg-background">
           <div className="phi-container max-w-4xl">
-            <h2 className="garage-display text-4xl md:text-5xl uppercase mb-8 text-center">About {settings?.businessName || "Cumming Garage Door Service"}</h2>
+            <h2 className="garage-display text-4xl md:text-5xl uppercase mb-[var(--phi-space-4)] text-center">About {settings?.businessName || "Cumming Garage Door Service"}</h2>
             <div className="prose prose-lg dark:prose-invert mx-auto text-foreground/90 prose-p:leading-relaxed prose-headings:font-display prose-headings:uppercase">
               {homePage.body.split('\n\n').map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
@@ -123,9 +123,9 @@ function HomePageContent() {
       {isVerified && trustClaims.length > 0 && (
         <section className="phi-section-tight bg-secondary text-secondary-foreground border-y border-border">
           <div className="phi-container">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-[var(--phi-space-4)]">
               {trustClaims.map(claim => (
-                <div key={claim.id} className="flex flex-col items-center text-center gap-3 p-4">
+                <div key={claim.id} className="flex flex-col items-center text-center gap-[var(--phi-space-2)] p-[var(--phi-space-3)]">
                   <ShieldCheck className="w-10 h-10 text-primary opacity-90" />
                   <h3 className="font-display text-xl uppercase tracking-wider">{claim.title}</h3>
                   <p className="text-sm opacity-80">{claim.summary}</p>
@@ -139,28 +139,28 @@ function HomePageContent() {
       {/* Services Overview */}
       <section id="services" className="phi-section bg-muted/30 relative border-b border-border">
         <div className="phi-container relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-[var(--phi-space-5)] md:mb-[var(--phi-space-6)] gap-[var(--phi-space-4)]">
             <div className="max-w-2xl">
-              <h2 className="garage-display text-4xl md:text-6xl uppercase tracking-wide text-foreground mb-2">Our Services</h2>
+              <h2 className="garage-display text-4xl md:text-6xl uppercase tracking-wide text-foreground mb-[var(--phi-space-1)]">Our Services</h2>
               <p className="font-serif italic text-xl text-muted-foreground">Repair, replacement and maintenance for your garage door.</p>
             </div>
             <Button asChild variant="link" className="font-bold uppercase tracking-widest text-primary p-0">
-              <Link href="/services" className="flex items-center gap-2">
+              <Link href="/services" className="flex items-center gap-[var(--phi-space-1)]">
                 View All Services <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[var(--phi-space-4)] md:gap-[var(--phi-space-4)]">
             {services.map(service => (
               <Link key={service.id} href={`/services/${service.slug}`} className="group block h-full">
-                <div className="phi-card h-full bg-card hover:border-primary/50 transition-colors border border-border p-8 flex flex-col items-start gap-4 rounded-none">
+                <div className="phi-card h-full bg-card hover:border-primary/50 transition-colors border border-border p-[var(--phi-space-4)] flex flex-col items-start gap-[var(--phi-space-3)] rounded-none">
                   <div className="h-24 w-40 flex items-center justify-start opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all">
                     <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-full h-full" />
                   </div>
-                  <h3 className="garage-display text-2xl uppercase tracking-wide mt-2 group-hover:text-primary transition-colors">{service.title}</h3>
-                  <p className="text-muted-foreground line-clamp-3 mb-4 flex-grow">{service.summary}</p>
-                  <span className="text-xs font-bold uppercase tracking-widest text-foreground flex items-center gap-2 mt-auto group-hover:text-primary transition-colors">
+                  <h3 className="garage-display text-2xl uppercase tracking-wide mt-[var(--phi-space-1)] group-hover:text-primary transition-colors">{service.title}</h3>
+                  <p className="text-muted-foreground line-clamp-3 mb-[var(--phi-space-3)] flex-grow">{service.summary}</p>
+                  <span className="text-xs font-bold uppercase tracking-widest text-foreground flex items-center gap-[var(--phi-space-1)] mt-auto group-hover:text-primary transition-colors">
                     Learn More <ArrowRight className="w-4 h-4" />
                   </span>
                 </div>
@@ -173,14 +173,14 @@ function HomePageContent() {
       {/* Booking Form Section */}
       <section id="booking" className="phi-section bg-background">
         <div className="phi-container max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)] items-center">
             <div>
-              <h2 className="font-display text-4xl md:text-5xl uppercase tracking-tighter text-foreground mb-6">Ready to fix your garage door?</h2>
-              <p className="font-serif italic text-xl text-muted-foreground mb-8">Tell us what your door needs. We'll confirm the next steps.</p>
+              <h2 className="font-display text-4xl md:text-5xl uppercase tracking-tighter text-foreground mb-[var(--phi-space-4)]">Ready to fix your garage door?</h2>
+              <p className="font-serif italic text-xl text-muted-foreground mb-[var(--phi-space-4)]">Tell us what your door needs. We'll confirm the next steps.</p>
               
               {isVerified && settings?.trustProfile?.hours && (
-                <div className="p-6 bg-muted/30 border-l-4 border-primary rounded-r-lg mb-8">
-                  <h4 className="font-bold uppercase tracking-wider mb-2 text-sm">Operating Hours</h4>
+                <div className="p-[var(--phi-space-4)] bg-muted/30 border-l-4 border-primary rounded-r-lg mb-[var(--phi-space-4)]">
+                  <h4 className="font-bold uppercase tracking-wider mb-[var(--phi-space-1)] text-sm">Operating Hours</h4>
                   <p className="text-muted-foreground whitespace-pre-wrap">{settings.trustProfile.hours}</p>
                 </div>
               )}
@@ -197,19 +197,19 @@ function HomePageContent() {
       {projects.length > 0 && (
         <section id="work" className="phi-section bg-background border-b border-border">
           <div className="phi-container">
-            <div className="text-center mb-16">
-              <h2 className="garage-display text-4xl md:text-6xl uppercase tracking-wide text-foreground mb-2">Recent Work</h2>
+            <div className="text-center mb-[var(--phi-space-6)]">
+              <h2 className="garage-display text-4xl md:text-6xl uppercase tracking-wide text-foreground mb-[var(--phi-space-1)]">Recent Work</h2>
               <p className="font-serif italic text-xl text-muted-foreground">See the quality of our craftsmanship.</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--phi-space-3)] md:gap-[var(--phi-space-4)]">
               {projects.map(project => (
                 <div key={project.id} className="group relative overflow-hidden rounded-none aspect-[4/3] bg-muted border border-border">
                   {project.imageUrl ? (
                     <>
                       <img src={publicAssetUrl(project.imageUrl)} alt={project.imageAlt || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                       {!isVerified && project.verificationStatus !== "verified" && (
-                        <div className="absolute top-4 right-4 bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 border border-border">
+                        <div className="absolute top-[var(--phi-space-3)] right-[var(--phi-space-3)] bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-widest px-[var(--phi-space-2)] py-1.5 border border-border">
                           Style Inspiration
                         </div>
                       )}
@@ -220,15 +220,15 @@ function HomePageContent() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-white translate-y-4 group-hover:translate-y-0 transition-transform">
-                    <h3 className="garage-display text-2xl uppercase tracking-wide mb-2">{project.title}</h3>
+                  <div className="absolute bottom-0 left-0 right-0 p-[var(--phi-space-4)] sm:p-[var(--phi-space-4)] text-white translate-y-4 group-hover:translate-y-0 transition-transform">
+                    <h3 className="garage-display text-2xl uppercase tracking-wide mb-[var(--phi-space-1)]">{project.title}</h3>
                     <p className="text-white/80 line-clamp-2 font-medium">{project.summary}</p>
                   </div>
                 </div>
               ))}
             </div>
             
-            <div className="mt-12 text-center">
+            <div className="mt-[var(--phi-space-5)] text-center">
               <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest">
                 <Link href="/gallery">View Door Styles</Link>
               </Button>
@@ -244,7 +244,7 @@ function HomePageContent() {
       {isVerified && locations.length > 0 && (
         <section id="service-area" className="phi-section bg-muted/30 border-b border-border">
           <div className="phi-container">
-            <div className="flex flex-col md:flex-row gap-12 items-center">
+            <div className="flex flex-col md:flex-row gap-[var(--phi-space-5)] items-center">
               <div className="w-full md:w-1/2">
                 <div className="aspect-[4/3] bg-card relative flex items-center justify-center overflow-hidden border border-border shadow-sm">
                   <div className="absolute inset-0 bg-[url('/images/hero-desktop.webp')] bg-cover bg-center opacity-10 mix-blend-luminosity"></div>
@@ -252,11 +252,11 @@ function HomePageContent() {
                 </div>
               </div>
               <div className="w-full md:w-1/2">
-                <h2 className="garage-display text-4xl md:text-5xl uppercase tracking-wide text-foreground mb-4">Service Area</h2>
-                <p className="font-serif italic text-xl text-muted-foreground mb-8">We proudly serve homeowners across the region.</p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-8">
+                <h2 className="garage-display text-4xl md:text-5xl uppercase tracking-wide text-foreground mb-[var(--phi-space-3)]">Service Area</h2>
+                <p className="font-serif italic text-xl text-muted-foreground mb-[var(--phi-space-4)]">We proudly serve homeowners across the region.</p>
+                <div className="grid grid-cols-2 gap-x-[var(--phi-space-3)] gap-y-[var(--phi-space-2)] mb-[var(--phi-space-4)]">
                   {locations.map(loc => (
-                    <Link key={loc.id} href={`/service-area/${loc.slug}`} className="flex items-center gap-3 text-foreground font-bold text-sm uppercase tracking-wide hover:text-primary transition-colors py-3 border-b border-border/50">
+                    <Link key={loc.id} href={`/service-area/${loc.slug}`} className="flex items-center gap-[var(--phi-space-2)] text-foreground font-bold text-sm uppercase tracking-wide hover:text-primary transition-colors py-[var(--phi-space-2)] border-b border-border/50">
                       <MapPin className="w-4 h-4 text-primary" /> {loc.title}
                     </Link>
                   ))}
@@ -274,15 +274,15 @@ function HomePageContent() {
       {faqs.length > 0 && (
         <section id="faq" className="phi-section bg-background border-b border-border">
           <div className="phi-container max-w-4xl">
-            <div className="text-center mb-12">
-              <h2 className="garage-display text-4xl md:text-5xl uppercase tracking-wide text-foreground mb-4">Common Questions</h2>
+            <div className="text-center mb-[var(--phi-space-5)]">
+              <h2 className="garage-display text-4xl md:text-5xl uppercase tracking-wide text-foreground mb-[var(--phi-space-3)]">Common Questions</h2>
               <p className="font-serif italic text-xl text-muted-foreground">Everything you need to know about our services.</p>
             </div>
             
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-[var(--phi-space-3)]">
               {faqs.slice(0, 5).map(faq => (
-                <div key={faq.id} className="bg-card border border-border p-6 rounded-none">
-                  <h3 className="font-bold text-lg mb-3 flex items-start gap-3">
+                <div key={faq.id} className="bg-card border border-border p-[var(--phi-space-4)] rounded-none">
+                  <h3 className="font-bold text-lg mb-[var(--phi-space-2)] flex items-start gap-[var(--phi-space-2)]">
                     <span className="text-primary mt-1">Q.</span> {faq.title}
                   </h3>
                   <p className="text-muted-foreground pl-6">{faq.summary || faq.body}</p>
@@ -291,9 +291,9 @@ function HomePageContent() {
             </div>
             
             {faqs.length > 5 && (
-              <div className="mt-10 text-center">
+              <div className="mt-[var(--phi-space-5)] text-center">
                 <Button asChild variant="link" className="font-bold uppercase tracking-widest text-primary p-0">
-                  <Link href="/faqs" className="flex items-center gap-2">
+                  <Link href="/faqs" className="flex items-center gap-[var(--phi-space-1)]">
                     Read All FAQs <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>

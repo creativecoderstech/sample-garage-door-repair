@@ -93,24 +93,24 @@ function validImageReference(value: string) {
 function ContentPreview({ draft }: { draft: GarageContentInput }) {
   const paragraphs = draft.body.split(/\n\s*\n/).filter(Boolean);
   return (
-    <article className="overflow-hidden rounded-xl border-2 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950">
+    <article className="overflow-hidden rounded-[var(--phi-radius)] border-2 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950">
       {draft.imageUrl ? (
         <div className="relative aspect-[16/7] bg-slate-100">
           <img src={publicAssetUrl(draft.imageUrl)} alt={draft.imageAlt || ""} className="h-full w-full object-cover" />
           {draft.beforeImageUrl ? (
-            <img src={publicAssetUrl(draft.beforeImageUrl)} alt={`Before ${draft.imageAlt || draft.title}`} className="absolute bottom-3 left-3 h-20 w-28 rounded-lg border-2 border-white object-cover shadow-lg" />
+            <img src={publicAssetUrl(draft.beforeImageUrl)} alt={`Before ${draft.imageAlt || draft.title}`} className="absolute bottom-3 left-3 h-20 w-28 rounded-[var(--phi-radius)] border-2 border-white object-cover shadow-lg" />
           ) : null}
         </div>
       ) : null}
-      <div className="p-5">
-        <div className="mb-2 flex flex-wrap gap-2">
+      <div className="p-[var(--phi-space-3)]">
+        <div className="mb-[var(--phi-space-1)] flex flex-wrap gap-[var(--phi-space-1)]">
           <Badge variant="outline">{draft.kind}</Badge>
           <Badge variant={draft.status === "published" ? "default" : "secondary"}>{draft.status}</Badge>
           {draft.featured ? <Badge variant="secondary">Featured</Badge> : null}
         </div>
         <h3 className="font-display text-2xl font-bold text-slate-950 dark:text-white">{draft.title || "Untitled preview"}</h3>
-        {draft.summary ? <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">{draft.summary}</p> : null}
-        <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        {draft.summary ? <p className="mt-[var(--phi-space-1)] text-sm font-medium text-slate-600 dark:text-slate-300">{draft.summary}</p> : null}
+        <div className="mt-[var(--phi-space-3)] space-y-[var(--phi-space-2)] text-sm leading-6 text-slate-600 dark:text-slate-300">
           {paragraphs.length ? paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>) : <p className="italic text-slate-400">Body copy preview appears here.</p>}
         </div>
       </div>
@@ -236,8 +236,8 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
   };
 
   return (
-    <section className="space-y-5">
-      <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
+    <section className="space-y-[var(--phi-space-3)]">
+      <div className="flex flex-col gap-[var(--phi-space-2)] border-b border-slate-200 pb-[var(--phi-space-3)] sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Database content</p>
           <h2 className="mt-1 font-display text-2xl font-bold">{COPY[kind].plural}</h2>
@@ -252,13 +252,13 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
       ) : null}
 
       {draft ? (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,.75fr)]">
-          <div className="rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-5 flex items-center justify-between">
+        <div className="grid gap-[var(--phi-space-3)] xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,.75fr)]">
+          <div className="rounded-[var(--phi-radius)] border-2 border-slate-200 bg-white p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-[var(--phi-space-3)] flex items-center justify-between">
               <div><p className="text-xs font-bold uppercase tracking-wider text-primary">{editing ? "Edit" : "Create"} {COPY[kind].singular}</p><p className="text-xs text-slate-500">Plain text only. Blank optional fields are saved as blank.</p></div>
               <Button variant="ghost" size="icon" onClick={() => setDraft(null)} aria-label="Close editor"><X className="h-4 w-4" /></Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-[var(--phi-space-3)] md:grid-cols-2">
               <Field label="Title"><Input value={draft.title} maxLength={160} onChange={(e) => setField("title", e.target.value)} /></Field>
               <Field label="Slug" hint={isCorePage ? "Reserved core slug cannot be changed." : "lowercase-words-only"}>
                 <Input value={draft.slug} maxLength={100} disabled={isCorePage} onChange={(e) => setField("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-"))} />
@@ -284,7 +284,7 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
               <Field label="Media source URL"><Input value={draft.mediaMetadata.sourceUrl} maxLength={2048} onChange={(e) => setField("mediaMetadata", { ...draft.mediaMetadata, sourceUrl: e.target.value })} /></Field>
               <Field label="Media license / rights record"><Input value={draft.mediaMetadata.license} maxLength={500} onChange={(e) => setField("mediaMetadata", { ...draft.mediaMetadata, license: e.target.value })} /></Field>
               <Field label="Attribution"><Input value={draft.mediaMetadata.attribution} maxLength={500} onChange={(e) => setField("mediaMetadata", { ...draft.mediaMetadata, attribution: e.target.value })} /></Field>
-              <div className="flex items-end pb-2"><label className="flex items-center gap-2 text-sm"><Checkbox checked={draft.mediaMetadata.representative} onCheckedChange={(value) => setField("mediaMetadata", { ...draft.mediaMetadata, representative: value === true })} />Representative image, not completed work</label></div>
+              <div className="flex items-end pb-2"><label className="flex items-center gap-[var(--phi-space-1)] text-sm"><Checkbox checked={draft.mediaMetadata.representative} onCheckedChange={(value) => setField("mediaMetadata", { ...draft.mediaMetadata, representative: value === true })} />Representative image, not completed work</label></div>
               {kind === "project" ? <Field label="Before image URL"><Input value={draft.beforeImageUrl} maxLength={2048} onChange={(e) => setField("beforeImageUrl", e.target.value)} /></Field> : null}
               {kind === "service" ? <Field label="Service code"><Input value={draft.serviceCode} maxLength={100} placeholder="spring-repair" onChange={(e) => setField("serviceCode", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} /></Field> : null}
               <Field label="Optional parent">
@@ -300,37 +300,37 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
                   <SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
                 </Select>
               </Field>
-              <div className="flex flex-col justify-end gap-3 rounded-lg border p-3">
-                <label className="flex items-start gap-2 text-sm"><Checkbox checked={draft.featured} onCheckedChange={(value) => setField("featured", value === true)} /><span><strong>Featured</strong><br /><span className="text-xs text-slate-500">Give this item priority where supported.</span></span></label>
-                <label className="flex items-start gap-2 text-sm"><Checkbox checked={acknowledged} onCheckedChange={(value) => { setAcknowledged(value === true); setDraft((current) => current ? { ...current, verificationStatus: value === true ? "verified" : "unverified" } : null); }} /><span><strong>I verified this content</strong><br /><span className="text-xs text-slate-500">I acknowledge these facts and claims are accurate. Editing copy requires acknowledgement again.</span></span></label>
+              <div className="flex flex-col justify-end gap-[var(--phi-space-2)] rounded-[var(--phi-radius)] border p-[var(--phi-space-2)]">
+                <label className="flex items-start gap-[var(--phi-space-1)] text-sm"><Checkbox checked={draft.featured} onCheckedChange={(value) => setField("featured", value === true)} /><span><strong>Featured</strong><br /><span className="text-xs text-slate-500">Give this item priority where supported.</span></span></label>
+                <label className="flex items-start gap-[var(--phi-space-1)] text-sm"><Checkbox checked={acknowledged} onCheckedChange={(value) => { setAcknowledged(value === true); setDraft((current) => current ? { ...current, verificationStatus: value === true ? "verified" : "unverified" } : null); }} /><span><strong>I verified this content</strong><br /><span className="text-xs text-slate-500">I acknowledge these facts and claims are accurate. Editing copy requires acknowledgement again.</span></span></label>
                 {!acknowledged && draft.status === "published" ? <p role="note" className="text-sm text-amber-800 dark:text-amber-300">Saving this edit without verification keeps it off the public website, even when the status is Published. The preview below shows your draft, not proof that it is live.</p> : null}
               </div>
             </div>
-            {formError ? <Alert variant="destructive" className="mt-4"><AlertTriangle className="h-4 w-4" /><AlertDescription>{formError}</AlertDescription></Alert> : null}
-            <div className="mt-5 flex flex-wrap justify-between gap-2">
+            {formError ? <Alert variant="destructive" className="mt-[var(--phi-space-3)]"><AlertTriangle className="h-4 w-4" /><AlertDescription>{formError}</AlertDescription></Alert> : null}
+            <div className="mt-[var(--phi-space-3)] flex flex-wrap justify-between gap-[var(--phi-space-1)]">
               <Button variant="outline" onClick={() => setDraft(null)}>Cancel</Button>
               <Button onClick={save} disabled={busy}>{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}{editing ? "Save changes" : "Create draft"}</Button>
             </div>
           </div>
-          <div className="space-y-3 xl:sticky xl:top-5 xl:self-start">
-            <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><Eye className="h-4 w-4" />Live draft preview</p>{draft.status === "published" && draft.slug ? <Button variant="outline" size="sm" asChild><Link href={publicPath(draft)}><ExternalLink className="mr-1 h-3.5 w-3.5" />Public URL</Link></Button> : <span className="text-xs text-slate-500">Not public</span>}</div>
+          <div className="space-y-[var(--phi-space-2)] xl:sticky xl:top-5 xl:self-start">
+            <div className="flex items-center justify-between"><p className="flex items-center gap-[var(--phi-space-1)] text-sm font-bold"><Eye className="h-4 w-4" />Live draft preview</p>{draft.status === "published" && draft.slug ? <Button variant="outline" size="sm" asChild><Link href={publicPath(draft)}><ExternalLink className="mr-1 h-3.5 w-3.5" />Public URL</Link></Button> : <span className="text-xs text-slate-500">Not public</span>}</div>
             <ContentPreview draft={draft} />
           </div>
         </div>
       ) : null}
 
-      {!query.isLoading && !query.isError && !items.length ? <div className="rounded-xl border-2 border-dashed p-10 text-center text-sm text-slate-500">No {COPY[kind].plural.toLowerCase()} yet. Create the first database-backed item.</div> : null}
-      <div className="grid gap-3">
+      {!query.isLoading && !query.isError && !items.length ? <div className="rounded-[var(--phi-radius)] border-2 border-dashed p-[var(--phi-space-5)] text-center text-sm text-slate-500">No {COPY[kind].plural.toLowerCase()} yet. Create the first database-backed item.</div> : null}
+      <div className="grid gap-[var(--phi-space-2)]">
         {items.map((item) => {
           const protectedPage = item.kind === "page" && CORE_PAGE_SLUGS.has(item.slug);
           return (
-            <article key={item.id} className="rounded-xl border-2 border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <article key={item.id} className="rounded-[var(--phi-radius)] border-2 border-slate-200 bg-white p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-col gap-[var(--phi-space-2)] sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2"><h3 className="font-display text-lg font-bold">{item.title}</h3><Badge variant={item.status === "published" ? "default" : "secondary"}>{item.status}</Badge><Badge variant="outline">{item.verificationStatus}</Badge>{item.featured ? <Badge variant="secondary">Featured</Badge> : null}{protectedPage ? <Badge variant="outline">Core page</Badge> : null}</div>
+                  <div className="flex flex-wrap items-center gap-[var(--phi-space-1)]"><h3 className="font-display text-lg font-bold">{item.title}</h3><Badge variant={item.status === "published" ? "default" : "secondary"}>{item.status}</Badge><Badge variant="outline">{item.verificationStatus}</Badge>{item.featured ? <Badge variant="secondary">Featured</Badge> : null}{protectedPage ? <Badge variant="outline">Core page</Badge> : null}</div>
                   <p className="mt-1 truncate text-sm text-slate-500">/{item.slug} · order {item.sortOrder} · updated {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "not recorded"}</p>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div className="flex shrink-0 gap-[var(--phi-space-1)]">
                   {item.status === "published" ? <Button variant="outline" size="sm" asChild><Link href={publicPath(item)}><ExternalLink className="mr-1.5 h-3.5 w-3.5" />View</Link></Button> : null}
                   <Button variant="outline" size="sm" onClick={() => begin(item)}><Pencil className="mr-1.5 h-3.5 w-3.5" />Edit</Button>
                   <Button variant="outline" size="sm" disabled={protectedPage} title={protectedPage ? "Core pages cannot be deleted" : "Delete"} onClick={() => setDeleteTarget(item)}><Trash2 className="h-3.5 w-3.5 text-red-600" /></Button>
@@ -349,5 +349,5 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
 }
 
 function Field({ label, hint, wide, children }: { label: string; hint?: string; wide?: boolean; children: React.ReactNode }) {
-  return <label className={`space-y-1.5 ${wide ? "md:col-span-2" : ""}`}><span className="flex justify-between gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">{label}{hint ? <span className="font-normal normal-case tracking-normal text-slate-400">{hint}</span> : null}</span>{children}</label>;
+  return <label className={`space-y-1.5 ${wide ? "md:col-span-2" : ""}`}><span className="flex justify-between gap-[var(--phi-space-1)] text-xs font-bold uppercase tracking-wider text-slate-500">{label}{hint ? <span className="font-normal normal-case tracking-normal text-slate-400">{hint}</span> : null}</span>{children}</label>;
 }

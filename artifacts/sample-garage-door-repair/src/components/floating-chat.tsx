@@ -20,7 +20,7 @@ export function FloatingChat() {
           hasOpened.current = true;
           setIsOpen(true);
         }}
-        className="phi-chat-launcher fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] right-4 z-50 h-14 w-14 gap-3 rounded-full border border-primary/40 bg-primary p-0 text-primary-foreground shadow-2xl glow-primary transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-2xl focus-visible:ring-ring focus-visible:ring-offset-2 sm:right-[var(--phi-space-4)] sm:w-auto sm:min-w-[13rem] sm:px-6"
+        className="phi-chat-launcher fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] right-4 z-50 h-14 w-14 gap-[var(--phi-space-2)] rounded-full border border-primary/40 bg-primary p-0 text-primary-foreground shadow-2xl glow-primary transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-2xl focus-visible:ring-ring focus-visible:ring-offset-2 sm:right-[var(--phi-space-4)] sm:w-auto sm:min-w-[13rem] sm:px-[var(--phi-space-4)]"
         aria-label="Open Maya’s customer-care chat"
         title="Ask Maya a question"
       >

@@ -44,10 +44,10 @@ function ServiceAreaPageContent() {
         
         <div className="phi-container relative z-10">
           
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-display text-4xl uppercase tracking-tighter mb-6">Proudly Serving {settings?.serviceArea || "the Region"}</h2>
+          <div className="text-center max-w-3xl mx-auto mb-[var(--phi-space-6)]">
+            <h2 className="font-display text-4xl uppercase tracking-tighter mb-[var(--phi-space-4)]">Proudly Serving {settings?.serviceArea || "the Region"}</h2>
             {areaPage?.body && (
-              <div className="text-lg text-muted-foreground font-medium leading-relaxed mb-6 space-y-4">
+              <div className="text-lg text-muted-foreground font-medium leading-relaxed mb-[var(--phi-space-4)] space-y-[var(--phi-space-3)]">
                 {areaPage.body.split('\n\n').map((paragraph, idx) => (
                   <p key={idx}>{paragraph}</p>
                 ))}
@@ -55,23 +55,23 @@ function ServiceAreaPageContent() {
             )}
             
             {!isVerified && (
-              <div className="mt-8 p-4 bg-muted/50 border border-border rounded-lg inline-block">
+              <div className="mt-[var(--phi-space-4)] p-[var(--phi-space-3)] bg-muted/50 border border-border rounded-[var(--phi-radius)] inline-block">
                 <p className="text-sm font-medium">Please note: Exact coverage areas are subject to confirmation.</p>
               </div>
             )}
           </div>
 
           {locations.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[var(--phi-space-4)]">
               {locations.map(loc => (
                 <Link key={loc.id} href={`/service-area/${loc.slug}`} className="group block">
-                  <div className="phi-card bg-card border border-border p-8 h-full flex flex-col items-start gap-4 hover:border-primary transition-colors rounded-none">
+                  <div className="phi-card bg-card border border-border p-[var(--phi-space-4)] h-full flex flex-col items-start gap-[var(--phi-space-3)] hover:border-primary transition-colors rounded-none">
                     <div className="w-12 h-12 bg-primary/10 rounded flex items-center justify-center text-primary group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                       <MapPin className="w-5 h-5" />
                     </div>
-                    <h3 className="garage-display text-2xl uppercase tracking-wide mt-2 group-hover:text-primary transition-colors">{loc.title}</h3>
+                    <h3 className="garage-display text-2xl uppercase tracking-wide mt-[var(--phi-space-1)] group-hover:text-primary transition-colors">{loc.title}</h3>
                     <p className="text-muted-foreground flex-grow line-clamp-2">{loc.summary}</p>
-                    <span className="text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2 mt-4">
+                    <span className="text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-[var(--phi-space-1)] mt-[var(--phi-space-3)]">
                       View Location <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                     </span>
                   </div>
@@ -79,19 +79,19 @@ function ServiceAreaPageContent() {
               ))}
             </div>
           ) : (
-             <div className="text-center py-20 bg-muted/30 border border-border rounded-xl">
-               <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-               <h3 className="text-xl font-bold mb-2">Coverage Details Coming Soon</h3>
+             <div className="text-center py-[var(--phi-space-6)] bg-muted/30 border border-border rounded-[var(--phi-radius)]">
+               <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-[var(--phi-space-3)] opacity-50" />
+               <h3 className="text-xl font-bold mb-[var(--phi-space-1)]">Coverage Details Coming Soon</h3>
                <p className="text-muted-foreground">Contact us to verify service in your area.</p>
              </div>
           )}
 
-          <div className="mt-20 flex flex-col items-center">
-            <h3 className="garage-display text-4xl uppercase tracking-wide mb-4 text-center">Ready to schedule?</h3>
-            <p className="font-serif italic text-xl text-muted-foreground mb-8 text-center max-w-xl">
+          <div className="mt-[var(--phi-space-6)] flex flex-col items-center">
+            <h3 className="garage-display text-4xl uppercase tracking-wide mb-[var(--phi-space-3)] text-center">Ready to schedule?</h3>
+            <p className="font-serif italic text-xl text-muted-foreground mb-[var(--phi-space-4)] text-center max-w-xl">
               Request an assessment for your garage door needs.
             </p>
-            <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest px-12 h-14 bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest px-[var(--phi-space-5)] h-14 bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href="/contact#booking">Request Assessment</Link>
             </Button>
           </div>

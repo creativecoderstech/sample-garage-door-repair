@@ -49,7 +49,7 @@ function CustomPageContent() {
       <div className="phi-section bg-background">
         <div className="phi-container max-w-4xl">
           {page.imageUrl && (
-            <div className="w-full aspect-[16/9] overflow-hidden mb-12 bg-muted border border-border">
+            <div className="w-full aspect-[16/9] overflow-hidden mb-[var(--phi-space-5)] bg-muted border border-border">
               <img src={publicAssetUrl(page.imageUrl)} alt={page.imageAlt || page.title} className="w-full h-full object-cover" />
             </div>
           )}

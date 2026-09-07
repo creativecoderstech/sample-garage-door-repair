@@ -43,22 +43,22 @@ function ContactPageContent() {
       <div className="phi-section bg-background">
         <div className="phi-container max-w-6xl">
           {contactPage?.body && (
-            <div className="text-center max-w-3xl mx-auto mb-16 text-lg text-muted-foreground font-medium leading-relaxed space-y-4">
+            <div className="text-center max-w-3xl mx-auto mb-[var(--phi-space-6)] text-lg text-muted-foreground font-medium leading-relaxed space-y-[var(--phi-space-3)]">
               {contactPage.body.split('\n\n').map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
             </div>
           )}
 
-          <div className={`grid grid-cols-1 gap-12 lg:gap-20 ${hasContactInfo ? "lg:grid-cols-2" : ""}`}>
+          <div className={`grid grid-cols-1 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)] ${hasContactInfo ? "lg:grid-cols-2" : ""}`}>
             
             {/* Contact Details */}
-            {hasContactInfo && <div className="flex flex-col gap-8">
-              <h2 className="garage-display text-4xl uppercase tracking-wide mb-4">Contact Information</h2>
+            {hasContactInfo && <div className="flex flex-col gap-[var(--phi-space-4)]">
+              <h2 className="garage-display text-4xl uppercase tracking-wide mb-[var(--phi-space-3)]">Contact Information</h2>
               
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-[var(--phi-space-4)]">
                 {settings?.phone && (
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-[var(--phi-space-3)]">
                     <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <Phone className="w-5 h-5" />
                     </div>
@@ -70,7 +70,7 @@ function ContactPageContent() {
                 )}
                 
                 {settings?.email && (
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-[var(--phi-space-3)]">
                     <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <Mail className="w-5 h-5" />
                     </div>
@@ -82,7 +82,7 @@ function ContactPageContent() {
                 )}
                 
                 {settings?.serviceArea && (
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-[var(--phi-space-3)]">
                     <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <MapPin className="w-5 h-5" />
                     </div>
@@ -94,7 +94,7 @@ function ContactPageContent() {
                 )}
                 
                 {isVerified && settings?.trustProfile?.hours && (
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-[var(--phi-space-3)]">
                     <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <Clock className="w-5 h-5" />
                     </div>

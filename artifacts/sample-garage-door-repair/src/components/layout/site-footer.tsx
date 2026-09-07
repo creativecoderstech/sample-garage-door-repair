@@ -23,14 +23,14 @@ export function SiteFooter() {
   const trust = settings?.trustProfile;
 
   return (
-    <footer className="bg-foreground text-background pt-16 md:pt-24 pb-8 relative overflow-hidden">
+    <footer className="bg-foreground text-background pt-[var(--phi-space-6)] md:pt-[var(--phi-space-6)] pb-[var(--phi-space-4)] relative overflow-hidden">
       <div className="absolute inset-0 noise-overlay opacity-10 pointer-events-none" />
       
       <div className="phi-container relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-4)] mb-[var(--phi-space-6)]">
           
           {/* Brand Col */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-[var(--phi-space-4)]">
             <Link href="/" className="font-display text-3xl uppercase tracking-tighter text-primary">
               {settings?.businessName || "Cumming Garage Door Service"}
             </Link>
@@ -38,15 +38,15 @@ export function SiteFooter() {
               Crafting reliable, beautiful, and secure garage doors for our local community.
             </p>
             {isVerified && trust && (
-              <div className="flex flex-col gap-3 mt-4">
+              <div className="flex flex-col gap-[var(--phi-space-2)] mt-[var(--phi-space-3)]">
                 {trust.yearsInBusiness && (
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-[var(--phi-space-1)] text-sm">
                     <ShieldCheck className="w-4 h-4 text-primary" />
                     <span>{trust.yearsInBusiness}</span>
                   </div>
                 )}
                 {trust.licenseInsurance && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-[var(--phi-space-1)] text-sm text-muted-foreground">
                     <ShieldCheck className="w-4 h-4 text-primary" />
                     <span>{trust.licenseInsurance}</span>
                   </div>
@@ -56,9 +56,9 @@ export function SiteFooter() {
           </div>
           
           {/* Quick Links */}
-          <div className="flex flex-col gap-4">
-            <h3 className="font-display text-xl uppercase tracking-wider mb-2">Explore</h3>
-            <ul className="flex flex-col gap-3">
+          <div className="flex flex-col gap-[var(--phi-space-3)]">
+            <h3 className="font-display text-xl uppercase tracking-wider mb-[var(--phi-space-1)]">Explore</h3>
+            <ul className="flex flex-col gap-[var(--phi-space-2)]">
               {pages.map(page => {
                 const href = contentRoute(page);
                 return (
@@ -73,9 +73,9 @@ export function SiteFooter() {
           </div>
           
           {/* Services & Areas */}
-          <div className="flex flex-col gap-4">
-            <h3 className="font-display text-xl uppercase tracking-wider mb-2">Services</h3>
-            <ul className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col gap-[var(--phi-space-3)]">
+            <h3 className="font-display text-xl uppercase tracking-wider mb-[var(--phi-space-1)]">Services</h3>
+            <ul className="flex flex-col gap-[var(--phi-space-2)] mb-[var(--phi-space-4)]">
               {services.map(service => (
                 <li key={service.id}>
                   <Link href={contentRoute(service)} className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold uppercase tracking-wider">
@@ -87,8 +87,8 @@ export function SiteFooter() {
             
             {locations.length > 0 && (
               <>
-                <h3 className="font-display text-xl uppercase tracking-wider mb-2">Service Area</h3>
-                <ul className="flex flex-col gap-3">
+                <h3 className="font-display text-xl uppercase tracking-wider mb-[var(--phi-space-1)]">Service Area</h3>
+                <ul className="flex flex-col gap-[var(--phi-space-2)]">
                   {locations.map(loc => (
                     <li key={loc.id}>
                       <Link href={contentRoute(loc)} className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold uppercase tracking-wider">
@@ -102,13 +102,13 @@ export function SiteFooter() {
           </div>
           
           {/* Contact */}
-          <div className="flex flex-col gap-4">
-            <h3 className="font-display text-xl uppercase tracking-wider mb-2">Contact</h3>
+          <div className="flex flex-col gap-[var(--phi-space-3)]">
+            <h3 className="font-display text-xl uppercase tracking-wider mb-[var(--phi-space-1)]">Contact</h3>
             
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-[var(--phi-space-3)]">
               {settings?.phone && (
                 <li>
-                  <a href={`tel:${settings.phone}`} className="flex items-start gap-3 text-muted-foreground hover:text-primary transition-colors group">
+                  <a href={`tel:${settings.phone}`} className="flex items-start gap-[var(--phi-space-2)] text-muted-foreground hover:text-primary transition-colors group">
                     <Phone className="w-5 h-5 text-primary group-hover:scale-110 transition-transform mt-0.5" />
                     <div>
                       <span className="block text-sm font-bold uppercase tracking-wider text-background">Phone</span>
@@ -119,7 +119,7 @@ export function SiteFooter() {
               )}
               {settings?.email && (
                 <li>
-                  <a href={`mailto:${settings.email}`} className="flex items-start gap-3 text-muted-foreground hover:text-primary transition-colors group">
+                  <a href={`mailto:${settings.email}`} className="flex items-start gap-[var(--phi-space-2)] text-muted-foreground hover:text-primary transition-colors group">
                     <Mail className="w-5 h-5 text-primary group-hover:scale-110 transition-transform mt-0.5" />
                     <div>
                       <span className="block text-sm font-bold uppercase tracking-wider text-background">Email</span>
@@ -130,7 +130,7 @@ export function SiteFooter() {
               )}
               {settings?.serviceArea && (
                 <li>
-                  <div className="flex items-start gap-3 text-muted-foreground group">
+                  <div className="flex items-start gap-[var(--phi-space-2)] text-muted-foreground group">
                     <MapPin className="w-5 h-5 text-primary mt-0.5" />
                     <div>
                       <span className="block text-sm font-bold uppercase tracking-wider text-background">Serving</span>
@@ -141,7 +141,7 @@ export function SiteFooter() {
               )}
               {isVerified && trust?.hours && (
                 <li>
-                  <div className="flex items-start gap-3 text-muted-foreground group">
+                  <div className="flex items-start gap-[var(--phi-space-2)] text-muted-foreground group">
                     <Clock className="w-5 h-5 text-primary mt-0.5" />
                     <div>
                       <span className="block text-sm font-bold uppercase tracking-wider text-background">Hours</span>
@@ -155,11 +155,11 @@ export function SiteFooter() {
           
         </div>
         
-        <div className="border-t border-border/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-border/20 pt-[var(--phi-space-4)] flex flex-col md:flex-row justify-between items-center gap-[var(--phi-space-3)]">
           <p className="text-sm text-muted-foreground font-medium">
             &copy; {new Date().getFullYear()} {settings?.businessName || "Cumming Garage Door Service"}. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-[var(--phi-space-4)]">
             {content.some(page => page.kind === "page" && page.slug === "privacy") && (
               <Link href="/pages/privacy" className="text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
                 Privacy

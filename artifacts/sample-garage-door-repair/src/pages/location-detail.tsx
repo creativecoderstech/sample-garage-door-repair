@@ -59,12 +59,12 @@ function LocationDetailPageContent() {
 
       <div className="phi-section bg-background">
         <div className="phi-container">
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          <div className="flex flex-col lg:flex-row gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)]">
             
             {/* Main Content */}
             <div className="w-full lg:w-[58%] xl:w-2/3">
               {location.imageUrl && (
-                <div className="w-full aspect-[16/9] overflow-hidden mb-10 bg-muted border border-border">
+                <div className="w-full aspect-[16/9] overflow-hidden mb-[var(--phi-space-5)] bg-muted border border-border">
                   <img src={publicAssetUrl(location.imageUrl)} alt={location.imageAlt || location.title} className="w-full h-full object-cover" />
                 </div>
               )}
@@ -75,12 +75,12 @@ function LocationDetailPageContent() {
                 ))}
               </div>
               
-              <div className="mt-16 bg-secondary text-secondary-foreground border border-border p-8 rounded-none flex items-center gap-6">
+              <div className="mt-[var(--phi-space-6)] bg-secondary text-secondary-foreground border border-border p-[var(--phi-space-4)] rounded-none flex items-center gap-[var(--phi-space-4)]">
                 <div className="hidden sm:flex w-16 h-16 bg-primary items-center justify-center flex-shrink-0 text-primary-foreground">
                   <MapPin className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-2">Local Garage Door Experts</h3>
+                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-[var(--phi-space-1)]">Local Garage Door Experts</h3>
                   <p className="text-secondary-foreground/80 font-serif italic text-lg">We're proud to provide reliable service directly to homes in {location.title}.</p>
                 </div>
               </div>
@@ -88,7 +88,7 @@ function LocationDetailPageContent() {
             
             {/* Sidebar */}
             <div className="w-full lg:w-[42%] xl:w-1/3">
-              <div className="sticky top-28 flex flex-col gap-8">
+              <div className="sticky top-28 flex flex-col gap-[var(--phi-space-4)]">
                 
                 {/* Booking Widget */}
                 <div id="booking" className="scroll-mt-28">
@@ -97,9 +97,9 @@ function LocationDetailPageContent() {
                 
                 {/* Other Locations */}
                 {otherLocations.length > 0 && (
-                  <div className="bg-muted/30 border border-border p-6">
-                    <h3 className="garage-display text-2xl uppercase tracking-wide mb-6">Nearby Areas</h3>
-                    <ul className="flex flex-col gap-3">
+                  <div className="bg-muted/30 border border-border p-[var(--phi-space-4)]">
+                    <h3 className="garage-display text-2xl uppercase tracking-wide mb-[var(--phi-space-4)]">Nearby Areas</h3>
+                    <ul className="flex flex-col gap-[var(--phi-space-2)]">
                       {otherLocations.map(loc => (
                         <li key={loc.id}>
                           <Link href={`/service-area/${loc.slug}`} className="group flex items-center justify-between text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors py-2 border-b border-border/50">

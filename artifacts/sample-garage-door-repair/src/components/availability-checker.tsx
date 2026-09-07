@@ -21,11 +21,11 @@ export function AvailabilityChecker() {
   };
 
   return (
-    <div className="bg-card border rounded-xl p-6 shadow-sm">
-      <h3 className="font-display font-bold text-lg mb-2">Check service coverage</h3>
-      <p id="availability-help" className="text-sm text-muted-foreground mb-4">Enter a ZIP code before sharing a full street address. The business must confirm coverage and timing.</p>
+    <div className="bg-card border rounded-[var(--phi-radius)] p-[var(--phi-space-4)] shadow-sm">
+      <h3 className="font-display font-bold text-lg mb-[var(--phi-space-1)]">Check service coverage</h3>
+      <p id="availability-help" className="text-sm text-muted-foreground mb-[var(--phi-space-3)]">Enter a ZIP code before sharing a full street address. The business must confirm coverage and timing.</p>
       
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+      <form onSubmit={handleSearch} className="flex gap-[var(--phi-space-1)] mb-[var(--phi-space-3)]">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
@@ -46,7 +46,7 @@ export function AvailabilityChecker() {
       </form>
 
       {searchedZip && availability && (
-        <div role="status" aria-live="polite" className={`p-4 rounded-lg flex items-start gap-3 ${availability.available ? 'bg-primary/10 border border-primary/20' : 'bg-muted border border-border'}`}>
+        <div role="status" aria-live="polite" className={`p-[var(--phi-space-3)] rounded-[var(--phi-radius)] flex items-start gap-[var(--phi-space-2)] ${availability.available ? 'bg-primary/10 border border-primary/20' : 'bg-muted border border-border'}`}>
           {availability.available ? (
              <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
           ) : (
@@ -57,7 +57,7 @@ export function AvailabilityChecker() {
             <h4 className={`font-bold text-sm ${availability.available ? 'text-primary' : 'text-foreground'}`}>
                {availability.available ? 'Coverage available' : 'Coverage confirmation required'}
             </h4>
-            <p className="text-sm mt-1 mb-2 font-medium">
+            <p className="text-sm mt-1 mb-[var(--phi-space-1)] font-medium">
               {availability.message}
             </p>
             {availability.available && availability.eta && (
@@ -71,7 +71,7 @@ export function AvailabilityChecker() {
       )}
       
       {isError && (
-        <div role="alert" className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
+        <div role="alert" className="p-[var(--phi-space-2)] bg-destructive/10 text-destructive border border-destructive/20 rounded-[var(--phi-radius)] text-sm">
           Coverage could not be checked. Please try again or submit a request for confirmation.
         </div>
       )}

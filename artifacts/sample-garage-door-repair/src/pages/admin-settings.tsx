@@ -64,7 +64,7 @@ function ClaimControl({ name, value, claims, onChange }: {
   const example = isReservedExample(name, value) || current?.isExample === true;
   const verified = current?.status === "verified" && !example;
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-2">
+    <div className="mt-[var(--phi-space-1)] flex flex-wrap items-center gap-[var(--phi-space-1)]">
       <Badge variant={verified ? "default" : "outline"}>{verified ? "Verified real claim" : example ? "Unverified example" : "Unverified"}</Badge>
       <Button
         type="button"
@@ -162,16 +162,16 @@ export default function AdminSettingsPage() {
   });
 
   return (
-    <div className="space-y-5">
-      <header className="border-b pb-4">
+    <div className="space-y-[var(--phi-space-3)]">
+      <header className="border-b pb-[var(--phi-space-3)]">
         <p className="text-xs font-bold uppercase tracking-widest text-primary">Business administration</p>
         <h1 className="mt-1 font-display text-2xl font-bold">Cumming Garage Door Service settings</h1>
-        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Edit identity, contact, hours, coverage, trust claims, media, and publishing in one place. Every factual claim is verified separately; temporary examples can never be approved.</p>
+        <p className="mt-[var(--phi-space-1)] max-w-3xl text-sm text-muted-foreground">Edit identity, contact, hours, coverage, trust claims, media, and publishing in one place. Every factual claim is verified separately; temporary examples can never be approved.</p>
       </header>
 
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><Store className="h-5 w-5" />Business details</CardTitle><CardDescription>The approved public name is fixed. Contact, hours, and coverage begin as editable unverified examples.</CardDescription></CardHeader>
-        <CardContent className="grid gap-5 md:grid-cols-2">
+        <CardHeader><CardTitle className="flex items-center gap-[var(--phi-space-1)]"><Store className="h-5 w-5" />Business details</CardTitle><CardDescription>The approved public name is fixed. Contact, hours, and coverage begin as editable unverified examples.</CardDescription></CardHeader>
+        <CardContent className="grid gap-[var(--phi-space-3)] md:grid-cols-2">
           <Field label="Approved business name"><Input value="Cumming Garage Door Service" disabled /></Field>
           {([
             ["phone", "Phone", "tel"],
@@ -188,20 +188,20 @@ export default function AdminSettingsPage() {
             <Textarea value={draft.urgentPolicy} placeholder="Leave blank unless the owner has confirmed a truthful urgent-request policy." onChange={(event) => setFact("urgentPolicy", event.target.value)} />
             <ClaimControl name="urgentPolicy" value={draft.urgentPolicy} claims={draft.claimVerification} onChange={(claims) => set("claimVerification", claims)} />
           </Field>
-          <label className="flex items-center justify-between rounded-lg border p-4 md:col-span-2"><span><strong>Show urgent-request messaging</strong><span className="block text-xs text-muted-foreground">Only projects publicly when a real urgent policy is verified.</span></span><Switch checked={draft.emergencyEnabled} onCheckedChange={(value) => set("emergencyEnabled", value)} /></label>
+          <label className="flex items-center justify-between rounded-[var(--phi-radius)] border p-[var(--phi-space-3)] md:col-span-2"><span><strong>Show urgent-request messaging</strong><span className="block text-xs text-muted-foreground">Only projects publicly when a real urgent policy is verified.</span></span><Switch checked={draft.emergencyEnabled} onCheckedChange={(value) => set("emergencyEnabled", value)} /></label>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Trust claims</CardTitle><CardDescription>Blank and unverified optional claims are omitted from the public site.</CardDescription></CardHeader>
-        <CardContent className="grid gap-5 md:grid-cols-2">
+        <CardHeader><CardTitle className="flex items-center gap-[var(--phi-space-1)]"><ShieldCheck className="h-5 w-5" />Trust claims</CardTitle><CardDescription>Blank and unverified optional claims are omitted from the public site.</CardDescription></CardHeader>
+        <CardContent className="grid gap-[var(--phi-space-3)] md:grid-cols-2">
           {TRUST_FIELDS.map(([key, label]) => <Field key={key} label={label}><Input value={claimValue(draft, key)} placeholder="Leave blank if not confirmed" onChange={(event) => setFact(key, event.target.value)} /><ClaimControl name={key} value={claimValue(draft, key)} claims={draft.claimVerification} onChange={(claims) => set("claimVerification", claims)} /></Field>)}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader><CardTitle>Appearance & media</CardTitle><CardDescription>Existing themes and licensed locally hosted imagery remain editable.</CardDescription></CardHeader>
-        <CardContent className="grid gap-5 md:grid-cols-2">
+        <CardContent className="grid gap-[var(--phi-space-3)] md:grid-cols-2">
           <Field label="Theme"><Select value={draft.theme} onValueChange={(value) => set("theme", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{THEMES.map((theme) => <SelectItem key={theme.id} value={theme.id}>{theme.name}</SelectItem>)}</SelectContent></Select></Field>
           <Field label="Internal service ID"><Input value={draft.serviceId} onChange={(event) => set("serviceId", event.target.value)} /></Field>
           <Field label="Hero image"><Input value={draft.heroImage} onChange={(event) => set("heroImage", event.target.value)} /></Field>
@@ -210,8 +210,8 @@ export default function AdminSettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5" />Exact public projection</CardTitle><CardDescription>This is the factual identity and metadata-safe content exposed after saving. Empty facts do not create phone, email, urgent, or Maya actions.</CardDescription></CardHeader>
-        <CardContent className="space-y-3">
+        <CardHeader><CardTitle className="flex items-center gap-[var(--phi-space-1)]"><Eye className="h-5 w-5" />Exact public projection</CardTitle><CardDescription>This is the factual identity and metadata-safe content exposed after saving. Empty facts do not create phone, email, urgent, or Maya actions.</CardDescription></CardHeader>
+        <CardContent className="space-y-[var(--phi-space-2)]">
           <h2 className="font-display text-xl font-bold">{preview?.businessName}</h2>
           {preview?.phone ? <p>Phone: {preview.phone}</p> : <p className="text-sm text-muted-foreground">Phone omitted — current value is unverified/example.</p>}
           {preview?.email ? <p>Email: {preview.email}</p> : <p className="text-sm text-muted-foreground">Email omitted — current value is unverified/example.</p>}
@@ -225,21 +225,21 @@ export default function AdminSettingsPage() {
 
       <Card className="border-amber-300">
         <CardHeader><CardTitle>Production approval</CardTitle><CardDescription>Approval does not override required runtime, notification, domain, or authentication checks.</CardDescription></CardHeader>
-        <CardContent className="space-y-3">
-          {publicQuery.data ? Object.entries(publicQuery.data.launchChecks).map(([key, ready]) => <div key={key} className="flex items-center gap-2 text-sm">{ready ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <AlertTriangle className="h-4 w-4 text-amber-600" />}<span>{key.replace(/([A-Z])/g, " $1")}</span></div>) : <p className="text-sm text-muted-foreground">Save to refresh server launch checks.</p>}
-          <label className="flex items-start gap-3 rounded-lg border p-4"><Checkbox checked={draft.productionApproved} onCheckedChange={(value) => set("productionApproved", value === true)} /><span><strong>Owner production approval</strong><span className="block text-xs text-muted-foreground">Set only after replacing examples and completing every checklist item. This cannot make the site launch-ready by itself.</span></span></label>
-          <label className="flex items-center justify-between rounded-lg border p-4"><span><strong>Production domain setup recorded</strong><span className="block text-xs text-muted-foreground">Runtime host validation must also pass.</span></span><Switch checked={draft.domainConfigured} onCheckedChange={(value) => set("domainConfigured", value)} /></label>
-          <label className="flex items-center justify-between rounded-lg border p-4"><span><strong>Production auth callbacks recorded</strong><span className="block text-xs text-muted-foreground">Runtime authentication configuration must also pass.</span></span><Switch checked={draft.authConfigured} onCheckedChange={(value) => set("authConfigured", value)} /></label>
+        <CardContent className="space-y-[var(--phi-space-2)]">
+          {publicQuery.data ? Object.entries(publicQuery.data.launchChecks).map(([key, ready]) => <div key={key} className="flex items-center gap-[var(--phi-space-1)] text-sm">{ready ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <AlertTriangle className="h-4 w-4 text-amber-600" />}<span>{key.replace(/([A-Z])/g, " $1")}</span></div>) : <p className="text-sm text-muted-foreground">Save to refresh server launch checks.</p>}
+          <label className="flex items-start gap-[var(--phi-space-2)] rounded-[var(--phi-radius)] border p-[var(--phi-space-3)]"><Checkbox checked={draft.productionApproved} onCheckedChange={(value) => set("productionApproved", value === true)} /><span><strong>Owner production approval</strong><span className="block text-xs text-muted-foreground">Set only after replacing examples and completing every checklist item. This cannot make the site launch-ready by itself.</span></span></label>
+          <label className="flex items-center justify-between rounded-[var(--phi-radius)] border p-[var(--phi-space-3)]"><span><strong>Production domain setup recorded</strong><span className="block text-xs text-muted-foreground">Runtime host validation must also pass.</span></span><Switch checked={draft.domainConfigured} onCheckedChange={(value) => set("domainConfigured", value)} /></label>
+          <label className="flex items-center justify-between rounded-[var(--phi-radius)] border p-[var(--phi-space-3)]"><span><strong>Production auth callbacks recorded</strong><span className="block text-xs text-muted-foreground">Runtime authentication configuration must also pass.</span></span><Switch checked={draft.authConfigured} onCheckedChange={(value) => set("authConfigured", value)} /></label>
         </CardContent>
       </Card>
 
       <NotificationSettings />
 
-      <div className="sticky bottom-3 flex justify-end gap-2 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur"><Button variant="outline" onClick={() => settingsQuery.data && setDraft(settingsQuery.data)}>Discard</Button><Button onClick={save} disabled={update.isPending}>{update.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save business settings</Button></div>
+      <div className="sticky bottom-3 flex justify-end gap-[var(--phi-space-1)] rounded-[var(--phi-radius)] border bg-background/95 p-[var(--phi-space-2)] shadow-lg backdrop-blur"><Button variant="outline" onClick={() => settingsQuery.data && setDraft(settingsQuery.data)}>Discard</Button><Button onClick={save} disabled={update.isPending}>{update.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save business settings</Button></div>
     </div>
   );
 }
 
 function Field({ label, wide, children }: { label: string; wide?: boolean; children: React.ReactNode }) {
-  return <label className={`space-y-2 ${wide ? "md:col-span-2" : ""}`}><span className="text-sm font-semibold">{label}</span>{children}</label>;
+  return <label className={`space-y-[var(--phi-space-1)] ${wide ? "md:col-span-2" : ""}`}><span className="text-sm font-semibold">{label}</span>{children}</label>;
 }

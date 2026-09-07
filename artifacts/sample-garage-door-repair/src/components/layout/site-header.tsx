@@ -61,7 +61,7 @@ export function SiteHeader() {
               <summary className="flex cursor-pointer list-none items-center gap-1 px-[var(--phi-space-2)] text-sm font-semibold text-muted-foreground hover:text-primary xl:px-[var(--phi-space-3)]">More <ChevronDown className="h-3 w-3" /></summary>
               <div className="absolute right-0 top-full max-h-[65vh] w-64 overflow-y-auto rounded-b-md border-x border-b border-border bg-background p-2 shadow-xl">
                 {more.map(page => <Link key={page.id} href={contentRoute(page)}
-                  className={`block rounded px-3 py-2 text-sm font-semibold hover:bg-muted ${page.parentId ? "pl-6" : ""}`}>
+                  className={`block rounded px-[var(--phi-space-2)] py-2 text-sm font-semibold hover:bg-muted ${page.parentId ? "pl-6" : ""}`}>
                   {NAV_LABELS[page.slug] || page.title}
                 </Link>)}
               </div>
@@ -79,12 +79,12 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {mobileOpen && <nav id="mobile-navigation" aria-label="Mobile navigation" className="max-h-[calc(100dvh-4.236rem)] overflow-y-auto border-t border-border bg-background p-5 shadow-inner xl:hidden">
+      {mobileOpen && <nav id="mobile-navigation" aria-label="Mobile navigation" className="max-h-[calc(100dvh-4.236rem)] overflow-y-auto border-t border-border bg-background p-[var(--phi-space-3)] shadow-inner xl:hidden">
         {pages.map(page => <Link key={page.id} href={contentRoute(page)}
-          className={`block border-b border-border py-4 font-semibold text-foreground ${page.parentId ? "pl-5 text-muted-foreground" : ""}`}>
+          className={`block border-b border-border py-[var(--phi-space-3)] font-semibold text-foreground ${page.parentId ? "pl-5 text-muted-foreground" : ""}`}>
           {NAV_LABELS[page.slug] || page.title}
         </Link>)}
-        <Button asChild className="mt-6 w-full rounded-none h-12 font-bold uppercase tracking-widest"><Link href={bookingHref}>Request Service</Link></Button>
+        <Button asChild className="mt-[var(--phi-space-4)] w-full rounded-none h-12 font-bold uppercase tracking-widest"><Link href={bookingHref}>Request Service</Link></Button>
       </nav>}
     </header>
   );

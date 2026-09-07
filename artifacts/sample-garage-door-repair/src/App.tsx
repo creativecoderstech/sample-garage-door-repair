@@ -61,7 +61,7 @@ function Router() {
         {!isAdmin && (
           <a
             href="#main-content"
-            className="sr-only fixed left-4 top-4 z-[100] rounded-md bg-background px-4 py-3 font-bold text-foreground shadow-lg focus:not-sr-only"
+            className="sr-only fixed left-4 top-4 z-[100] rounded-md bg-background px-[var(--phi-space-3)] py-[var(--phi-space-2)] font-bold text-foreground shadow-lg focus:not-sr-only"
           >
             Skip to main content
           </a>

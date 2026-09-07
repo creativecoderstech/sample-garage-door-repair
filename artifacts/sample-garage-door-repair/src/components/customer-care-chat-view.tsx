@@ -15,7 +15,7 @@ function SafetyBadge({ level }: { level: CustomerCareMessage["safety"] }) {
   const isUrgent = level === "urgent";
   return (
     <div
-      className={`mb-2 flex items-center gap-2 border-b pb-2 text-xs font-bold ${
+      className={`mb-[var(--phi-space-1)] flex items-center gap-[var(--phi-space-1)] border-b pb-2 text-xs font-bold ${
         isUrgent
           ? "border-destructive/20 text-destructive"
           : "border-amber-500/20 text-amber-600"
@@ -51,7 +51,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
   }, [isFloating, onClose]);
 
   const renderMessage = (message: CustomerCareMessage, index: number): ReactNode => (
-    <div key={`${message.role}-${index}`} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+    <div key={`${message.role}-${index}`} className={`flex gap-[var(--phi-space-2)] ${message.role === "user" ? "justify-end" : "justify-start"}`}>
       {message.role === "assistant" && (
         <div className="relative mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
           M
@@ -70,7 +70,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         {message.role === "assistant" && (
           <>
             {message.service && message.service !== "Service assessment" && (
-              <div className="mt-3 border-t border-border/50 pt-2 text-xs font-semibold text-muted-foreground">
+              <div className="mt-[var(--phi-space-2)] border-t border-border/50 pt-2 text-xs font-semibold text-muted-foreground">
                 I’d start with: <span className="text-foreground">{message.service}</span>
               </div>
             )}
@@ -82,7 +82,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
                   chat.startServiceRequest();
                   onClose?.();
                 }}
-                className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
+                className="mt-[var(--phi-space-2)] inline-flex items-center gap-1.5 text-sm font-bold text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
               >
                 Start a service request <span aria-hidden="true">→</span>
               </a>
@@ -105,7 +105,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
       }
     >
       <div className="flex items-center justify-between bg-primary p-[var(--phi-space-3)] text-primary-foreground">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[var(--phi-space-2)]">
           <div className="rounded-full bg-primary-foreground/20 p-2">
             <span className="text-sm font-bold" aria-hidden="true">M</span>
           </div>
@@ -126,7 +126,7 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         )}
       </div>
 
-      <div className="border-b bg-muted/30 px-3 py-2 text-[11px] leading-4 text-muted-foreground">
+      <div className="border-b bg-muted/30 px-[var(--phi-space-2)] py-2 text-[11px] leading-4 text-muted-foreground">
         Maya shares general service information; she is not a technician or emergency service. Messages reset when you refresh. You can review an issue summary in a service request; the full chat is not saved with it. Coverage, timing, and appointments must be confirmed by the business.
       </div>
 
@@ -134,11 +134,11 @@ export function CustomerCareChatView({ variant, onClose }: CustomerCareChatViewP
         <div className="space-y-[var(--phi-space-3)]">
           {chat.messages.map(renderMessage)}
           {chat.isPending && (
-            <div className="flex gap-3" role="status" aria-live="polite">
+            <div className="flex gap-[var(--phi-space-2)]" role="status" aria-live="polite">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                 <span className="text-xs font-bold text-secondary-foreground" aria-hidden="true">M</span>
               </div>
-              <div className="flex items-center rounded-[var(--phi-radius)] rounded-tl-sm border bg-card px-[var(--phi-space-3)] py-4 shadow-sm">
+              <div className="flex items-center rounded-[var(--phi-radius)] rounded-tl-sm border bg-card px-[var(--phi-space-3)] py-[var(--phi-space-3)] shadow-sm">
                 <span className="sr-only">Maya is typing a response</span>
                 <span className="phi-typing-indicator flex items-center gap-1" aria-hidden="true">
                   <span className="phi-typing-dot" />

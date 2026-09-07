@@ -338,20 +338,20 @@ export function BookingForm({ className = "" }: { className?: string }) {
   return (
     <div className={cn("phi-booking-card phi-card bg-card border shadow-xl overflow-hidden @container", className)}>
       <div className="phi-booking-header bg-primary text-primary-foreground">
-         <h2 className="text-2xl font-display font-bold flex items-center gap-2">
+         <h2 className="text-2xl font-display font-bold flex items-center gap-[var(--phi-space-1)]">
           <CalendarCheck className="w-6 h-6" /> Book Service
          </h2>
-         <p className="text-primary-foreground/80 mt-2 text-sm">This sends a request, not a confirmed appointment. Coverage and timing are confirmed by the business.</p>
+         <p className="text-primary-foreground/80 mt-[var(--phi-space-1)] text-sm">This sends a request, not a confirmed appointment. Coverage and timing are confirmed by the business.</p>
       </div>
       {assistantDraft && (
-        <div className="mx-6 mt-6 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+        <div className="mx-[var(--phi-space-4)] mt-[var(--phi-space-4)] rounded-[var(--phi-radius)] border border-primary/20 bg-primary/5 px-[var(--phi-space-3)] py-[var(--phi-space-2)] text-sm text-muted-foreground">
           <span className="font-bold text-foreground">Customer care notes added.</span>{" "}
           Your issue summary is ready to review or remove. The full chat stays temporary and is not included in this request.
         </div>
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} onFocusCapture={trackBookingStart} className="p-[var(--phi-space-3)] @md:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
-           <section aria-labelledby="contact-heading" className="space-y-4">
+           <section aria-labelledby="contact-heading" className="space-y-[var(--phi-space-3)]">
              <div>
                 <h3 id="contact-heading" className="font-display text-lg font-bold">1. Your contact details</h3>
                <p className="mt-1 text-sm text-muted-foreground">Used to respond to this request. A submission is not a confirmed appointment.</p>
@@ -384,9 +384,9 @@ export function BookingForm({ className = "" }: { className?: string }) {
           </div>
            </section>
 
-           <section aria-labelledby="location-heading" className="space-y-3">
+           <section aria-labelledby="location-heading" className="space-y-[var(--phi-space-2)]">
             <div>
-               <h3 id="location-heading" className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+               <h3 id="location-heading" className="font-display text-lg font-bold text-foreground flex items-center gap-[var(--phi-space-1)]">
                 <MapPin className="h-4 w-4 text-primary" />
                   2. Job address
                </h3>
@@ -403,7 +403,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 <FormMessage />
               </FormItem>
             )} />
-              <div className="grid grid-cols-1 gap-2 @md:grid-cols-[minmax(0,1fr)_5rem_7rem]">
+              <div className="grid grid-cols-1 gap-[var(--phi-space-1)] @md:grid-cols-[minmax(0,1fr)_5rem_7rem]">
               <FormField control={form.control} name="city" render={({ field }) => (
                 <FormItem>
                    <FormLabel>City *</FormLabel>
@@ -485,7 +485,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                           aria-checked={selected}
                           onClick={() => field.onChange(option.value)}
                           className={cn(
-                            'text-left rounded-xl border-2 px-4 py-3 transition-all',
+                            'text-left rounded-xl border-2 px-[var(--phi-space-3)] py-[var(--phi-space-2)] transition-all',
                             selected
                               ? 'border-primary bg-primary/5 shadow-sm'
                               : 'border-border hover:border-primary/40 bg-background',
@@ -560,7 +560,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             </FormItem>
           )} />
 
-           <section aria-labelledby="media-heading" className="space-y-3">
+           <section aria-labelledby="media-heading" className="space-y-[var(--phi-space-2)]">
             <div>
                <h3 id="media-heading" className="font-display text-lg font-bold text-foreground">Photos &amp; Videos (Optional)</h3>
                <p id="media-help" className="text-sm text-muted-foreground mt-1">
@@ -573,7 +573,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 type="button"
                  aria-describedby="media-help media-status"
                 onClick={() => browseInputRef.current?.click()}
-                className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-2 py-4 text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
+                className="flex flex-col items-center gap-[var(--phi-space-1)] rounded-[var(--phi-radius)] border-2 border-dashed border-border bg-muted/20 px-2 py-[var(--phi-space-3)] text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
               >
                 <Upload className="w-5 h-5 text-muted-foreground" />
                 <span className="text-xs font-semibold text-foreground leading-tight">Browse files</span>
@@ -583,7 +583,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 type="button"
                  aria-describedby="media-help media-status"
                 onClick={() => cameraInputRef.current?.click()}
-                className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-2 py-4 text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
+                className="flex flex-col items-center gap-[var(--phi-space-1)] rounded-[var(--phi-radius)] border-2 border-dashed border-border bg-muted/20 px-2 py-[var(--phi-space-3)] text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
               >
                 <Camera className="w-5 h-5 text-muted-foreground" />
                 <span className="text-xs font-semibold text-foreground leading-tight">Snap a photo</span>
@@ -593,7 +593,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 type="button"
                  aria-describedby="media-help media-status"
                 onClick={() => videoInputRef.current?.click()}
-                className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-2 py-4 text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
+                className="flex flex-col items-center gap-[var(--phi-space-1)] rounded-[var(--phi-radius)] border-2 border-dashed border-border bg-muted/20 px-2 py-[var(--phi-space-3)] text-center hover:border-primary/40 hover:bg-muted/30 transition-colors"
               >
                 <Video className="w-5 h-5 text-muted-foreground" />
                 <span className="text-xs font-semibold text-foreground leading-tight">Record video</span>
@@ -601,7 +601,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             </div>
 
              {(photoError || videoError) && (
-               <div id="media-errors" role="alert" className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
+               <div id="media-errors" role="alert" className="p-[var(--phi-space-2)] rounded-[var(--phi-radius)] bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
                 {photoError && <div>{photoError}</div>}
                 {videoError && <div>{videoError}</div>}
               </div>
@@ -654,15 +654,15 @@ export function BookingForm({ className = "" }: { className?: string }) {
              </p>
 
              {photos.length > 0 && (
-              <div className="space-y-2 pt-2">
+              <div className="space-y-[var(--phi-space-1)] pt-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Photos ({photos.length}/{MAX_PHOTOS})
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-[var(--phi-space-2)]">
                   {photos.map((photo) => (
                     <div
                       key={photo.id}
-                      className="group relative aspect-square rounded-xl overflow-hidden border bg-muted/50"
+                      className="group relative aspect-square rounded-[var(--phi-radius)] overflow-hidden border bg-muted/50"
                     >
                        <img src={photo.previewUrl} alt={`Local preview of ${photo.file.name}`} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -682,18 +682,18 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )}
 
             {videos.length > 0 && (
-              <div className="space-y-2 pt-2">
+              <div className="space-y-[var(--phi-space-1)] pt-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Videos ({videos.length}/{MAX_VIDEOS})
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-[var(--phi-space-1)]">
                   {videos.map((video) => (
                     <div
                       key={video.id}
-                      className="flex items-center justify-between p-3 rounded-xl border bg-muted/30"
+                      className="flex items-center justify-between p-[var(--phi-space-2)] rounded-[var(--phi-radius)] border bg-muted/30"
                     >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <div className="flex items-center gap-[var(--phi-space-2)] min-w-0">
+                        <div className="w-10 h-10 rounded-[var(--phi-radius)] bg-primary/10 flex items-center justify-center shrink-0">
                           <Film className="w-5 h-5 text-primary" />
                         </div>
                         <div className="min-w-0">
@@ -719,7 +719,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
           <p className="text-xs leading-5 text-muted-foreground">
             By sending this request, you agree to the <a className="font-semibold text-primary underline" href="/pages/request-terms">request terms</a> and acknowledge the <a className="font-semibold text-primary underline" href="/pages/privacy">privacy notice</a>. This is not marketing consent or a confirmed appointment.
           </p>
-          <Button type="submit" size="lg" className="w-full font-bold text-lg min-h-[var(--phi-control)] py-4 mt-4 shadow-md glow-primary" disabled={isSubmitting}>
+          <Button type="submit" size="lg" className="w-full font-bold text-lg min-h-[var(--phi-control)] py-[var(--phi-space-3)] mt-[var(--phi-space-3)] shadow-md glow-primary" disabled={isSubmitting}>
              {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /><span>Sending request…</span></> : "Request Service"}
           </Button>
         </form>

@@ -49,28 +49,28 @@ function BlogDetailPageContent() {
           ]}
         />
         
-        <div className="phi-container max-w-4xl py-12 md:py-20">
+        <div className="phi-container max-w-4xl py-[var(--phi-space-5)] md:py-[var(--phi-space-6)]">
           {article.updatedAt && (
-            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground mb-8">
+            <div className="flex items-center gap-[var(--phi-space-1)] text-sm font-bold uppercase tracking-widest text-muted-foreground mb-[var(--phi-space-4)]">
               <CalendarIcon className="w-4 h-4" />
               {new Date(article.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
           )}
 
           {article.imageUrl && (
-            <div className="w-full aspect-[16/9] overflow-hidden mb-12 bg-muted border border-border">
+            <div className="w-full aspect-[16/9] overflow-hidden mb-[var(--phi-space-5)] bg-muted border border-border">
               <img src={publicAssetUrl(article.imageUrl)} alt={article.imageAlt || article.title} className="w-full h-full object-cover" />
             </div>
           )}
           
-          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed font-sans mb-16 prose-headings:font-display prose-headings:uppercase">
+          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed font-sans mb-[var(--phi-space-6)] prose-headings:font-display prose-headings:uppercase">
             {article.body.split('\n\n').map((paragraph, idx) => (
               <p key={idx}>{paragraph}</p>
             ))}
           </div>
           
-          <div className="border-t border-border pt-10">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+          <div className="border-t border-border pt-[var(--phi-space-5)]">
+            <Link href="/blog" className="inline-flex items-center gap-[var(--phi-space-1)] text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
               <ChevronLeft className="w-4 h-4" /> Back to all articles
             </Link>
           </div>
