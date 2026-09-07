@@ -185,7 +185,7 @@ function HomePageContent() {
               )}
             </div>
             
-            <div className="bg-card border border-border shadow-lg p-6 sm:p-8 rounded-xl">
+            <div>
               <BookingForm />
             </div>
           </div>
