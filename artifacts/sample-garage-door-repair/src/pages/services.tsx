@@ -2,10 +2,11 @@ import { Link } from "wouter";
 import { useListGarageContent, useGetPublicBusinessSettings } from "@workspace/api-client-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Metadata } from "@/components/seo-metadata";
-import { ArrowRight, Wrench } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { publicAssetUrl } from "@/lib/asset-url";
 import { ContentBoundary } from "@/components/layout/content-boundary";
+import { ServiceIcon } from "@/components/service-icon";
 
 export default function ServicesPage() {
   return (
@@ -57,7 +58,7 @@ function ServicesPageContent() {
                 )}
                 <div className="p-8 flex flex-col flex-grow">
                   <div className="w-12 h-12 rounded bg-primary flex items-center justify-center text-primary-foreground mb-6 shadow-sm">
-                    <Wrench className="w-6 h-6" />
+                    <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-6 h-6" />
                   </div>
                   <h2 className="garage-display text-3xl uppercase tracking-wide mb-4 group-hover:text-primary transition-colors">{service.title}</h2>
                   <p className="text-muted-foreground mb-8 flex-grow">{service.summary}</p>

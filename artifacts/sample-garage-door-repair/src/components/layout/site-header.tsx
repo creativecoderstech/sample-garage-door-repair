@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowUpRight, ChevronDown, Home as GarageDoor, Menu, Phone, X } from "lucide-react";
+import { ChevronDown, Menu, Warehouse, X } from "lucide-react";
 import { useGetPublicBusinessSettings, useListGarageContent } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { contentRoute } from "@/lib/content-routes";
@@ -40,7 +40,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[72px] w-full max-w-[1400px] items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex min-w-0 items-center gap-3 sm:gap-4 h-full" aria-label={`${settings?.businessName || "Cumming Garage Door Service"} home`}>
           <div className="bg-secondary text-secondary-foreground h-full flex flex-col justify-center px-4">
-            <GarageDoor className="h-8 w-8 mx-auto" aria-hidden="true" />
+            <Warehouse className="h-8 w-8 mx-auto" aria-hidden="true" />
             <span className="text-[10px] uppercase font-bold tracking-widest mt-1 text-center leading-none">Doors</span>
           </div>
           <span className="garage-display text-xl sm:text-2xl leading-tight tracking-wide text-foreground mt-1 max-w-[190px] sm:max-w-none">

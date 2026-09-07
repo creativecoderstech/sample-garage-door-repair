@@ -2,11 +2,12 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { useListGarageContent, useGetPublicBusinessSettings, useGetGoogleReviewFeed } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, ShieldCheck, MapPin, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Star, ShieldCheck, MapPin } from "lucide-react";
 import { Metadata } from "@/components/seo-metadata";
 import { BookingForm } from "@/components/booking-form";
 import { publicAssetUrl } from "@/lib/asset-url";
 import { ContentBoundary } from "@/components/layout/content-boundary";
+import { ServiceIcon } from "@/components/service-icon";
 
 export default function HomePage() {
   return (
@@ -46,7 +47,7 @@ function HomePageContent() {
       <section className="relative phi-hero flex flex-col justify-center bg-black overflow-hidden">
         {settings?.heroImage ? (
           <div className="absolute inset-0 z-0">
-            <img src={publicAssetUrl(settings.heroImage)} alt="Hero" className="w-full h-full object-cover opacity-60" />
+            <img src={publicAssetUrl(settings.heroImage)} alt="Elegant contemporary home with a modern garage door" className="w-full h-full object-cover opacity-60" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
           </div>
         ) : (
@@ -155,7 +156,7 @@ function HomePageContent() {
               <Link key={service.id} href={`/services/${service.slug}`} className="group block h-full">
                 <div className="phi-card h-full bg-card hover:border-primary/50 transition-colors border border-border p-8 flex flex-col items-start gap-4 rounded-none">
                   <div className="w-12 h-12 rounded bg-primary flex items-center justify-center text-primary-foreground group-hover:scale-105 transition-transform shadow-sm">
-                    <CheckCircle2 className="w-6 h-6" />
+                    <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-6 h-6" />
                   </div>
                   <h3 className="garage-display text-2xl uppercase tracking-wide mt-2 group-hover:text-primary transition-colors">{service.title}</h3>
                   <p className="text-muted-foreground line-clamp-3 mb-4 flex-grow">{service.summary}</p>
