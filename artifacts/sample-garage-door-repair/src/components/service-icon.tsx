@@ -4,7 +4,7 @@ export function ServiceIcon({ serviceCode, className }: { serviceCode?: string; 
     viewBox: "0 0 160 100",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: 5,
+    strokeWidth: 3.25,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
     "aria-hidden": true,
@@ -14,27 +14,41 @@ export function ServiceIcon({ serviceCode, className }: { serviceCode?: string; 
     case "broken-spring-replacement":
       return (
         <svg {...common}>
-          <path d="M16 48h12m104 0h12M28 39v18m104-18v18" />
-          <path d="M30 48c5-24 12-24 17 0s12 24 17 0 12-24 17 0 12 24 17 0 12-24 17 0 12 24 17 0" />
-          <path d="M22 34h12v28H22zm104 0h12v28h-12z" fill="currentColor" stroke="none" opacity=".22" />
+          <path d="M10 51h140M18 42v18m124-18v18" />
+          <path d="M24 35l10 7v18l-10 7zm112 0-10 7v18l10 7z" fill="currentColor" opacity=".2" />
+          <path d="M34 42h92v18H34z" fill="currentColor" opacity=".08" />
+          {Array.from({ length: 22 }, (_, index) => {
+            const x = 36 + index * 4;
+            return <path key={x} d={`M${x} 42l6 18`} />;
+          })}
+          <circle cx="25" cy="51" r="3" fill="currentColor" stroke="none" />
+          <circle cx="135" cy="51" r="3" fill="currentColor" stroke="none" />
+          <path d="M19 72h32m58 0h32" strokeWidth="2" />
         </svg>
       );
     case "cable-roller-off-track-repair":
       return (
         <svg {...common}>
-          <circle cx="52" cy="52" r="28" />
-          <circle cx="108" cy="52" r="28" />
-          <path d="M52 24c22 10 34 24 56 56M24 16l12 10m88 48 12 10M28 12l9 14-17 1m112 60-9-14 17-1" />
+          <path d="M116 10h23v78h-23M123 17v64" />
+          <circle cx="108" cy="29" r="10" fill="currentColor" opacity=".16" />
+          <circle cx="108" cy="29" r="4" />
+          <path d="M108 39v13c0 13-8 26-22 30" />
+          <path d="M85 82c-19 8-46 1-54-17-8-17 3-34 21-35 17-1 29 13 25 27-4 13-20 19-30 11-8-6-7-17 0-23" />
+          <path d="M31 65l-9 5m66 12 9 5" strokeWidth="5" />
+          <path d="M119 14h17m-17 70h17" strokeWidth="2" />
         </svg>
       );
     case "garage-door-opener-repair-installation":
       return (
         <svg {...common}>
-          <path d="M49 25h62l10 39H39z" fill="currentColor" opacity=".2" />
-          <path d="M39 64h82l-13 16H52zM59 25l5-11h32l5 11" />
-          <circle cx="80" cy="65" r="10" fill="white" />
-          <circle cx="80" cy="65" r="3" fill="currentColor" stroke="none" />
-          <path d="M80 80v10" />
+          <path d="M68 14h76M139 14v9M68 14v17" />
+          <path d="M78 12h17v7H78z" fill="currentColor" opacity=".22" />
+          <path d="M37 31h57l9 34-13 15H41L28 65z" fill="currentColor" opacity=".13" />
+          <path d="M37 31h57l9 34-13 15H41L28 65zM43 31l5-12h35l5 12" />
+          <circle cx="66" cy="63" r="10" fill="white" />
+          <circle cx="66" cy="63" r="4" fill="currentColor" stroke="none" />
+          <path d="M66 80v10M103 48h18l18-25M121 48l12 26" />
+          <path d="M139 74h9" />
         </svg>
       );
     case "new-garage-door-installation":
@@ -48,25 +62,37 @@ export function ServiceIcon({ serviceCode, className }: { serviceCode?: string; 
     case "garage-door-maintenance-tune-ups":
       return (
         <svg {...common}>
-          <path d="M33 82l35-35M57 29l16 16-9 9-16-16z" />
-          <path d="M92 18a22 22 0 0 0-5 25L55 75l15 15 32-32a22 22 0 0 0 28-28l-14 14-14-3-3-14 14-14a22 22 0 0 0-21 5z" fill="currentColor" opacity=".18" />
-          <path d="M92 18a22 22 0 0 0-5 25L55 75l15 15 32-32a22 22 0 0 0 28-28l-14 14-14-3-3-14 14-14a22 22 0 0 0-21 5z" />
+          <path d="M20 20h82v62H20zM20 51h82M61 20v62" />
+          <path d="M52 42h18v18H52z" fill="currentColor" opacity=".15" />
+          <circle cx="79" cy="51" r="9" fill="white" />
+          <circle cx="79" cy="51" r="3" fill="currentColor" stroke="none" />
+          <path d="M88 51h30" />
+          <path d="M119 31h18v43h-18z" fill="currentColor" opacity=".12" />
+          <path d="M119 31h18v43h-18M123 23h10v8M122 74l-6 14m17-14 6 14" />
+          <path d="M126 42h5m-5 9h5" strokeWidth="2" />
         </svg>
       );
     case "commercial-garage-door-services":
       return (
         <svg {...common}>
-          <path d="M17 89V20h126v69M28 89V33h104v56" />
-          <path d="M28 47h104M28 61h104M28 75h104M18 20h124M11 89h138" />
-          <circle cx="119" cy="82" r="3" fill="currentColor" stroke="none" />
+          <path d="M18 89V19h124v70M30 89V33h100v56" />
+          <path d="M30 33c15-12 85-12 100 0" />
+          <path d="M30 40h100M30 48h100M30 56h100M30 64h100M30 72h100M30 80h100" strokeWidth="2.25" />
+          <path d="M24 26h112M12 89h136" />
+          <path d="M135 36h10v31h-10z" fill="currentColor" opacity=".18" />
+          <circle cx="140" cy="75" r="4" />
         </svg>
       );
     default:
       return (
         <svg {...common}>
-          <path d="M23 87V19h114v68M34 87V31h92v56M34 49h92M34 67h92" />
-          <path d="M79 40a22 22 0 0 0 4 25L65 83l12 12 18-18a22 22 0 0 0 25-4l-15-4-7-12 4-15a22 22 0 0 0-23-2z" fill="white" />
-          <path d="M79 40a22 22 0 0 0 4 25L65 83l12 12 18-18a22 22 0 0 0 25-4l-15-4-7-12 4-15a22 22 0 0 0-23-2z" />
+          <path d="M18 84V19h124v65M30 84V31h100v53M30 48h100M30 65h100" />
+          <path d="M45 38h18v18H45z" fill="currentColor" opacity=".12" />
+          <circle cx="72" cy="47" r="9" fill="white" />
+          <circle cx="72" cy="47" r="3" fill="currentColor" stroke="none" />
+          <path d="M81 47h30" />
+          <path d="M96 72l10 10 25-28-9-8z" fill="white" />
+          <path d="M96 72l10 10 25-28-9-8zM91 67l10 10" />
         </svg>
       );
   }
