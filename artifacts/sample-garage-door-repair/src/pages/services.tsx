@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { useListGarageContent, useGetPublicBusinessSettings } from "@workspace/api-client-react";
-import { PageHeader } from "@/components/layout/page-header";
 import { Metadata } from "@/components/seo-metadata";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,11 +31,41 @@ function ServicesPageContent() {
         noindex={!isVerified}
       />
 
-      <PageHeader 
-        title={servicesPage?.title || "Services"} 
-        subtitle={servicesPage?.summary || "Comprehensive garage door solutions"}
-        breadcrumbs={[{ label: "Services" }]}
-      />
+      <div className="relative bg-muted/20 border-b border-border overflow-hidden">
+        <div className="noise-overlay" />
+
+        <div className="phi-container relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--phi-space-5)] items-center py-[var(--phi-space-5)] md:py-[var(--phi-space-6)]">
+            <div className="order-2 lg:order-1 lg:col-span-5 flex flex-col justify-center">
+              <nav aria-label="Breadcrumb" className="mb-[var(--phi-space-4)] flex flex-wrap items-center gap-[var(--phi-space-1)] text-xs font-medium text-muted-foreground uppercase tracking-wide font-sans">
+                <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+                <span className="flex min-w-0 items-center gap-[var(--phi-space-1)]">
+                  <span>/</span>
+                  <span className="text-foreground">Services</span>
+                </span>
+              </nav>
+
+              <h1 className="garage-display text-4xl md:text-5xl lg:text-5xl uppercase text-foreground mb-[var(--phi-space-3)] leading-[1.05]">
+                {servicesPage?.title || "Services"}
+              </h1>
+
+              <p className="font-serif italic text-lg md:text-xl text-muted-foreground max-w-xl">
+                {servicesPage?.summary || "Comprehensive garage door solutions"}
+              </p>
+            </div>
+
+            <div className="order-1 lg:order-2 lg:col-span-7">
+              <div className="relative w-full overflow-hidden rounded-[var(--phi-radius)] border border-border shadow-md" style={{ aspectRatio: '16/9' }}>
+                <img
+                  src={publicAssetUrl("/images/curated/service-commercial-cumming.jpg")}
+                  alt="Commercial building with two overhead garage doors in North Georgia"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="phi-section bg-background">
         <div className="phi-container max-w-5xl">
