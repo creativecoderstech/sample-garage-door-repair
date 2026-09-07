@@ -43,27 +43,20 @@ class D1 {
 const { privateKey, publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const jwk = publicKey.export({ format: "jwk" });
 Object.assign(jwk, { kid: "content-fixture", alg: "RS256" });
-const publishableKey = `pk_test_${Buffer.from("content-auth.fixture$").toString("base64")}`;
+const clientId = "content-fixture.apps.googleusercontent.com";
 const now = () => Math.floor(Date.now() / 1000);
 const token = () => {
   const header = Buffer.from(JSON.stringify({ alg: "RS256", kid: jwk.kid, typ: "JWT" })).toString("base64url");
   const payload = Buffer.from(JSON.stringify({
-    iss: "https://content-auth.fixture", sub: "content_owner", exp: now() + 300,
-    nbf: now() - 1, azp: "https://staff.fixture",
+    iss: "https://accounts.google.com", aud: clientId, sub: "content_owner",
+    email: "creativecoderstech@gmail.com", email_verified: true, exp: now() + 300, nbf: now() - 1,
   })).toString("base64url");
   return `${header}.${payload}.${sign("RSA-SHA256", Buffer.from(`${header}.${payload}`), privateKey).toString("base64url")}`;
-};
-const owner = {
-  id: "content_owner",
-  primary_email_address_id: "primary",
-  email_addresses: [{ id: "primary", email_address: "creativecoderstech@gmail.com", verification: { status: "verified" } }],
-  external_accounts: [{ provider: "oauth_google", email_address: "creativecoderstech@gmail.com", verification: { status: "verified" } }],
 };
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async input => {
   const url = String(input);
-  if (url.endsWith("/.well-known/jwks.json")) return Response.json({ keys: [jwk] });
-  if (url.endsWith("/v1/users/content_owner")) return Response.json(owner);
+  if (url === "https://www.googleapis.com/oauth2/v3/certs") return Response.json({ keys: [jwk] });
   return new Response("missing", { status: 404 });
 };
 test.after(() => { globalThis.fetch = originalFetch; });
@@ -78,8 +71,7 @@ async function fixture() {
     database: DB.sqlite,
     env: {
       DB,
-      CLERK_SECRET_KEY: "sk_test_content_fixture",
-      CLERK_PUBLISHABLE_KEY: publishableKey,
+      GOOGLE_OAUTH_CLIENT_ID: clientId,
       GARAGE_BOOTSTRAP_EMAIL: "creativecoderstech@gmail.com",
       ENVIRONMENT: "development",
     },
@@ -90,7 +82,7 @@ const adminRequest = (path, options = {}) => new Request(`https://staff.fixture$
   ...options,
   headers: {
     ...(options.body ? { "content-type": "application/json" } : {}),
-    cookie: `__session=${token()}`,
+    authorization: `Bearer ${token()}`,
     origin: "https://staff.fixture",
     ...options.headers,
   },
@@ -224,7 +216,7 @@ test("anonymous and missing-config private API states fail explicitly while publ
     const anonymous = await worker.fetch(new Request(`https://staff.fixture${path}`, { method }), env, context);
     assert.equal(anonymous.status, 401, `${method} ${path}`);
     const missing = await worker.fetch(new Request(`https://staff.fixture${path}`, { method }), {
-      ...env, CLERK_SECRET_KEY: undefined, CLERK_PUBLISHABLE_KEY: undefined,
+      ...env, GOOGLE_OAUTH_CLIENT_ID: undefined,
     }, context);
     assert.equal(missing.status, 503, `missing config ${method} ${path}`);
   }

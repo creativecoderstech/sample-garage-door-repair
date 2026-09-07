@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { getAuth } from "@clerk/express";
+import { createPublicKey, verify } from "node:crypto";
 import { pool } from "./index";
 
 export type GarageStaffRole = "super_admin" | "admin" | "staff";
@@ -19,41 +19,31 @@ declare global {
 }
 
 const normalizedEmail = (value: string) => value.trim().toLowerCase();
-const environmentName = () => process.env.CLERK_PUBLISHABLE_KEY?.startsWith("pk_live_") ? "production" : "development";
+const environmentName = () => process.env.NODE_ENV === "production" ? "production" : "development";
+const decodeJwt = (part: string) => JSON.parse(Buffer.from(part.replace(/-/g, "+").replace(/_/g, "/"), "base64url").toString("utf8"));
 
-type ClerkUser = {
-  id: string;
-  primary_email_address_id?: string | null;
-  email_addresses?: Array<{ id: string; email_address: string; verification?: { status?: string } | null }>;
-  external_accounts?: Array<{ provider?: string; verification?: { status?: string } | null; email_address?: string }>;
-};
-
-async function verifiedGoogleIdentity(userId: string): Promise<{ userId: string; email: string }> {
-  const secret = process.env.CLERK_SECRET_KEY;
-  if (!secret) throw new Error("Staff authentication is not configured.");
-  if (environmentName() === "production" && secret.startsWith("sk_test_")) {
-    throw new Error("Production staff authentication requires Clerk live keys.");
-  }
-  const response = await fetch(`https://api.clerk.com/v1/users/${encodeURIComponent(userId)}`, {
-    headers: { Authorization: `Bearer ${secret}`, Accept: "application/json" },
-  });
-  if (!response.ok) throw new Error("Unable to verify the signed-in Google account.");
-  const user = await response.json() as ClerkUser;
-  const primary = user.email_addresses?.find((email) => email.id === user.primary_email_address_id);
-  const email = primary?.email_address ? normalizedEmail(primary.email_address) : "";
-  const google = user.external_accounts?.some((account) =>
-    account.provider === "oauth_google" &&
-    account.verification?.status === "verified" &&
-    (!account.email_address || normalizedEmail(account.email_address) === email)
-  );
-  if (!email || primary?.verification?.status !== "verified" || !google) {
-    throw new Error("Use a Google account with a verified primary email address.");
-  }
-  return { userId: user.id, email };
+async function verifiedGoogleIdentity(token: string): Promise<{ userId: string; email: string }> {
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
+  if (!clientId) throw new Error("Staff authentication is not configured.");
+  const [headerPart, claimsPart, signaturePart, ...extra] = token.split(".");
+  if (!headerPart || !claimsPart || !signaturePart || extra.length) throw Object.assign(new Error("Malformed Google ID token."), { status: 401 });
+  let header: { alg?: string; kid?: string }, claims: { iss?: string; aud?: string | string[]; sub?: string; email?: string; email_verified?: boolean; exp?: number; nbf?: number };
+  try { header = decodeJwt(headerPart); claims = decodeJwt(claimsPart); } catch { throw Object.assign(new Error("Malformed Google ID token."), { status: 401 }); }
+  const audience = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
+  const now = Math.floor(Date.now() / 1000);
+  if (header.alg !== "RS256" || !header.kid || !["https://accounts.google.com", "accounts.google.com"].includes(claims.iss || "") || !audience.includes(clientId) || !claims.sub || !claims.email || claims.email_verified !== true || !Number.isFinite(claims.exp) || claims.exp! <= now || (claims.nbf !== undefined && claims.nbf > now + 30)) throw Object.assign(new Error("Invalid Google ID token."), { status: 401 });
+  const jwksResponse = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+  if (!jwksResponse.ok) throw new Error("Unable to verify Google ID token.");
+  const jwks = await jwksResponse.json() as {
+    keys?: Array<{ kid?: string; kty?: string; [key: string]: unknown }>;
+  };
+  const jwk = jwks.keys?.find((key) => key.kid === header.kid && key.kty === "RSA");
+  if (!jwk || !verify("RSA-SHA256", Buffer.from(`${headerPart}.${claimsPart}`), createPublicKey({ key: jwk as any, format: "jwk" }), Buffer.from(signaturePart.replace(/-/g, "+").replace(/_/g, "/"), "base64url"))) throw Object.assign(new Error("Invalid Google ID token signature."), { status: 401 });
+  return { userId: `google:${claims.sub}`, email: normalizedEmail(claims.email) };
 }
 
-async function redeemOrRead(userId: string): Promise<GarageStaffActor | null> {
-  const identity = await verifiedGoogleIdentity(userId);
+async function redeemOrRead(token: string): Promise<GarageStaffActor | null> {
+  const identity = await verifiedGoogleIdentity(token);
   const client = await pool.connect();
   try {
     await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
@@ -130,10 +120,11 @@ export async function authorizeGarageUser(userId: string, minimum: GarageStaffRo
 export function requireGarageRole(minimum: GarageStaffRole = "staff") {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const auth = getAuth(req);
-      const userId = auth?.userId || auth?.sessionClaims?.sub;
-      if (!userId) return res.status(401).json({ error: "Sign in with Google to continue." });
-      const actor = await authorizeGarageUser(userId, minimum);
+      const token = req.headers.authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+      if (!token) return res.status(401).json({ error: "Sign in with Google to continue." });
+      const actor = await redeemOrRead(token);
+      if (!actor) throw Object.assign(new Error("This Google account has not been granted staff access."), { status: 403 });
+      if (rank[actor.role] < rank[minimum]) throw Object.assign(new Error("Your staff role cannot perform this action."), { status: 403 });
       req.garageStaff = actor;
       return next();
     } catch (error) {

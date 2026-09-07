@@ -19,12 +19,7 @@ export function trustedStaffOrigins(env: NodeJS.ProcessEnv = process.env) {
   return origins;
 }
 
-/**
- * Browser requests carrying Clerk's session cookie must originate from an
- * explicitly configured app origin. Requests without Origin are left for
- * Clerk authentication so non-browser bearer clients remain supported.
- * Never derive trust from Host or X-Forwarded-Host.
- */
+/** Browser staff requests must originate from an explicitly configured app origin. */
 export function requireTrustedStaffOrigin(req: Request, res: Response, next: NextFunction) {
   const origin = req.headers.origin;
   if (!origin) return next();
@@ -38,11 +33,4 @@ export function requireTrustedStaffOrigin(req: Request, res: Response, next: Nex
     return res.status(403).json({ error: "Untrusted staff request origin." });
   }
   return next();
-}
-
-export function requireTrustedClerkProxyOrigin(req: Request, res: Response, next: NextFunction) {
-  if (!req.headers.origin && req.method !== "GET" && req.method !== "HEAD") {
-    return res.status(403).json({ error: "Clerk proxy mutations require a trusted browser origin." });
-  }
-  return requireTrustedStaffOrigin(req, res, next);
 }

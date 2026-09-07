@@ -64,3 +64,6 @@ GARAGE_BOOTSTRAP_EMAIL = "creativecoderstech@gmail.com"
 
 [userenv.production]
 GARAGE_BOOTSTRAP_EMAIL = "creativecoderstech@gmail.com"
+
+[userenv.shared]
+GOOGLE_OAUTH_CLIENT_ID = "846517343389-b9jv5umn8n1v7bc1rqhth60cvdkmh5ku.apps.googleusercontent.com"

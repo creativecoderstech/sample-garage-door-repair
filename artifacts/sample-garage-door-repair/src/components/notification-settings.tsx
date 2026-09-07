@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { BellRing, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { staffFetch } from "@/lib/staff-auth";
 
 type Settings = { webhookUrl: string | null; enabled: boolean; configured?: boolean };
 
@@ -11,7 +12,7 @@ export function NotificationSettings() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("/api/garage/admin/notifications")
+    staffFetch("/api/garage/admin/notifications")
       .then(async response => {
         const body = await response.json();
         if (!response.ok) throw new Error(body.error || "Notifications could not be loaded.");
@@ -25,7 +26,7 @@ export function NotificationSettings() {
     setState(nextState);
     setMessage("");
     try {
-      const response = await fetch(path, {
+      const response = await staffFetch(path, {
         method: path.endsWith("/test") ? "POST" : "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(settings),

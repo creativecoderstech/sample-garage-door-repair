@@ -17,7 +17,6 @@
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts"
   },
   "dependencies": {
-    "@clerk/express": "^2.1.66",
     "drizzle-orm": "catalog:",
     "drizzle-zod": "^0.8.3",
     "express": "^5.2.1",

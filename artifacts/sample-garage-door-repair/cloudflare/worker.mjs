@@ -1,6 +1,6 @@
 import { normalizePublicPath, renderRobots, renderSitemap, serveSiteDocument } from "./site-seo.mjs";
 import { launchRuntime } from "./launch-runtime.mjs";
-import { audit, clerkProxy, grantAccess, listAccess, revokeAccess, staffActor } from "./garage-auth.mjs";
+import { audit, grantAccess, listAccess, revokeAccess, staffActor } from "./garage-auth.mjs";
 
 const ARTIFACT_BASE_PATH = "/sample-garage-door-repair";
 const MAX_JSON_BYTES = 32 * 1024;
@@ -504,8 +504,6 @@ export default {
     const url = new URL(request.url), publicPath = normalizePublicPath(url.pathname);
     try {
       if (publicPath.startsWith("/api/")) {
-        const proxied = await clerkProxy(request, env, publicPath);
-        if (proxied) return proxied;
         const apiUrl = new URL(url);
         apiUrl.pathname = publicPath;
         return await handleApi(request, apiUrl, env);
@@ -525,7 +523,8 @@ export default {
         sitePublication(env, request.url),
       ]);
       return serveSiteDocument(request, assetResponse, content, settings);
-    } catch {
+    } catch (error) {
+      console.error("Garage Pages request failed", error);
       return json({ error: "Service unavailable." }, 503);
     }
   },

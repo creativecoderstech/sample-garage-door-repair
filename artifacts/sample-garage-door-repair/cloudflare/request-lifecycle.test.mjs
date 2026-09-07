@@ -70,8 +70,8 @@ async function fixture() {
   `);
   DB.sqlite.exec(await readFile(new URL("./migrations/0005_request_delivery.sql", import.meta.url), "utf8"));
   DB.sqlite.exec(await readFile(new URL("./migrations/0007_request_upload_completion.sql", import.meta.url), "utf8"));
-  DB.sqlite.prepare("INSERT INTO garage_staff_access(id,email,clerk_user_id,role) VALUES ('staff-1','staff@example.org','user-1','staff')").run();
-  return { DB, MEDIA: new R2Fixture(), TURNSTILE_SECRET_KEY: "fixture-secret", CLOUDFLARE_ENV: "production", NOTIFICATION_ALLOWED_HOSTS: "receiver.testhost.com", CLERK_SECRET_KEY: "sk_live_fixture", CLERK_PUBLISHABLE_KEY: "pk_live_fixture", CLERK_ISSUER: "https://clerk.fixture" };
+  DB.sqlite.prepare("INSERT INTO garage_staff_access(id,email,clerk_user_id,role) VALUES ('staff-1','staff@example.org','google:user-1','staff')").run();
+  return { DB, MEDIA: new R2Fixture(), TURNSTILE_SECRET_KEY: "fixture-secret", CLOUDFLARE_ENV: "production", NOTIFICATION_ALLOWED_HOSTS: "receiver.testhost.com", GOOGLE_OAUTH_CLIENT_ID: "request-fixture.apps.googleusercontent.com" };
 }
 
 const requestBody = {
@@ -116,7 +116,7 @@ async function staffToken() {
   const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: Uint8Array.from([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
   const jwk = await crypto.subtle.exportKey("jwk", pair.publicKey);
   const header = b64({ alg: "RS256", kid: "fixture-key" });
-  const claims = b64({ iss: "https://clerk.fixture", sub: "user-1", azp: "https://garage.test", exp: Math.floor(Date.now() / 1000) + 600 });
+  const claims = b64({ iss: "https://accounts.google.com", aud: "request-fixture.apps.googleusercontent.com", sub: "user-1", email: "staff@example.org", email_verified: true, exp: Math.floor(Date.now() / 1000) + 600 });
   const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", pair.privateKey, new TextEncoder().encode(`${header}.${claims}`));
   return { token: `${header}.${claims}.${b64(new Uint8Array(signature))}`, jwk: { ...jwk, kid: "fixture-key", alg: "RS256", use: "sig" } };
 }
@@ -133,8 +133,7 @@ test("Pages handler persists idempotent request and completes attachments before
       const token = init.body.get("response");
       return Response.json({ success: token === "valid", action: "booking", hostname: "garage.test" });
     }
-    if (url === "https://clerk.fixture/.well-known/jwks.json") return Response.json({ keys: [identity.jwk] });
-    if (url === "https://api.clerk.com/v1/users/user-1") return Response.json({ id: "user-1", primary_email_address_id: "primary", email_addresses: [{ id: "primary", email_address: "staff@example.org", verification: { status: "verified" } }], external_accounts: [{ provider: "oauth_google", email_address: "staff@example.org", verification: { status: "verified" } }] });
+    if (url === "https://www.googleapis.com/oauth2/v3/certs") return Response.json({ keys: [identity.jwk] });
     if (url.startsWith("https://receiver.testhost.com/")) {
       if (receiverFails) return new Response("fixture failure", { status: 503 });
       deliveries.push(JSON.parse(init.body));

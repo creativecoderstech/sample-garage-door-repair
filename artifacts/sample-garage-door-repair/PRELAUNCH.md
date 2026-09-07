@@ -30,9 +30,9 @@ explicit publishing action.
   retry scheduler.
 - [ ] **Complete the domain and Google authentication setup.** The owner chooses
   the production domain and business listing. Set the exact HTTPS
-  `PUBLIC_SITE_ORIGIN` and production Clerk issuer/live credentials using secure
+  `PUBLIC_SITE_ORIGIN` and `GOOGLE_OAUTH_CLIENT_ID` using secure
   configuration. Configure Google and the embedded sign-in/sign-up OAuth callback
-  URLs for that domain. The existing Replit-managed Clerk tenant was detected;
+  URLs for that domain. Ensure the Google OAuth client authorizes the final domain;
   automatic Replit hosting setup is not proof that an external Pages domain is
   authorized. Use the workspace Auth pane for supported provider configuration.
   Do not copy development keys into production or silently change providers.
@@ -46,7 +46,7 @@ explicit publishing action.
 - [ ] **Approve and verify the production release.** Back up the existing D1
   database and R2 inventory; apply the reviewed additive migrations to the correct
   production binding only as part of the approved release. Confirm DB, MEDIA,
-  AI and ASSETS bindings, live Turnstile keys/domain/actions, Clerk callbacks and
+  AI and ASSETS bindings, live Turnstile keys/domain/actions, Google OAuth authorized origins and
   webhook delivery. Check real Workers AI responses, invalid-token rejection,
   private attachment denial, public paths and mobile navigation. Approve the
   verified business profile only after these checks.

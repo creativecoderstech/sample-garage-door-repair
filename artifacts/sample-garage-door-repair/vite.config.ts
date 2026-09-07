@@ -31,6 +31,11 @@ if (!basePath) {
 
 return {
   base: basePath,
+   define: {
+     "import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID": JSON.stringify(
+       process.env.VITE_GOOGLE_OAUTH_CLIENT_ID || process.env.GOOGLE_OAUTH_CLIENT_ID || "",
+     ),
+   },
   plugins: [
     react(),
     tailwindcss({ optimize: false }),

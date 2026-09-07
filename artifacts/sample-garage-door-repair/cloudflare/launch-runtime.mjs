@@ -17,8 +17,7 @@ export function launchRuntime(env, requestUrl) {
     privateStorage: typeof env.MEDIA?.get === "function" && typeof env.MEDIA?.put === "function",
     aiProvider: typeof env.AI?.run === "function",
     pagesAssets: typeof env.ASSETS?.fetch === "function",
-    liveGoogleAuth: String(env.CLERK_PUBLISHABLE_KEY || "").startsWith("pk_live_") &&
-      String(env.CLERK_SECRET_KEY || "").startsWith("sk_live_"),
+    googleAuth: !!env.GOOGLE_OAUTH_CLIENT_ID,
     turnstile: !!env.TURNSTILE_SITE_KEY && !!env.TURNSTILE_SECRET_KEY &&
       !/^[123]x0{10}/.test(String(env.TURNSTILE_SITE_KEY)) &&
       !/^[123]x0{10}/.test(String(env.TURNSTILE_SECRET_KEY)),

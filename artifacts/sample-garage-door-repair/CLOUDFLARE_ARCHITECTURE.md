@@ -21,10 +21,11 @@ approval. The artifact's static preview is not a substitute production runtime.
 
 ## Authentication and administration
 
-Google sign-in uses the existing Clerk setup. Server verification checks the
-session and Clerk's server-side verified Google identity. A Google account alone
-does not authorize any staff API. Persisted roles are checked on every protected
-request:
+Google Identity Services supplies an ID token to the staff UI. The token is
+stored only in browser session storage and sent as a bearer token. Pages verifies
+its Google signature, issuer, audience, expiry, subject and verified email before
+checking persisted staff roles on every protected request. A Google account alone
+does not authorize any staff API:
 
 - Staff: operational requests and private request attachments.
 - Admin: operational access plus content, business settings and media.
@@ -32,17 +33,16 @@ request:
 
 The server-only `GARAGE_BOOTSTRAP_EMAIL` selects the exact approved initial owner.
 The bootstrap is atomic and once per environment. Thereafter access belongs to
-the immutable Clerk user ID; changing email cannot transfer or recreate ownership.
+the immutable Google subject identifier; changing email cannot transfer or recreate ownership.
 The protected initial owner cannot revoke or downgrade their own sole-owner role.
 Grants, redemption, revocation and business mutations have actor-bound audit
 events. Client cache clearing is supplementary; the database check enforces
 revocation even with an existing Google session.
 
-Pages requires production-compatible `CLERK_PUBLISHABLE_KEY`,
-`CLERK_SECRET_KEY`, optional explicit `CLERK_ISSUER`, and the domain's OAuth
-callbacks. Live Pages rejects development keys. The Replit-managed tenant was
-detected, but automatic external Pages domain compatibility is not assumed.
-Secrets are configured securely, never committed or copied into customer bundles.
+Pages requires `GOOGLE_OAUTH_CLIENT_ID`, matching the Google Identity Services
+client ID configured for the production domain. The client ID is public and may
+be provided to the Vite build as `VITE_GOOGLE_OAUTH_CLIENT_ID`; no OAuth secret is
+used by this flow. Domain authorization is configured in Google Cloud.
 
 ## One approved public projection
 

@@ -6,3 +6,4 @@
 - [Generated clients and hot reload](codegen-hmr.md) — API regeneration can cause temporary Vite missing-module errors; judge the completed build and fresh logs.
 - [Release review packaging](release-review-packaging.md) — stage new modules, migrations, contracts, and required build assets before completion review.
 - [Private storage verification](private-storage-verification.md) — verify real signed-method and range-response contracts; permissive storage mocks can hide provider incompatibilities.
+- [Cloudflare-first Google authentication](cloudflare-google-auth.md) — staff auth uses direct Google ID tokens in the Pages Worker; Clerk is prohibited.

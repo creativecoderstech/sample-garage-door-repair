@@ -10,7 +10,7 @@ remain gated. The single owner checklist is [PRELAUNCH.md](./PRELAUNCH.md).
 The Cloudflare integration did not expose usable resource-inspection tools in this
 session. Existing live Pages resources and bindings were therefore **not validated**.
 The release retains Pages advanced mode, D1, R2, Workers AI and Turnstile; it does
-not substitute a standalone Worker. Managed Clerk status was confirmed, but that
+not substitute a standalone Worker. Google Identity Services configuration was confirmed, but that
 does not establish external Pages domain/live-key compatibility.
 
 ## Application and data checks

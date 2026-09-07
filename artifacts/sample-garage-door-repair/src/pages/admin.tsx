@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ServiceRequestUpdateStatus } from "@workspace/api-client-react";
+import { staffFetch } from "@/lib/staff-auth";
 
 import AdminSettingsPage from './admin-settings';
 import AdminContentPage from './admin-content';
@@ -777,7 +778,7 @@ function UsersAdmin() {
   const [revoke, setRevoke] = useState<AccessRow | null>(null);
   const { toast } = useToast();
   const load = async () => {
-    const response = await fetch('/api/garage/admin/access', { credentials: 'include', cache: 'no-store' });
+    const response = await staffFetch('/api/garage/admin/access', { cache: 'no-store' });
     const body = await response.json().catch(() => []);
     if (!response.ok) throw new Error(body.error || 'Unable to load staff access.');
     setRows(body);
@@ -786,8 +787,8 @@ function UsersAdmin() {
   const grant = async () => {
     setBusy(true); setMessage('');
     try {
-      const response = await fetch('/api/garage/admin/access', {
-        method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' },
+      const response = await staffFetch('/api/garage/admin/access', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email, role }),
       });
       const body = await response.json().catch(() => ({}));
@@ -801,7 +802,7 @@ function UsersAdmin() {
     if (!revoke) return;
     setBusy(true); setMessage('');
     try {
-      const response = await fetch(`/api/garage/admin/access/${encodeURIComponent(revoke.id)}`, { method: 'DELETE', credentials: 'include' });
+      const response = await staffFetch(`/api/garage/admin/access/${encodeURIComponent(revoke.id)}`, { method: 'DELETE' });
       const body = response.status === 204 ? {} : await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || 'Unable to revoke access.');
       toast({ title: 'Access revoked', description: `${revoke.email} is blocked from the next staff request.` });
@@ -1168,7 +1169,7 @@ function ServiceRequestsAdmin() {
 
   const retryNotification = async (id: number) => {
     try {
-      const response = await fetch(`/api/garage/requests/${id}/notify`, { method: "POST" });
+      const response = await staffFetch(`/api/garage/requests/${id}/notify`, { method: "POST" });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Delivery retry failed.");
       await queryClient.invalidateQueries({ queryKey: getListServiceRequestsQueryKey() });
