@@ -57,8 +57,8 @@ function ServicesPageContent() {
                   </div>
                 )}
                 <div className="p-8 flex flex-col flex-grow">
-                  <div className="w-12 h-12 rounded bg-primary flex items-center justify-center text-primary-foreground mb-6 shadow-sm">
-                    <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-6 h-6" />
+                  <div className="h-24 w-40 flex items-center justify-start text-foreground/75 mb-5 group-hover:text-primary group-hover:scale-105 transition-all">
+                    <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-full h-full" />
                   </div>
                   <h2 className="garage-display text-3xl uppercase tracking-wide mb-4 group-hover:text-primary transition-colors">{service.title}</h2>
                   <p className="text-muted-foreground mb-8 flex-grow">{service.summary}</p>

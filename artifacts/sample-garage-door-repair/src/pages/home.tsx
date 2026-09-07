@@ -155,8 +155,8 @@ function HomePageContent() {
             {services.map(service => (
               <Link key={service.id} href={`/services/${service.slug}`} className="group block h-full">
                 <div className="phi-card h-full bg-card hover:border-primary/50 transition-colors border border-border p-8 flex flex-col items-start gap-4 rounded-none">
-                  <div className="w-12 h-12 rounded bg-primary flex items-center justify-center text-primary-foreground group-hover:scale-105 transition-transform shadow-sm">
-                    <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-6 h-6" />
+                  <div className="h-20 w-32 flex items-center justify-start text-foreground/75 group-hover:text-primary group-hover:scale-105 transition-all">
+                    <ServiceIcon serviceCode={service.serviceCode || service.slug} className="w-full h-full" />
                   </div>
                   <h3 className="garage-display text-2xl uppercase tracking-wide mt-2 group-hover:text-primary transition-colors">{service.title}</h3>
                   <p className="text-muted-foreground line-clamp-3 mb-4 flex-grow">{service.summary}</p>
