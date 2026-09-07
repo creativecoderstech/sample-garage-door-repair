@@ -70,10 +70,10 @@ function HomePageContent() {
             </p>
             <div className="flex flex-col gap-[var(--phi-space-3)] sm:flex-row">
               <Button asChild size="lg" className="rounded-none h-14 px-[var(--phi-space-4)] font-bold uppercase tracking-widest text-sm bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href="#booking">Request Service</Link>
+                <a href="#booking">Request Service</a>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-none h-14 px-[var(--phi-space-4)] font-bold uppercase tracking-widest text-sm text-white border-white/30 hover:bg-white/10 hover:text-white backdrop-blur">
-                <Link href="#services">Explore Services</Link>
+                <a href="#services">Explore Services</a>
               </Button>
             </div>
             
@@ -137,7 +137,7 @@ function HomePageContent() {
       )}
 
       {/* Services Overview */}
-      <section id="services" className="phi-section bg-muted/30 relative border-b border-border">
+      <section id="services" className="scroll-mt-28 phi-section bg-muted/30 relative border-b border-border">
         <div className="phi-container relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-[var(--phi-space-5)] md:mb-[var(--phi-space-6)] gap-[var(--phi-space-4)]">
             <div className="max-w-2xl">
@@ -171,7 +171,7 @@ function HomePageContent() {
       </section>
 
       {/* Booking Form Section */}
-      <section id="booking" className="phi-section bg-background">
+      <section id="booking" className="scroll-mt-28 phi-section bg-background">
         <div className="phi-container max-w-5xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--phi-space-5)] lg:gap-[var(--phi-space-6)] items-center">
             <div>
