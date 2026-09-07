@@ -30,6 +30,17 @@ export const businessSettings = pgTable("garage_business_settings", {
   heroImage: text("hero_image").notNull(),
   galleryImages: jsonb("gallery_images").$type<string[]>().notNull().default([]),
   verificationStatus: text("verification_status").notNull().default("unverified"),
+  productionApproved: boolean("production_approved").notNull().default(false),
+  hours: text("hours").notNull().default(""),
+  coverage: text("coverage").notNull().default(""),
+  urgentPolicy: text("urgent_policy").notNull().default(""),
+  domainConfigured: boolean("domain_configured").notNull().default(false),
+  authConfigured: boolean("auth_configured").notNull().default(false),
+  claimVerification: jsonb("claim_verification").$type<Record<string, {
+    status: "unverified" | "verified";
+    isExample: boolean;
+    verifiedAt: string | null;
+  }>>().notNull().default({}),
   trustProfile: jsonb("trust_profile").$type<{
     hours: string | null;
     ownerTeam: string | null;
@@ -39,9 +50,10 @@ export const businessSettings = pgTable("garage_business_settings", {
     financing: string | null;
     licenseInsurance: string | null;
     warranty: string | null;
+    urgentPolicy: string | null;
   }>().notNull().default({
     hours: null, ownerTeam: null, yearsInBusiness: null, brandsServiced: null,
-    paymentOptions: null, financing: null, licenseInsurance: null, warranty: null,
+    paymentOptions: null, financing: null, licenseInsurance: null, warranty: null, urgentPolicy: null,
   }),
 });
 
@@ -86,10 +98,21 @@ export const garageContent = pgTable("garage_content", {
   slug: text("slug").notNull(),
   aliases: jsonb("aliases").$type<string[]>().notNull().default([]),
   title: text("title").notNull(),
+  navigationLabel: text("navigation_label").notNull().default(""),
+  navigationGroup: text("navigation_group").notNull().default(""),
   summary: text("summary").notNull().default(""),
   body: text("body").notNull().default(""),
+  symptoms: jsonb("symptoms").$type<string[]>().notNull().default([]),
+  expectations: jsonb("expectations").$type<string[]>().notNull().default([]),
+  serviceFaqs: jsonb("service_faqs").$type<Array<{ question: string; answer: string }>>().notNull().default([]),
   imageUrl: text("image_url").notNull().default(""),
   imageAlt: text("image_alt").notNull().default(""),
+  mediaMetadata: jsonb("media_metadata").$type<{
+    sourceUrl: string;
+    license: string;
+    attribution: string;
+    representative: boolean;
+  }>().notNull().default({ sourceUrl: "", license: "", attribution: "", representative: true }),
   beforeImageUrl: text("before_image_url").notNull().default(""),
   seoTitle: text("seo_title").notNull().default(""),
   seoDescription: text("seo_description").notNull().default(""),

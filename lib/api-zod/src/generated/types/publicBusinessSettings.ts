@@ -5,6 +5,8 @@
  * Garage door repair customer and operations API
  * OpenAPI spec version: 0.1.0
  */
+import type { GarageExampleDetails } from './garageExampleDetails';
+import type { GarageLaunchChecks } from './garageLaunchChecks';
 import type { PublicBusinessSettingsVerificationStatus } from './publicBusinessSettingsVerificationStatus';
 import type { PublicTrustProfile } from './publicTrustProfile';
 
@@ -13,10 +15,19 @@ export interface PublicBusinessSettings {
   phone: string;
   email: string;
   serviceArea: string;
+  hours: string;
+  coverage: string;
+  urgentPolicy: string;
   theme: string;
   emergencyEnabled: boolean;
   heroImage: string;
   galleryImages: string[];
   verificationStatus: PublicBusinessSettingsVerificationStatus;
   trustProfile: PublicTrustProfile;
+  launchReady: boolean;
+  runtimeReady?: boolean;
+  /** @nullable */
+  canonicalOrigin?: string | null;
+  launchChecks: GarageLaunchChecks;
+  exampleDetails: GarageExampleDetails;
 }

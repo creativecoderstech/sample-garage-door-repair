@@ -56,10 +56,10 @@ function ServicesPageContent() {
                   </div>
                 )}
                 <div className="p-8 flex flex-col flex-grow">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+                  <div className="w-12 h-12 rounded bg-primary flex items-center justify-center text-primary-foreground mb-6 shadow-sm">
                     <Wrench className="w-6 h-6" />
                   </div>
-                  <h2 className="font-display text-3xl uppercase tracking-tight mb-4">{service.title}</h2>
+                  <h2 className="garage-display text-3xl uppercase tracking-wide mb-4 group-hover:text-primary transition-colors">{service.title}</h2>
                   <p className="text-muted-foreground mb-8 flex-grow">{service.summary}</p>
                   
                   <Button asChild variant="outline" className="w-full rounded-none font-bold uppercase tracking-widest mt-auto group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
@@ -72,13 +72,12 @@ function ServicesPageContent() {
             ))}
           </div>
           
-          <div className="mt-20 bg-muted/30 border border-border p-10 md:p-16 text-center rounded-2xl relative overflow-hidden">
-             <div className="absolute inset-0 noise-overlay pointer-events-none opacity-20" />
+          <div className="mt-20 bg-secondary text-secondary-foreground border border-border p-10 md:p-16 text-center rounded-none relative overflow-hidden">
              <div className="relative z-10">
-               <h3 className="font-display text-4xl uppercase tracking-tighter mb-4">Don't see what you need?</h3>
-               <p className="font-serif italic text-xl text-muted-foreground mb-8">Contact us to discuss your specific requirements.</p>
-               <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest px-8">
-                 <Link href="/contact">Get in Touch</Link>
+               <h3 className="garage-display text-4xl md:text-5xl uppercase tracking-wide mb-4">Don't see what you need?</h3>
+               <p className="text-lg text-secondary-foreground/80 mb-8 max-w-2xl mx-auto">Contact us to discuss your specific requirements. We handle almost any residential or commercial garage door issue.</p>
+               <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest px-8 bg-primary text-primary-foreground hover:bg-primary/90">
+                 <Link href="/contact#booking">Request Service</Link>
                </Button>
              </div>
           </div>

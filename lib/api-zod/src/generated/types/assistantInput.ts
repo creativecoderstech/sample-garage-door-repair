@@ -13,6 +13,7 @@ export interface AssistantInput {
      * @maxLength 1000
      */
   message: string;
+  turnstileToken?: string;
   /** @maxItems 12 */
   history?: AssistantMessage[];
 }

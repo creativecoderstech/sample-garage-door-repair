@@ -49,12 +49,12 @@ function CustomPageContent() {
       <div className="phi-section bg-background">
         <div className="phi-container max-w-4xl">
           {page.imageUrl && (
-            <div className="w-full aspect-video rounded-xl overflow-hidden mb-12 bg-muted shadow-sm">
-              <img src={page.imageUrl} alt={page.imageAlt || page.title} className="w-full h-full object-cover" />
+            <div className="w-full aspect-[16/9] overflow-hidden mb-12 bg-muted border border-border">
+              <img src={publicAssetUrl(page.imageUrl)} alt={page.imageAlt || page.title} className="w-full h-full object-cover" />
             </div>
           )}
           
-          <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed">
+          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed prose-headings:font-display prose-headings:uppercase">
             {page.body.split('\n\n').map((paragraph, idx) => (
               <p key={idx}>{paragraph}</p>
             ))}

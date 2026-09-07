@@ -11,6 +11,41 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "typecheck"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "garage-launch-acceptance"
+
+[[workflows.workflow]]
+name = "typecheck"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run typecheck"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "garage-launch-acceptance"
+author = "agent"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node --test artifacts/sample-garage-door-repair/cloudflare/*.test.mjs && pnpm --filter @workspace/db test:auth && pnpm --filter @workspace/api-server test:staff-origin && pnpm --filter @workspace/api-server exec tsx --test src/lib/*.test.mjs && node --experimental-strip-types --test artifacts/sample-garage-door-repair/src/lib/*.test.mjs"
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
@@ -21,3 +56,8 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.development]
+GARAGE_BOOTSTRAP_EMAIL = "creativecoderstech@gmail.com"

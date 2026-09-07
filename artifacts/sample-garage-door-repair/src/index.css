@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, clerk, components, utilities;
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Manrope:wght@400..800&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -70,26 +70,26 @@
 }
 
 :root {
-  /* THEME 1: Industrial (Default) */
-  --theme-industrial-background: 40 10% 98%;
-  --theme-industrial-foreground: 220 15% 15%;
+  /* THEME 1: Industrial (Default - Warm Neutral & Strong Accent) */
+  --theme-industrial-background: 35 15% 96%; /* Warm neutral off-white/beige */
+  --theme-industrial-foreground: 220 15% 10%;
   --theme-industrial-card: 0 0% 100%;
-  --theme-industrial-card-foreground: 220 15% 15%;
+  --theme-industrial-card-foreground: 220 15% 10%;
   --theme-industrial-popover: 0 0% 100%;
-  --theme-industrial-popover-foreground: 220 15% 15%;
-  --theme-industrial-primary: 24 95% 53%; /* Bold safety orange */
-  --theme-industrial-primary-foreground: 0 0% 100%;
-  --theme-industrial-secondary: 220 15% 15%; /* Charcoal */
+  --theme-industrial-popover-foreground: 220 15% 10%;
+  --theme-industrial-primary: 38 92% 50%; /* Strong contractor accent (Golden Yellow/Orange) */
+  --theme-industrial-primary-foreground: 220 15% 10%;
+  --theme-industrial-secondary: 220 15% 10%; /* Very dark charcoal */
   --theme-industrial-secondary-foreground: 0 0% 100%;
-  --theme-industrial-muted: 220 10% 92%;
+  --theme-industrial-muted: 35 10% 90%;
   --theme-industrial-muted-foreground: 220 15% 45%;
-  --theme-industrial-accent: 24 95% 53%;
-  --theme-industrial-accent-foreground: 0 0% 100%;
+  --theme-industrial-accent: 38 92% 50%;
+  --theme-industrial-accent-foreground: 220 15% 10%;
   --theme-industrial-destructive: 0 84% 60%;
   --theme-industrial-destructive-foreground: 0 0% 100%;
-  --theme-industrial-border: 220 10% 85%;
-  --theme-industrial-input: 220 10% 85%;
-  --theme-industrial-ring: 24 95% 53%;
+  --theme-industrial-border: 35 10% 88%;
+  --theme-industrial-input: 35 10% 88%;
+  --theme-industrial-ring: 38 92% 50%;
 
   /* THEME 2: Trust */
   --theme-trust-background: 210 20% 98%;

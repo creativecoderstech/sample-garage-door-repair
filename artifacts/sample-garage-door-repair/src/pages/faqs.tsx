@@ -42,8 +42,8 @@ export default function FaqsPage() {
           {faqs.length > 0 ? (
             <div className="flex flex-col gap-6">
               {faqs.map(faq => (
-                <div key={faq.id} className="bg-card border border-border p-6 md:p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                  <h3 className="font-display text-2xl uppercase tracking-tighter mb-4 flex items-start gap-4">
+                <div key={faq.id} className="bg-card border border-border p-6 md:p-8 rounded-none">
+                  <h3 className="garage-display text-2xl uppercase tracking-wide mb-4 flex items-start gap-4">
                     <span className="text-primary mt-1">Q.</span> {faq.title}
                   </h3>
                   <div className="text-muted-foreground pl-9 font-medium leading-relaxed prose prose-lg dark:prose-invert">

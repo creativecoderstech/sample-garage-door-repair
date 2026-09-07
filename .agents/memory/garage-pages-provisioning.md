@@ -14,3 +14,9 @@ Keep the browser and runtime verification-config contract explicit: production r
 **Why:** A shape mismatch between the Pages config response and browser parser caused production to omit tokens, while a missing local config route blocked Maya before requests were posted.
 
 **How to apply:** When changing verification config, test the config endpoint and a Maya POST in both local preview and Pages. Never treat a missing config endpoint as permission to bypass production verification.
+
+External Pages hosting is not automatically authorized merely because Clerk is managed by Replit.
+
+**Why:** Management status confirmed the tenant but did not establish external-domain callback/live-key compatibility. A successful local identity fixture cannot prove that Google's production consent and callback setup works.
+
+**How to apply:** Preserve the existing provider, implement fail-closed server verification, and distinguish tested application behavior from the owner's real Google/domain approval. Never silently use development credentials in production or substitute an arbitrary first signup for the approved owner.

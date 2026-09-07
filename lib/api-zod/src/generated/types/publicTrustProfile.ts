@@ -23,4 +23,6 @@ export interface PublicTrustProfile {
   licenseInsurance: string | null;
   /** @nullable */
   warranty: string | null;
+  /** @nullable */
+  urgentPolicy: string | null;
 }

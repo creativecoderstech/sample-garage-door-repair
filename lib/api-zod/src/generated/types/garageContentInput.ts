@@ -8,6 +8,8 @@
 import type { GarageContentInputKind } from './garageContentInputKind';
 import type { GarageContentInputStatus } from './garageContentInputStatus';
 import type { GarageContentInputVerificationStatus } from './garageContentInputVerificationStatus';
+import type { GarageMediaMetadata } from './garageMediaMetadata';
+import type { GarageServiceFaq } from './garageServiceFaq';
 
 export interface GarageContentInput {
   kind: GarageContentInputKind;
@@ -29,14 +31,36 @@ export interface GarageContentInput {
      * @maxLength 160
      */
   title: string;
+  /** @maxLength 100 */
+  navigationLabel: string;
+  /**
+     * @maxLength 100
+     * @pattern ^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$
+     */
+  navigationGroup: string;
   /** @maxLength 500 */
   summary: string;
   /** @maxLength 20000 */
   body: string;
+  /**
+     * @maxItems 20
+     * @items.minLength 1
+     * @items.maxLength 300
+     */
+  symptoms: string[];
+  /**
+     * @maxItems 20
+     * @items.minLength 1
+     * @items.maxLength 300
+     */
+  expectations: string[];
+  /** @maxItems 20 */
+  serviceFaqs: GarageServiceFaq[];
   /** @maxLength 2048 */
   imageUrl: string;
   /** @maxLength 300 */
   imageAlt: string;
+  mediaMetadata: GarageMediaMetadata;
   /** @maxLength 2048 */
   beforeImageUrl: string;
   /** @maxLength 160 */

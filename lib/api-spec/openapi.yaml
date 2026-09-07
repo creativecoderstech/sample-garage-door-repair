@@ -94,6 +94,54 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/GarageContent" }
+  /garage/admin/session:
+    get:
+      operationId: getGarageAdminSession
+      tags: [admin]
+      responses:
+        "200":
+          description: Current request-time staff authorization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageStaffSession" }
+  /garage/admin/access:
+    get:
+      operationId: listGarageStaffAccess
+      tags: [admin]
+      responses:
+        "200":
+          description: Authorized and pending staff access
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GarageAccessGrant" }
+    post:
+      operationId: grantGarageStaffAccess
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GarageAccessGrantInput" }
+      responses:
+        "201":
+          description: Staff access granted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageAccessGrant" }
+  /garage/admin/access/{id}:
+    delete:
+      operationId: revokeGarageStaffAccess
+      tags: [admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        "204":
+          description: Staff access revoked
   /garage/admin/content:
     get:
       operationId: listAdminGarageContent
@@ -162,21 +210,31 @@ paths:
             application/json:
               schema:
                 type: array
-                items: { $ref: "#/components/schemas/ServiceRequest" }
+                items: { $ref: "#/components/schemas/AdminServiceRequest" }
     post:
       operationId: createServiceRequest
       tags: [requests]
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string, minLength: 20, maxLength: 100, pattern: "^[A-Za-z0-9_-]+$" }
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: "#/components/schemas/ServiceRequestInput" }
       responses:
+        "200":
+          description: Existing request returned for an idempotent retry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageCreatedRequest" }
         "201":
           description: Request created
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ServiceRequest" }
+              schema: { $ref: "#/components/schemas/GarageCreatedRequest" }
   /garage/requests/{id}:
     patch:
       operationId: updateServiceRequest
@@ -197,6 +255,159 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ServiceRequest" }
+  /garage/request-uploads/{id}/prepare:
+    post:
+      operationId: prepareServiceRequestAttachment
+      tags: [requests]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: number }
+        - in: header
+          name: X-Upload-Capability
+          required: true
+          schema: { type: string, minLength: 32 }
+        - in: header
+          name: Idempotency-Key
+          required: true
+          description: Stable key for this selected file; reuse it when retrying prepare or upload.
+          schema: { type: string, minLength: 20, maxLength: 100, pattern: "^[A-Za-z0-9_-]+$" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PrepareRequestAttachmentInput" }
+      responses:
+        "200":
+          description: Existing private file reservation returned for an idempotent retry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PreparedRequestAttachment" }
+        "201":
+          description: Private upload prepared
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PreparedRequestAttachment" }
+  /garage/request-uploads/{id}/attachments/{attachmentId}/finalize:
+    post:
+      operationId: finalizeServiceRequestAttachment
+      tags: [requests]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: number }
+        - in: path
+          name: attachmentId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: header
+          name: X-Upload-Capability
+          required: true
+          schema: { type: string, minLength: 32 }
+      responses:
+        "200":
+          description: Upload verified
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FinalizeRequestAttachmentResponse" }
+  /garage/request-uploads/{id}/complete:
+    post:
+      operationId: completeServiceRequestUploads
+      tags: [requests]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: number }
+        - in: header
+          name: X-Upload-Capability
+          required: true
+          schema: { type: string, minLength: 32 }
+      responses:
+        "200":
+          description: Upload phase completed and notification delivery attempted once
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RequestDeliveryDetails" }
+  /garage/requests/{id}/attachments/{attachmentId}:
+    get:
+      operationId: getServiceRequestAttachment
+      tags: [admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: number }
+        - in: path
+          name: attachmentId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Private attachment bytes
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+  /garage/requests/{id}/notify:
+    post:
+      operationId: retryServiceRequestNotification
+      tags: [admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: number }
+      responses:
+        "200":
+          description: Delivery retry completed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RequestDeliveryDetails" }
+  /garage/admin/notifications:
+    get:
+      operationId: getGarageNotificationSettings
+      tags: [admin]
+      responses:
+        "200":
+          description: Request delivery settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageNotificationSettings" }
+    put:
+      operationId: updateGarageNotificationSettings
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GarageNotificationSettingsInput" }
+      responses:
+        "200":
+          description: Request delivery settings saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GarageNotificationSettings" }
+  /garage/admin/notifications/test:
+    post:
+      operationId: testGarageNotificationDestination
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GarageNotificationTestInput" }
+      responses:
+        "200":
+          description: A real test event was accepted by the destination
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [delivered]
+                properties:
+                  delivered: { type: boolean, enum: [true] }
   /garage/dashboard:
     get:
       operationId: getGarageDashboard
@@ -253,6 +464,38 @@ components:
       required: [status]
       properties:
         status: { type: string }
+    GarageStaffRole:
+      type: string
+      enum: [super_admin, admin, staff]
+    GarageAccessGrantRole:
+      type: string
+      enum: [admin, staff]
+    GarageStaffSession:
+      type: object
+      required: [accessId, userId, email, role]
+      properties:
+        accessId: { type: string }
+        userId: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: "#/components/schemas/GarageStaffRole" }
+    GarageAccessGrantInput:
+      type: object
+      additionalProperties: false
+      required: [email, role]
+      properties:
+        email: { type: string, format: email, maxLength: 320 }
+        role: { $ref: "#/components/schemas/GarageAccessGrantRole" }
+    GarageAccessGrant:
+      type: object
+      required: [id, email, role, status]
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: "#/components/schemas/GarageStaffRole" }
+        status: { type: string, enum: [pending, active] }
+        protectedOwner: { type: boolean }
+        createdAt: { type: string }
+        redeemedAt: { type: ["string", "null"] }
     GarageService:
       type: object
       required: [id, slug, name, description, startingPrice, duration, emergency]
@@ -310,7 +553,7 @@ components:
         message: { type: string }
     GarageContent:
       type: object
-      required: [id, kind, slug, aliases, title, summary, body, imageUrl, imageAlt, beforeImageUrl, seoTitle, seoDescription, parentId, sortOrder, status, verificationStatus, featured, serviceCode, updatedAt]
+      required: [id, kind, slug, aliases, title, navigationLabel, navigationGroup, summary, body, symptoms, expectations, serviceFaqs, imageUrl, imageAlt, mediaMetadata, beforeImageUrl, seoTitle, seoDescription, parentId, sortOrder, status, verificationStatus, featured, serviceCode, reviewedSeed, updatedAt]
       properties:
         id: { type: string }
         kind: { type: string, enum: [page, service, location, article, faq, project, trust] }
@@ -319,10 +562,22 @@ components:
           type: array
           items: { type: string }
         title: { type: string }
+        navigationLabel: { type: string }
+        navigationGroup: { type: string }
         summary: { type: string }
         body: { type: string }
+        symptoms:
+          type: array
+          items: { type: string }
+        expectations:
+          type: array
+          items: { type: string }
+        serviceFaqs:
+          type: array
+          items: { $ref: "#/components/schemas/GarageServiceFaq" }
         imageUrl: { type: string }
         imageAlt: { type: string }
+        mediaMetadata: { $ref: "#/components/schemas/GarageMediaMetadata" }
         beforeImageUrl: { type: string }
         seoTitle: { type: string }
         seoDescription: { type: string }
@@ -332,10 +587,11 @@ components:
         verificationStatus: { type: string, enum: [unverified, verified] }
         featured: { type: boolean }
         serviceCode: { type: string }
+        reviewedSeed: { type: boolean, readOnly: true }
         updatedAt: { type: string }
     GarageContentInput:
       type: object
-      required: [kind, slug, aliases, title, summary, body, imageUrl, imageAlt, beforeImageUrl, seoTitle, seoDescription, sortOrder, status, verificationStatus, featured, serviceCode]
+      required: [kind, slug, aliases, title, navigationLabel, navigationGroup, summary, body, symptoms, expectations, serviceFaqs, imageUrl, imageAlt, mediaMetadata, beforeImageUrl, seoTitle, seoDescription, sortOrder, status, verificationStatus, featured, serviceCode]
       properties:
         kind: { type: string, enum: [page, service, location, article, faq, project, trust] }
         slug: { type: string, minLength: 1, maxLength: 100, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
@@ -345,10 +601,25 @@ components:
           uniqueItems: true
           items: { type: string, minLength: 1, maxLength: 100, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
         title: { type: string, minLength: 1, maxLength: 160 }
+        navigationLabel: { type: string, maxLength: 100 }
+        navigationGroup: { type: string, maxLength: 100, pattern: "^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$" }
         summary: { type: string, maxLength: 500 }
         body: { type: string, maxLength: 20000 }
+        symptoms:
+          type: array
+          maxItems: 20
+          items: { type: string, minLength: 1, maxLength: 300 }
+        expectations:
+          type: array
+          maxItems: 20
+          items: { type: string, minLength: 1, maxLength: 300 }
+        serviceFaqs:
+          type: array
+          maxItems: 20
+          items: { $ref: "#/components/schemas/GarageServiceFaq" }
         imageUrl: { type: string, maxLength: 2048 }
         imageAlt: { type: string, maxLength: 300 }
+        mediaMetadata: { $ref: "#/components/schemas/GarageMediaMetadata" }
         beforeImageUrl: { type: string, maxLength: 2048 }
         seoTitle: { type: string, maxLength: 160 }
         seoDescription: { type: string, maxLength: 320 }
@@ -360,6 +631,20 @@ components:
         serviceCode: { type: string, maxLength: 100, pattern: "^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$" }
         verificationAcknowledged:
           type: boolean
+    GarageServiceFaq:
+      type: object
+      required: [question, answer]
+      properties:
+        question: { type: string, minLength: 1, maxLength: 300 }
+        answer: { type: string, minLength: 1, maxLength: 1000 }
+    GarageMediaMetadata:
+      type: object
+      required: [sourceUrl, license, attribution, representative]
+      properties:
+        sourceUrl: { type: string, maxLength: 2048 }
+        license: { type: string, maxLength: 500 }
+        attribution: { type: string, maxLength: 500 }
+        representative: { type: boolean }
     ServiceRequest:
       type: object
       required: [id, customerName, phone, email, streetAddress, city, state, zip, service, urgency, status, preferredDate, preferredTime, createdAt]
@@ -379,6 +664,99 @@ components:
         preferredTime: { type: string }
         details: { type: string }
         createdAt: { type: string }
+    RequestAttachment:
+      type: object
+      required: [id, originalName, contentType, byteSize, status]
+      properties:
+        id: { type: string, format: uuid }
+        originalName: { type: string }
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, video/quicktime, video/webm] }
+        byteSize: { type: integer }
+        status: { type: string, enum: [pending, uploaded] }
+    NotificationDelivery:
+      type: object
+      required: [id, requestId, status, attempts, deliveredAt, lastError, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        requestId: { type: number }
+        status: { type: string, enum: [pending_uploads, unconfigured, pending, processing, failed, delivered] }
+        attempts: { type: integer }
+        lastError: { type: string, nullable: true }
+        deliveredAt: { type: string, nullable: true }
+        updatedAt: { type: string }
+    RequestDeliveryDetails:
+      type: object
+      required: [uploadStatus, delivery, attachments]
+      properties:
+        uploadStatus: { type: string, enum: [incomplete, completed] }
+        delivery:
+          allOf:
+            - $ref: "#/components/schemas/NotificationDelivery"
+          nullable: true
+        attachments:
+          type: array
+          items: { $ref: "#/components/schemas/RequestAttachment" }
+    AdminServiceRequest:
+      allOf:
+        - $ref: "#/components/schemas/ServiceRequest"
+        - $ref: "#/components/schemas/RequestDeliveryDetails"
+    GarageNotificationTestInput:
+      type: object
+      required: [webhookUrl]
+      properties:
+        webhookUrl: { type: string, format: uri }
+    GarageCreatedRequest:
+      allOf:
+        - $ref: "#/components/schemas/ServiceRequest"
+        - $ref: "#/components/schemas/RequestDeliveryDetails"
+        - type: object
+          required: [uploadCapability]
+          properties:
+            uploadCapability:
+              type: string
+              minLength: 32
+              description: Short-lived private attachment capability returned only to the submitting customer.
+    PrepareRequestAttachmentInput:
+      type: object
+      required: [originalName, contentType, byteSize]
+      properties:
+        originalName: { type: string, minLength: 1, maxLength: 180 }
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, video/quicktime, video/webm] }
+        byteSize: { type: integer, minimum: 1, maximum: 104857600 }
+    PreparedRequestAttachment:
+      type: object
+      required: [attachmentId, uploadUrl, method, headers, status]
+      properties:
+        attachmentId: { type: string, format: uuid }
+        uploadUrl: { type: string }
+        status: { type: string, enum: [pending, uploaded] }
+        method: { type: string, enum: [PUT] }
+        headers:
+          type: object
+          additionalProperties: { type: string }
+    FinalizeRequestAttachmentResponse:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [uploaded] }
+    GarageNotificationSettings:
+      type: object
+      required: [id, webhookUrl, enabled, configured, destinationVerified, testedAt]
+      properties:
+        id: { type: integer, enum: [1] }
+        webhookUrl: { type: string, nullable: true }
+        enabled: { type: boolean }
+        configured: { type: boolean }
+        destinationVerified: { type: boolean }
+        testedAt: { type: string, nullable: true }
+        updatedAt: { type: string }
+    GarageNotificationSettingsInput:
+      type: object
+      required: [webhookUrl, enabled]
+      properties:
+        webhookUrl: { type: string, nullable: true }
+        enabled: { type: boolean }
     ServiceRequestInput:
       type: object
       required: [customerName, phone, email, streetAddress, city, state, zip, service, urgency, preferredDate]
@@ -395,6 +773,7 @@ components:
         preferredDate: { type: string }
         preferredTime: { type: string }
         details: { type: string }
+        turnstileToken: { type: string }
     ServiceRequestUpdate:
       type: object
       properties:
@@ -416,12 +795,15 @@ components:
           items: { $ref: "#/components/schemas/ServiceRequest" }
     BusinessSettings:
       type: object
-      required: [businessName, phone, email, serviceArea, theme, serviceId, emergencyEnabled, heroImage, galleryImages, verificationStatus, trustProfile]
+      required: [businessName, phone, email, serviceArea, hours, coverage, urgentPolicy, theme, serviceId, emergencyEnabled, heroImage, galleryImages, verificationStatus, productionApproved, domainConfigured, authConfigured, claimVerification, trustProfile]
       properties:
         businessName: { type: string }
         phone: { type: string }
         email: { type: string }
         serviceArea: { type: string }
+        hours: { type: string }
+        coverage: { type: string }
+        urgentPolicy: { type: string }
         theme: { type: string }
         serviceId: { type: string }
         emergencyEnabled: { type: boolean }
@@ -430,15 +812,23 @@ components:
           type: array
           items: { type: string }
         verificationStatus: { type: string, enum: [verified, unverified] }
+        productionApproved: { type: boolean }
+        domainConfigured: { type: boolean }
+        authConfigured: { type: boolean }
+        claimVerification:
+          $ref: "#/components/schemas/GarageClaimVerificationMap"
         trustProfile: { $ref: "#/components/schemas/PublicTrustProfile" }
     PublicBusinessSettings:
       type: object
-      required: [businessName, phone, email, serviceArea, theme, emergencyEnabled, heroImage, galleryImages, verificationStatus, trustProfile]
+      required: [businessName, phone, email, serviceArea, hours, coverage, urgentPolicy, theme, emergencyEnabled, heroImage, galleryImages, verificationStatus, trustProfile, launchReady, launchChecks, exampleDetails]
       properties:
         businessName: { type: string }
         phone: { type: string }
         email: { type: string }
         serviceArea: { type: string }
+        hours: { type: string }
+        coverage: { type: string }
+        urgentPolicy: { type: string }
         theme: { type: string }
         emergencyEnabled: { type: boolean }
         heroImage: { type: string }
@@ -450,9 +840,16 @@ components:
           enum: [verified, unverified]
         trustProfile:
           $ref: "#/components/schemas/PublicTrustProfile"
+        launchReady: { type: boolean }
+        runtimeReady: { type: boolean }
+        canonicalOrigin: { type: ["string", "null"] }
+        launchChecks:
+          $ref: "#/components/schemas/GarageLaunchChecks"
+        exampleDetails:
+          $ref: "#/components/schemas/GarageExampleDetails"
     PublicTrustProfile:
       type: object
-      required: [hours, ownerTeam, yearsInBusiness, brandsServiced, paymentOptions, financing, licenseInsurance, warranty]
+      required: [hours, ownerTeam, yearsInBusiness, brandsServiced, paymentOptions, financing, licenseInsurance, warranty, urgentPolicy]
       properties:
         hours: { type: [string, "null"] }
         ownerTeam: { type: [string, "null"] }
@@ -462,6 +859,43 @@ components:
         financing: { type: [string, "null"] }
         licenseInsurance: { type: [string, "null"] }
         warranty: { type: [string, "null"] }
+        urgentPolicy: { type: [string, "null"] }
+    GarageClaimVerification:
+      type: object
+      required: [status, isExample, verifiedAt]
+      properties:
+        status: { type: string, enum: [verified, unverified] }
+        isExample: { type: boolean }
+        verifiedAt: { type: [string, "null"] }
+    GarageClaimVerificationMap:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/GarageClaimVerification"
+    GarageLaunchChecks:
+      type: object
+      required: [productionApproved, approvedBusinessName, realPhone, realEmail, verifiedHours, verifiedCoverage, notificationConfigured, notificationDestinationVerified, notificationTested, domainConfigured, authConfigured]
+      properties:
+        productionApproved: { type: boolean }
+        approvedBusinessName: { type: boolean }
+        realPhone: { type: boolean }
+        realEmail: { type: boolean }
+        verifiedHours: { type: boolean }
+        verifiedCoverage: { type: boolean }
+        notificationConfigured: { type: boolean }
+        notificationDestinationVerified: { type: boolean }
+        notificationTested: { type: boolean }
+        domainConfigured: { type: boolean }
+        authConfigured: { type: boolean }
+    GarageExampleDetails:
+      type: object
+      required: [phone, email, hours, coverage, visiblyUnverified, label]
+      properties:
+        phone: { type: string }
+        email: { type: string }
+        hours: { type: string }
+        coverage: { type: string }
+        visiblyUnverified: { type: boolean, enum: [true] }
+        label: { type: string }
     BusinessSettingsInput:
       type: object
       properties:
@@ -469,6 +903,9 @@ components:
         phone: { type: string }
         email: { type: string }
         serviceArea: { type: string }
+        hours: { type: string }
+        coverage: { type: string }
+        urgentPolicy: { type: string }
         theme: { type: string }
         serviceId: { type: string }
         emergencyEnabled: { type: boolean }
@@ -478,12 +915,18 @@ components:
           items: { type: string }
         verificationStatus: { type: string, enum: [verified, unverified] }
         verificationAcknowledged: { type: boolean }
+        productionApproved: { type: boolean }
+        domainConfigured: { type: boolean }
+        authConfigured: { type: boolean }
+        claimVerification:
+          $ref: "#/components/schemas/GarageClaimVerificationMap"
         trustProfile: { $ref: "#/components/schemas/PublicTrustProfile" }
     AssistantInput:
       type: object
       required: [message]
       properties:
         message: { type: string, minLength: 1, maxLength: 1000 }
+        turnstileToken: { type: string }
         history:
           type: array
           maxItems: 12

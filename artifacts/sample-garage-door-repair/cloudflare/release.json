@@ -1,6 +1,18 @@
 {
-  "worker": "sample-garage-door-repair",
-  "hostname": "sample-garage-door-repair.samples.creativecoders.tech",
-  "assetRevision": "7fcea38e152bfcad81af960fe298d2e25860a94f",
-  "assetRoot": "artifacts/sample-garage-door-repair/dist/public"
+  "schemaVersion": 2,
+  "runtime": "pages",
+  "project": "sample-garage-door-repair",
+  "outputDirectory": "dist/public",
+  "functionsEntry": "_worker.js",
+  "requiredBindings": ["DB", "MEDIA", "AI", "ASSETS"],
+  "requiredMigrations": [
+    "0001_garage_production.sql",
+    "0002_garage_content.sql",
+    "0003_cumming_launch.sql",
+    "0004_staff_access.sql",
+    "0005_request_delivery.sql",
+    "0007_request_upload_completion.sql"
+  ],
+  "launchApproval": "owner-required",
+  "canonicalOrigin": null
 }

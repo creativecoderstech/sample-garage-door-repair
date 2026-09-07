@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { BusinessSettingsVerificationStatus } from './businessSettingsVerificationStatus';
+import type { GarageClaimVerificationMap } from './garageClaimVerificationMap';
 import type { PublicTrustProfile } from './publicTrustProfile';
 
 export interface BusinessSettings {
@@ -13,11 +14,18 @@ export interface BusinessSettings {
   phone: string;
   email: string;
   serviceArea: string;
+  hours: string;
+  coverage: string;
+  urgentPolicy: string;
   theme: string;
   serviceId: string;
   emergencyEnabled: boolean;
   heroImage: string;
   galleryImages: string[];
   verificationStatus: BusinessSettingsVerificationStatus;
+  productionApproved: boolean;
+  domainConfigured: boolean;
+  authConfigured: boolean;
+  claimVerification: GarageClaimVerificationMap;
   trustProfile: PublicTrustProfile;
 }

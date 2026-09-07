@@ -16,7 +16,7 @@ import {
   LayoutGrid, Inbox, CalendarDays, MessageCircle, 
   Wrench, Image as ImageIcon, SplitSquareHorizontal, 
   HelpCircle, Star, Settings, Users, ChevronRight, 
-  ExternalLink, Sparkles, Building2, Menu, X, MapPin, Mail, Phone, Upload
+  ExternalLink, Sparkles, Building2, Menu, X, MapPin, Mail, Phone, Upload, LogOut
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 import { Badge } from "@/components/ui/badge";
@@ -28,13 +28,6 @@ import type { ServiceRequestUpdateStatus } from "@workspace/api-client-react";
 
 import AdminSettingsPage from './admin-settings';
 import AdminContentPage from './admin-content';
-import { 
-  useListFaqs, useSaveFaq, useDeleteFaq, 
-  useListTasks, useSaveTask, useDeleteTask, 
-  useListBookings, useListChatInquiries,
-  DEFAULT_SERVICE_CATALOG_ROWS,
-  type FAQ, type Task,
-} from '@/lib/demo-store';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -75,22 +68,29 @@ const ADMIN_PAGE_COPY: Record<AdminTab, { title: string; description: string }> 
   overview: { title: 'Welcome back', description: 'Your business at a glance.' },
   'service-requests': { title: 'Service requests', description: 'Review new leads, confirm job details, and keep every request moving.' },
   bookings: { title: 'Bookings', description: 'See confirmed appointments and the work coming up next.' },
-  chats: { title: 'Chat inquiries', description: 'Review conversations started with Maya and your customer-care team.' },
+  chats: { title: 'Maya requests', description: 'Maya conversations are temporary. Customer-approved issue summaries appear in submitted service requests.' },
   tasks: { title: 'Before & after', description: 'Manage the project transformations shown on your website.' },
-  gallery: { title: 'Gallery', description: 'Curate the garage-door project photography customers see online.' },
+  gallery: { title: 'Gallery', description: 'Manage licensed style inspiration and verified project photography.' },
   faqs: { title: 'FAQs', description: 'Keep customer answers accurate, useful, and safety focused.' },
-  services: { title: 'Services', description: 'Maintain your service catalog, starting prices, and publishing status.' },
+  services: { title: 'Services', description: 'Maintain your service catalog, accurate content, and publishing status.' },
   pages: { title: 'Pages', description: 'Manage standalone and core website page content.' },
   locations: { title: 'Locations', description: 'Publish accurate service-area landing pages.' },
   blog: { title: 'Blog', description: 'Create educational articles and homeowner guidance.' },
   trust: { title: 'Trust', description: 'Verify business facts, credentials, warranties, and trust copy before publishing.' },
-  reviews: { title: 'Reviews', description: 'Manage Google review previews and testimonials collected on your site.' },
-  settings: { title: 'Site settings', description: 'Configure your storefront, photography, and operational preferences.' },
+  reviews: { title: 'Reviews', description: 'Check the status of optional verified customer reviews.' },
+  settings: { title: 'Site settings', description: 'Configure business details, verified claims, photography, and operational preferences.' },
   users: { title: 'Users', description: 'Manage staff access and operating roles.' },
 };
 
 const adminCardClass = 'phi-admin-card border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900';
-export default function AdminPage() {
+export type StaffSession = {
+  accessId: string;
+  userId: string;
+  email: string;
+  role: 'super_admin' | 'admin' | 'staff';
+};
+
+export default function AdminPage({ session, onSignOut }: { session: StaffSession; onSignOut: () => Promise<void> }) {
   const [tab, setTab] = useState<AdminTab>(() => {
     const requestedTab = window.location.hash.slice(1) as AdminTab;
     const availableTabs: AdminTab[] = ['overview', 'service-requests', 'bookings', 'chats', 'tasks', 'gallery', 'faqs', 'services', 'pages', 'locations', 'blog', 'trust', 'reviews', 'settings', 'users'];
@@ -100,7 +100,7 @@ export default function AdminPage() {
   const { data: dashboard } = useGetGarageDashboard();
   const pendingCount = dashboard?.newRequests ?? 0;
   const [, setLocation] = useLocation();
-  const userEmail = "Temporary admin access";
+  const userEmail = session.email;
 
   const navGroups = [
     {
@@ -133,7 +133,23 @@ export default function AdminPage() {
         { id: 'users', label: 'Users', icon: Users },
       ]
     }
-  ] as const;
+  ].map(group => ({
+    ...group,
+    items: group.items.filter(item => {
+      if (session.role === 'super_admin') return true;
+      if (item.id === 'users') return false;
+      if (session.role === 'admin') return true;
+      return ['overview', 'service-requests', 'bookings', 'chats'].includes(item.id);
+    }),
+  }));
+
+  useEffect(() => {
+    const allowed = navGroups.some(group => group.items.some(item => item.id === tab));
+    if (!allowed) {
+      setTab('overview');
+      window.history.replaceState(null, '', '#overview');
+    }
+  }, [session.role, tab]);
 
   const SidebarContent = () => (
     <>
@@ -143,7 +159,7 @@ export default function AdminPage() {
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="font-bold text-sm tracking-widest uppercase leading-none text-slate-900 dark:text-white">Summit</div>
+            <div className="font-bold text-sm leading-tight text-slate-900 dark:text-white">Cumming Garage Door Service</div>
             <div className="text-[10px] text-primary uppercase font-bold tracking-widest mt-1">Garage Door Co.</div>
           </div>
         </div>
@@ -151,8 +167,8 @@ export default function AdminPage() {
 
       <div className="px-[var(--phi-space-3)] mb-[var(--phi-space-4)]">
         <div className="phi-admin-card bg-orange-50/70 dark:bg-orange-950/20 p-[var(--phi-space-3)] border-2 border-orange-100 dark:border-orange-900/40">
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-1 tracking-wider">Owner Workspace</div>
-          <div className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">Admin User</div>
+          <div className="text-[10px] font-bold uppercase text-slate-500 mb-1 tracking-wider">Staff workspace</div>
+          <div className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">{session.role.replace('_', ' ')}</div>
             <div className="text-xs text-slate-500 truncate mt-0.5">{userEmail}</div>
         </div>
       </div>
@@ -206,6 +222,13 @@ export default function AdminPage() {
             <ExternalLink className="w-4 h-4 text-slate-400" />
             View customer site
           </Link>
+          <button
+            type="button"
+            onClick={() => void onSignOut()}
+            className="mt-1 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+          >
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
         </div>
       </ScrollArea>
     </>
@@ -219,7 +242,7 @@ export default function AdminPage() {
            <div className="bg-primary text-primary-foreground p-1.5 rounded-full">
              <Building2 className="w-4 h-4" />
            </div>
-           <span className="font-bold text-sm uppercase tracking-widest text-slate-900 dark:text-white">Summit</span>
+           <span className="font-bold text-sm text-slate-900 dark:text-white">Cumming Garage Door Service</span>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-600" /> : <Menu className="w-5 h-5 text-slate-600" />}
@@ -247,10 +270,6 @@ export default function AdminPage() {
       <main className="phi-admin-main flex-1 overflow-x-hidden">
         <div className="w-full max-w-[var(--phi-content)]">
            <AdminPageHeader title={ADMIN_PAGE_COPY[tab].title} description={ADMIN_PAGE_COPY[tab].description} userEmail={userEmail} />
-         <div className="mb-[var(--phi-space-4)] flex items-start gap-3 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100" role="alert">
-           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-           <div><p className="text-sm font-bold">LOCAL DEMO ADMIN — no authentication</p><p className="text-xs leading-5">Anyone with this development URL can change content. Do not enter real customer, employee, business, credential, or financial data. Production admin access is disabled until staff authorization is configured.</p></div>
-         </div>
         {tab === 'overview' ? <OverviewTab setTab={setTab} pendingCount={pendingCount} dashboard={dashboard} /> :
          tab === 'settings' ? <AdminSettingsPage /> :
          tab === 'service-requests' ? <ServiceRequestsAdmin /> :
@@ -265,19 +284,18 @@ export default function AdminPage() {
           tab === 'blog' ? <AdminContentPage kind="article" /> :
           tab === 'trust' ? <AdminContentPage kind="trust" /> :
          tab === 'reviews' ? <ReviewsAdmin /> :
-         <UsersAdmin />
+          <UsersAdmin />
         }
         </div>
       </main>
     </div>
   )
 }
-
 function AdminPageHeader({ title, description, userEmail }: { title: string; description: string; userEmail: string }) {
   return (
     <header className="phi-admin-header flex flex-col gap-[var(--phi-space-3)] border-b border-slate-200 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
       <div>
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Summit Garage Door Co.</p>
+        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Cumming Garage Door Service</p>
         <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">{title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
       </div>
@@ -290,10 +308,9 @@ function AdminPageHeader({ title, description, userEmail }: { title: string; des
     </header>
   );
 }
-
 function OverviewTab({ setTab, pendingCount, dashboard }: any) {
-  const { data: bookings } = useListBookings();
-  const { data: chats } = useListChatInquiries();
+  const bookings: any[] = [];
+  const chats = [];
   
   const upcomingBookings = bookings?.length || 0;
   const recentChats = chats?.length || 0;
@@ -301,7 +318,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
   return (
     <div className="space-y-[var(--phi-space-4)]">
       <AdminSectionHeader
-        eyebrow="Today at Summit"
+        eyebrow="Business overview"
         title="Business pulse"
         description="Start with the newest customer requests, then check the schedule. Everything else is one click away."
         count={`${pendingCount} open request${pendingCount === 1 ? "" : "s"}`}
@@ -310,7 +327,7 @@ function OverviewTab({ setTab, pendingCount, dashboard }: any) {
       <div className="phi-admin-card bg-[#1e293b] p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] text-white relative overflow-hidden mb-[var(--phi-space-5)]">
         <div className="relative z-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium text-white/90 mb-6 backdrop-blur-md uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" /> Today at Summit
+            <Sparkles className="w-3.5 h-3.5" /> Business overview
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight">Keep the good work moving.</h2>
           <p className="text-slate-300 max-w-lg mb-8 text-sm sm:text-base leading-relaxed">
@@ -629,7 +646,7 @@ function ServicesAdmin() {
       eyebrow="Website content"
       description="Maintain the service catalog, customer-facing benefits, starting prices, and publishing status shown on the homepage."
       fields={["Service", "Benefit", "Description", "Starting price", "Status"]}
-      defaults={DEFAULT_SERVICE_CATALOG_ROWS}
+      defaults={[]}
       addLabel="Add service"
     />
   );
@@ -645,10 +662,10 @@ function ReviewsAdmin() {
         eyebrow="Reputation"
         title="Reviews"
         description="Keep Google previews and customer-submitted testimonials trustworthy, current, and ready for the public site."
-        count={feed?.connectionStatus === "connected" ? "Google connected" : "Demo review feed"}
+        count={feed?.connectionStatus === "connected" ? "Google connected" : "Not connected"}
       />
       <AdminStatStrip stats={[
-        { label: "Google status", value: feed?.connectionStatus === "connected" ? "Live" : "Demo", detail: feed?.locationName || "Previewing local business profile", tone: feed?.connectionStatus === "connected" ? "success" : "default" },
+        { label: "Google status", value: feed?.connectionStatus === "connected" ? "Live" : "Not connected", detail: feed?.locationName || "A verified review source has not been connected", tone: feed?.connectionStatus === "connected" ? "success" : "default" },
         { label: "Average rating", value: "5.0", detail: "From the current review preview", tone: "success" },
         { label: "Public proof", value: "Ready", detail: "Manual testimonials remain available", tone: "success" },
         { label: "Next step", value: "Moderate", detail: "Review pending submissions below" },
@@ -668,7 +685,7 @@ function ReviewsAdmin() {
                  ) : feed?.connectionStatus === 'connected' ? (
                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Connected</span>
                  ) : feed?.mode === 'demo' ? (
-                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Demo Mode</span>
+                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Not connected</span>
                  ) : (
                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Disconnected</span>
                  )}
@@ -690,7 +707,7 @@ function ReviewsAdmin() {
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Status</p>
               <p className="text-sm font-medium text-slate-900 dark:text-white">
                 {feed.connectionStatus === 'connected' ? 'Actively syncing' :
-                 feed.mode === 'demo' ? 'Previewing demo content' : 'Not connected'}
+                 'Not connected'}
               </p>
             </div>
             <div>
@@ -751,34 +768,84 @@ function ReviewsAdmin() {
 }
 
 function UsersAdmin() {
+  type AccessRow = { id: string; email: string; role: 'super_admin' | 'admin' | 'staff'; status: 'active' | 'pending'; protectedOwner?: boolean };
+  const [rows, setRows] = useState<AccessRow[]>([]);
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'admin' | 'staff'>('staff');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  const [revoke, setRevoke] = useState<AccessRow | null>(null);
+  const { toast } = useToast();
+  const load = async () => {
+    const response = await fetch('/api/garage/admin/access', { credentials: 'include', cache: 'no-store' });
+    const body = await response.json().catch(() => []);
+    if (!response.ok) throw new Error(body.error || 'Unable to load staff access.');
+    setRows(body);
+  };
+  useEffect(() => { void load().catch(error => setMessage(error.message)); }, []);
+  const grant = async () => {
+    setBusy(true); setMessage('');
+    try {
+      const response = await fetch('/api/garage/admin/access', {
+        method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, role }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || 'Unable to grant access.');
+      setEmail(''); await load();
+      toast({ title: 'Access granted', description: `${body.email} can sign in with Google as ${body.role}.` });
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to grant access.'); }
+    finally { setBusy(false); }
+  };
+  const confirmRevoke = async () => {
+    if (!revoke) return;
+    setBusy(true); setMessage('');
+    try {
+      const response = await fetch(`/api/garage/admin/access/${encodeURIComponent(revoke.id)}`, { method: 'DELETE', credentials: 'include' });
+      const body = response.status === 204 ? {} : await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || 'Unable to revoke access.');
+      toast({ title: 'Access revoked', description: `${revoke.email} is blocked from the next staff request.` });
+      setRevoke(null); await load();
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to revoke access.'); setRevoke(null); }
+    finally { setBusy(false); }
+  };
   return (
     <div className="space-y-[var(--phi-space-4)]">
       <AdminSectionHeader
         eyebrow="Workspace access"
         title="Staff access"
-        description="Authentication is temporarily disabled while this admin workspace is being configured."
-        count="Open access"
+        description="Grant access by verified Google email. Only authorized accounts can redeem a pending grant."
+        count={`${rows.length} account${rows.length === 1 ? '' : 's'}`}
       />
       <div className={`${adminCardClass} p-[var(--phi-space-4)]`}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <User className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-bold text-slate-950 dark:text-white">Temporary admin</p>
-              <p className="text-sm text-slate-500">No login required</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge value="owner" />
-            <StatusBadge value="Open access" />
-          </div>
+        <div className="grid gap-3 sm:grid-cols-[1fr_160px_auto]">
+          <Input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="staff@example.com" aria-label="Staff email" />
+          <Select value={role} onValueChange={value => setRole(value as 'admin' | 'staff')}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="staff">Staff</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
+          </Select>
+          <Button disabled={busy || !email.trim()} onClick={() => void grant()}><Plus className="mr-2 h-4 w-4" /> Grant access</Button>
         </div>
+        {message ? <p role="alert" className="mt-3 text-sm font-semibold text-red-700">{message}</p> : null}
       </div>
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-        This temporary mode does not provide account invites, role assignment, password recovery, or individual staff identities. Restore authentication before using real customer data.
+      <div className={`${adminCardClass} divide-y divide-slate-200 overflow-hidden dark:divide-slate-800`}>
+        {rows.map(row => <div key={row.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div><p className="font-bold text-slate-950 dark:text-white">{row.email}</p><p className="text-xs text-slate-500">{row.status === 'pending' ? 'Pending first Google sign-in' : 'Active'}</p></div>
+          <div className="flex items-center gap-2"><StatusBadge value={row.role.replace('_', ' ')} /><StatusBadge value={row.status} />
+            <Button variant="outline" size="sm" disabled={row.protectedOwner || busy} onClick={() => setRevoke(row)}>
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {row.protectedOwner ? 'Protected owner' : 'Revoke'}
+            </Button>
+          </div>
+        </div>)}
+        {!rows.length ? <p className="p-6 text-sm text-slate-500">No access records found.</p> : null}
       </div>
+      <AlertDialog open={Boolean(revoke)} onOpenChange={open => !open && setRevoke(null)}>
+        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Revoke staff access?</AlertDialogTitle>
+          <AlertDialogDescription>{revoke?.email} will lose access on their next API request, even if Google remains signed in.</AlertDialogDescription>
+        </AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction className="bg-red-600 text-white hover:bg-red-700" onClick={() => void confirmRevoke()}>Revoke access</AlertDialogAction>
+        </AlertDialogFooter></AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -1060,7 +1127,8 @@ function ServiceRequestsAdmin() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   
-  const requests = allRequests || dashboard?.requests || [];
+  const requests: any[] = allRequests || dashboard?.requests || [];
+  const { toast } = useToast();
   
   const filteredRequests = requests.filter(req => 
     req.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1096,6 +1164,18 @@ function ServiceRequestsAdmin() {
         queryClient.invalidateQueries({ queryKey: getListServiceRequestsQueryKey() });
       }
     });
+  };
+
+  const retryNotification = async (id: number) => {
+    try {
+      const response = await fetch(`/api/garage/requests/${id}/notify`, { method: "POST" });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "Delivery retry failed.");
+      await queryClient.invalidateQueries({ queryKey: getListServiceRequestsQueryKey() });
+      toast({ title: body.delivery?.status === "delivered" ? "Notification delivered" : "Delivery still needs attention", description: body.delivery?.lastError || "The delivery status was updated." });
+    } catch (error) {
+      toast({ title: "Notification was not delivered", description: error instanceof Error ? error.message : "Retry failed.", variant: "destructive" });
+    }
   };
 
   if (isLoading) {
@@ -1199,6 +1279,27 @@ function ServiceRequestsAdmin() {
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Job description</p>
                         <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{req.details || 'No additional details provided.'}</p>
                       </div>
+                       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                         <div className="flex flex-wrap items-center justify-between gap-2">
+                           <div>
+                             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">External notification</p>
+                             <p className="mt-1 text-sm font-semibold capitalize">{req.delivery?.status || "unconfigured"}</p>
+                             {req.delivery?.lastError ? <p className="mt-1 text-xs text-red-600">{req.delivery.lastError}</p> : null}
+                           </div>
+                          {req.uploadStatus === "incomplete" ? <p className="text-xs font-semibold text-amber-700">Request saved; customer uploads are incomplete. Delivery has not started.</p> : null}
+                          {req.uploadStatus !== "incomplete" && req.delivery?.status !== "delivered" ? <Button type="button" size="sm" variant="outline" onClick={() => retryNotification(req.id)}>Retry delivery manually</Button> : null}
+                         </div>
+                       </div>
+                       {req.attachments?.length ? (
+                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Private attachments</p>
+                           <div className="mt-2 space-y-1">
+                             {req.attachments.map((file: any) => file.status === "uploaded" ? (
+                               <a key={file.id} className="block text-sm font-semibold text-primary underline" href={`/api/garage/requests/${req.id}/attachments/${file.id}`} target="_blank" rel="noreferrer">{file.originalName}</a>
+                             ) : <span key={file.id} className="block text-sm text-slate-500">{file.originalName} (upload incomplete)</span>)}
+                           </div>
+                         </div>
+                       ) : null}
                     </div>
                   </div>
                 </article>
@@ -1220,7 +1321,7 @@ function MetadataRow({ icon, label, children }: { icon: React.ReactNode; label: 
 }
 
 function BookingsAdmin({ setTab }: { setTab: (tab: AdminTab) => void }) {
-  const { data: bookings } = useListBookings();
+  const bookings: any[] = [];
   
   return (
     <div className="phi-admin-section">
@@ -1231,10 +1332,10 @@ function BookingsAdmin({ setTab }: { setTab: (tab: AdminTab) => void }) {
         count={`${bookings?.length || 0} scheduled`}
       />
       <AdminStatStrip stats={[
-        { label: "Upcoming", value: bookings?.length || 0, detail: "Appointments in the demo schedule", tone: bookings?.length ? "success" : "default" },
+        { label: "Upcoming", value: bookings?.length || 0, detail: "Requests marked scheduled by staff", tone: bookings?.length ? "success" : "default" },
         { label: "Confirmed", value: bookings?.length || 0, detail: "Ready for the dispatch team" },
         { label: "Customer detail", value: "Attached", detail: "Each card shows the available booking context" },
-        { label: "Schedule source", value: "Local", detail: "Stored in this browser's demo state" },
+        { label: "Schedule source", value: "Inbox", detail: "Saved service requests marked scheduled" },
       ]} />
       
       {(!bookings || bookings.length === 0) ? (
@@ -1278,224 +1379,6 @@ function BookingsAdmin({ setTab }: { setTab: (tab: AdminTab) => void }) {
            ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function FaqsAdmin() {
-  const { data: faqs } = useListFaqs();
-  const saveFaq = useSaveFaq();
-  const deleteFaq = useDeleteFaq();
-  const { toast } = useToast();
-  
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [q, setQ] = useState("");
-  const [a, setA] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<FAQ | null>(null);
-
-  const handleSave = () => {
-    if (!q || !a) return;
-    saveFaq.mutate({ id: editingId || "", question: q, answer: a }, {
-      onSuccess: () => {
-        toast({ title: "FAQ saved" });
-        setEditingId(null);
-        setQ("");
-        setA("");
-      }
-    });
-  };
-
-  return (
-    <div className="phi-admin-section">
-      <AdminSectionHeader
-        eyebrow="Website content · Safety answers"
-        title="Published questions"
-        description="Keep customer answers accurate, useful, and safety focused. Changes are saved in this browser's demo state."
-        count={`${faqs?.length || 0} questions`}
-        action={<Button size="sm" className="h-10 rounded-xl font-bold" onClick={() => { setEditingId(""); setQ(""); setA(""); }}><Plus className="mr-2 h-4 w-4" /> Add FAQ</Button>}
-      />
-      <AdminStatStrip stats={[
-        { label: "Questions", value: faqs?.length || 0, detail: "Customer answers currently available" },
-        { label: "Safety coverage", value: "Strong", detail: "Answers include high-tension warnings", tone: "success" },
-        { label: "Publishing", value: "Live", detail: "FAQ content is ready for the homepage", tone: "success" },
-        { label: "Storage", value: "Browser", detail: "Demo changes stay on this device" },
-      ]} />
-
-      {editingId !== null && (
-        <div className={`${adminCardClass} overflow-hidden border-primary/30`}>
-          <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{editingId ? "Edit question" : "New question"}</p>
-            <h3 className="mt-1 font-display text-lg font-bold text-slate-950 dark:text-white">{editingId ? "Update customer guidance" : "Add a customer question"}</h3>
-          </div>
-          <div className="space-y-4 p-5">
-            <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Question</label>
-              <Input placeholder="What areas do you serve?" value={q} onChange={e => setQ(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Answer</label>
-              <Textarea placeholder="Write a clear, customer-safe answer." value={a} onChange={e => setA(e.target.value)} rows={4} className="bg-white dark:bg-slate-900" />
-            </div>
-            <div className="flex flex-wrap justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
-              <Button onClick={handleSave} disabled={saveFaq.isPending}>{saveFaq.isPending ? "Saving..." : "Save FAQ"}</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {faqs?.map(faq => (
-          <article key={faq.id} className={`${adminCardClass} overflow-hidden transition-shadow hover:shadow-lg`}>
-            <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800">
-              <div className="flex min-w-0 gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-primary dark:bg-orange-950/30"><HelpCircle className="h-5 w-5" /></div>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-display text-lg font-bold text-slate-950 dark:text-white">{faq.question}</h3>
-                    <StatusBadge value="Published" />
-                  </div>
-                  <p className="mt-1 text-xs text-slate-400">FAQ #{faq.id} · Safety-focused customer guidance</p>
-                </div>
-              </div>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Button size="sm" variant="outline" className="h-9 rounded-lg" aria-label={`Edit FAQ: ${faq.question}`} onClick={() => { setEditingId(faq.id); setQ(faq.question); setA(faq.answer); }}><Edit2 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
-                <Button size="sm" variant="outline" className="h-9 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700" aria-label={`Delete FAQ: ${faq.question}`} onClick={() => setDeleteTarget(faq)}><Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete</Button>
-              </div>
-            </div>
-            <div className="grid gap-4 p-5 md:grid-cols-[minmax(0,1fr)_220px]">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer answer</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{faq.answer}</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Content notes</p>
-                <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Visible on the public FAQ section</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">Review after changes to services, service areas, or safety policies.</p>
-              </div>
-            </div>
-          </article>
-        ))}
-        {(!faqs || faqs.length === 0) && <EmptyState title="No FAQs yet" description="Add the first customer question and answer." />}
-      </div>
-       <DeleteConfirmationDialog
-         open={Boolean(deleteTarget)}
-         itemLabel={deleteTarget?.question || "FAQ"}
-         onOpenChange={(open) => !open && setDeleteTarget(null)}
-         onConfirm={() => {
-           if (!deleteTarget) return;
-           deleteFaq.mutate(deleteTarget.id, {
-             onSuccess: () => {
-               toast({ title: "FAQ deleted" });
-               setDeleteTarget(null);
-             },
-           });
-         }}
-       />
-    </div>
-  );
-}
-
-function TasksAdmin() {
-  const { data: tasks } = useListTasks();
-  const saveTask = useSaveTask();
-  const deleteTask = useDeleteTask();
-  const { toast } = useToast();
-
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [desc, setDesc] = useState("");
-  const [beforeImg, setBeforeImg] = useState("");
-  const [afterImg, setAfterImg] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<Task | null>(null);
-
-  const handleSave = () => {
-    if (!title || !beforeImg || !afterImg) return;
-    saveTask.mutate({ id: editingId || "", title, description: desc, beforeImageUrl: beforeImg, afterImageUrl: afterImg }, {
-      onSuccess: () => {
-        toast({ title: "Task saved" });
-        setEditingId(null);
-        setTitle(""); setDesc(""); setBeforeImg(""); setAfterImg("");
-      }
-    });
-  };
-
-  return (
-    <div className="phi-admin-section">
-      <AdminSectionHeader
-        eyebrow="Website content · Proof of work"
-        title="Project transformations"
-        description="Pair before and after images to show the quality of your garage-door repairs, upgrades, and installations."
-        count={`${tasks?.length || 0} projects`}
-        action={<Button size="sm" className="h-10 rounded-xl font-bold" onClick={() => { setEditingId(""); setTitle(""); setDesc(""); setBeforeImg(""); setAfterImg(""); }}><Plus className="mr-2 h-4 w-4" /> Add project</Button>}
-      />
-      <AdminStatStrip stats={[
-        { label: "Projects", value: tasks?.length || 0, detail: "Transformation stories on the site" },
-        { label: "Image pairs", value: tasks?.length || 0, detail: "Each project has before and after views", tone: tasks?.length ? "success" : "default" },
-        { label: "Customer trust", value: "Visual", detail: "Use matching photos from the same project", tone: "success" },
-        { label: "Storage", value: "Browser", detail: "Demo changes stay on this device" },
-      ]} />
-
-      {editingId !== null && (
-        <div className={`${adminCardClass} overflow-hidden border-primary/30`}>
-          <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{editingId ? "Edit project" : "New project"}</p>
-            <h3 className="mt-1 font-display text-lg font-bold text-slate-950 dark:text-white">{editingId ? "Update transformation details" : "Add a before-and-after project"}</h3>
-          </div>
-          <div className="space-y-4 p-5">
-            <Input placeholder="Project title" value={title} onChange={e => setTitle(e.target.value)} className="font-semibold bg-white dark:bg-slate-900" />
-            <Textarea placeholder="Describe the transformation and the customer benefit." value={desc} onChange={e => setDesc(e.target.value)} rows={3} className="bg-white dark:bg-slate-900" />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <ImageUploadField label="Before image" value={beforeImg} onChange={setBeforeImg} />
-              <ImageUploadField label="After image" value={afterImg} onChange={setAfterImg} />
-            </div>
-            <div className="flex flex-wrap justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
-              <Button onClick={handleSave} disabled={saveTask.isPending}>{saveTask.isPending ? "Saving..." : "Save project"}</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {tasks?.map(task => (
-          <article key={task.id} className={`${adminCardClass} overflow-hidden flex flex-col transition-shadow hover:shadow-lg`}>
-            <div className="grid grid-cols-2 border-b border-slate-100 dark:border-slate-800">
-              <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800"><img src={task.beforeImageUrl} className="h-full w-full object-cover" alt={`${task.title} before`} /><span className="absolute left-3 top-3 rounded-full bg-slate-950/75 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Before</span></div>
-              <div className="relative aspect-[4/3] border-l border-slate-100 bg-slate-100 dark:border-slate-800 dark:bg-slate-800"><img src={task.afterImageUrl} className="h-full w-full object-cover" alt={`${task.title} after`} /><span className="absolute left-3 top-3 rounded-full bg-primary/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">After</span></div>
-            </div>
-            <div className="flex flex-1 flex-col p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div><h3 className="font-display text-lg font-bold text-slate-950 dark:text-white">{task.title}</h3><p className="mt-1 text-xs text-slate-400">Project #{task.id} · Published transformation</p></div>
-                <StatusBadge value="Published" />
-              </div>
-              <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{task.description || "No project description added yet."}</p>
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
-                <span className="text-xs font-medium text-slate-500">Matched image pair</span>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="h-9 rounded-lg" onClick={() => { setEditingId(task.id); setTitle(task.title); setDesc(task.description); setBeforeImg(task.beforeImageUrl); setAfterImg(task.afterImageUrl); }}><Edit2 className="mr-1.5 h-3.5 w-3.5" /> Edit</Button>
-                  <Button size="sm" variant="outline" className="h-9 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setDeleteTarget(task)}><Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete</Button>
-                </div>
-              </div>
-            </div>
-          </article>
-        ))}
-        {(!tasks || tasks.length === 0) && <div className="md:col-span-2"><EmptyState title="No transformations yet" description="Add a before-and-after project to get started." /></div>}
-      </div>
-       <DeleteConfirmationDialog
-         open={Boolean(deleteTarget)}
-         itemLabel={deleteTarget?.title || "project transformation"}
-         onOpenChange={(open) => !open && setDeleteTarget(null)}
-         onConfirm={() => {
-           if (!deleteTarget) return;
-           deleteTask.mutate(deleteTarget.id, {
-             onSuccess: () => {
-               toast({ title: "Project transformation deleted" });
-               setDeleteTarget(null);
-             },
-           });
-         }}
-       />
     </div>
   );
 }

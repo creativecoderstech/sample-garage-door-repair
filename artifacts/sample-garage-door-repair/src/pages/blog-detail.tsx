@@ -50,18 +50,20 @@ function BlogDetailPageContent() {
         />
         
         <div className="phi-container max-w-4xl py-12 md:py-20">
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground mb-8">
-            <CalendarIcon className="w-4 h-4" />
-            {new Date(article.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
+          {article.updatedAt && (
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground mb-8">
+              <CalendarIcon className="w-4 h-4" />
+              {new Date(article.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+          )}
 
           {article.imageUrl && (
-            <div className="w-full aspect-video rounded-xl overflow-hidden mb-12 bg-muted shadow-sm">
+            <div className="w-full aspect-[16/9] overflow-hidden mb-12 bg-muted border border-border">
               <img src={publicAssetUrl(article.imageUrl)} alt={article.imageAlt || article.title} className="w-full h-full object-cover" />
             </div>
           )}
           
-          <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed font-sans mb-16">
+          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed font-sans mb-16 prose-headings:font-display prose-headings:uppercase">
             {article.body.split('\n\n').map((paragraph, idx) => (
               <p key={idx}>{paragraph}</p>
             ))}

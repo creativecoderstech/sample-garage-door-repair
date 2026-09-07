@@ -20,22 +20,35 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminServiceRequest,
   AssistantInput,
   AssistantReply,
   Availability,
   BusinessSettings,
   BusinessSettingsInput,
   DashboardSummary,
+  FinalizeRequestAttachmentResponse,
+  GarageAccessGrant,
+  GarageAccessGrantInput,
   GarageContent,
   GarageContentInput,
+  GarageCreatedRequest,
+  GarageNotificationSettings,
+  GarageNotificationSettingsInput,
+  GarageNotificationTestInput,
   GarageService,
+  GarageStaffSession,
   GetAvailabilityParams,
   GoogleReviewFeed,
   HealthStatus,
+  PrepareRequestAttachmentInput,
+  PreparedRequestAttachment,
   PublicBusinessSettings,
+  RequestDeliveryDetails,
   ServiceRequest,
   ServiceRequestInput,
   ServiceRequestUpdate,
+  TestGarageNotificationDestination200,
   Testimonial
 } from './api.schemas';
 
@@ -570,6 +583,278 @@ export function useListGarageContent<TData = Awaited<ReturnType<typeof listGarag
 
 
 
+export const getGetGarageAdminSessionUrl = () => {
+
+
+
+
+  return `/api/garage/admin/session`
+}
+
+export const getGarageAdminSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<GarageStaffSession> => {
+
+  return customFetch<GarageStaffSession>(getGetGarageAdminSessionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGarageAdminSessionQueryKey = () => {
+    return [
+    `/api/garage/admin/session`
+    ] as const;
+    }
+
+
+export const getGetGarageAdminSessionQueryOptions = <TData = Awaited<ReturnType<typeof getGarageAdminSession>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGarageAdminSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGarageAdminSessionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGarageAdminSession>>> = ({ signal }) => getGarageAdminSession({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGarageAdminSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGarageAdminSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getGarageAdminSession>>>
+export type GetGarageAdminSessionQueryError = ErrorType<unknown>
+
+
+
+export function useGetGarageAdminSession<TData = Awaited<ReturnType<typeof getGarageAdminSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGarageAdminSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGarageAdminSessionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListGarageStaffAccessUrl = () => {
+
+
+
+
+  return `/api/garage/admin/access`
+}
+
+export const listGarageStaffAccess = async ( options?: Parameters<typeof customFetch>[1]): Promise<GarageAccessGrant[]> => {
+
+  return customFetch<GarageAccessGrant[]>(getListGarageStaffAccessUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListGarageStaffAccessQueryKey = () => {
+    return [
+    `/api/garage/admin/access`
+    ] as const;
+    }
+
+
+export const getListGarageStaffAccessQueryOptions = <TData = Awaited<ReturnType<typeof listGarageStaffAccess>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGarageStaffAccess>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListGarageStaffAccessQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGarageStaffAccess>>> = ({ signal }) => listGarageStaffAccess({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGarageStaffAccess>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListGarageStaffAccessQueryResult = NonNullable<Awaited<ReturnType<typeof listGarageStaffAccess>>>
+export type ListGarageStaffAccessQueryError = ErrorType<unknown>
+
+
+
+export function useListGarageStaffAccess<TData = Awaited<ReturnType<typeof listGarageStaffAccess>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGarageStaffAccess>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListGarageStaffAccessQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGrantGarageStaffAccessUrl = () => {
+
+
+
+
+  return `/api/garage/admin/access`
+}
+
+export const grantGarageStaffAccess = async (garageAccessGrantInput: GarageAccessGrantInput, options?: Parameters<typeof customFetch>[1]): Promise<GarageAccessGrant> => {
+
+  return customFetch<GarageAccessGrant>(getGrantGarageStaffAccessUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(garageAccessGrantInput)
+  }
+);}
+
+
+
+
+
+export const getGrantGarageStaffAccessMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof grantGarageStaffAccess>>, TError,{data: BodyType<GarageAccessGrantInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof grantGarageStaffAccess>>, TError,{data: BodyType<GarageAccessGrantInput>}, TContext> => {
+
+const mutationKey = ['grantGarageStaffAccess'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof grantGarageStaffAccess>>, {data: BodyType<GarageAccessGrantInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  grantGarageStaffAccess(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GrantGarageStaffAccessMutationResult = NonNullable<Awaited<ReturnType<typeof grantGarageStaffAccess>>>
+    export type GrantGarageStaffAccessMutationBody = BodyType<GarageAccessGrantInput>
+    export type GrantGarageStaffAccessMutationError = ErrorType<unknown>
+
+    export const useGrantGarageStaffAccess = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof grantGarageStaffAccess>>, TError,{data: BodyType<GarageAccessGrantInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof grantGarageStaffAccess>>,
+        TError,
+        {data: BodyType<GarageAccessGrantInput>},
+        TContext
+      > => {
+      return useMutation(getGrantGarageStaffAccessMutationOptions(options));
+    }
+
+export const getRevokeGarageStaffAccessUrl = (id: string,) => {
+
+
+
+
+  return `/api/garage/admin/access/${id}`
+}
+
+export const revokeGarageStaffAccess = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getRevokeGarageStaffAccessUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeGarageStaffAccessMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeGarageStaffAccess>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeGarageStaffAccess>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['revokeGarageStaffAccess'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeGarageStaffAccess>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  revokeGarageStaffAccess(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeGarageStaffAccessMutationResult = NonNullable<Awaited<ReturnType<typeof revokeGarageStaffAccess>>>
+
+    export type RevokeGarageStaffAccessMutationError = ErrorType<unknown>
+
+    export const useRevokeGarageStaffAccess = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeGarageStaffAccess>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeGarageStaffAccess>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getRevokeGarageStaffAccessMutationOptions(options));
+    }
+
 export const getListAdminGarageContentUrl = () => {
 
 
@@ -845,9 +1130,9 @@ export const getListServiceRequestsUrl = () => {
   return `/api/garage/requests`
 }
 
-export const listServiceRequests = async ( options?: Parameters<typeof customFetch>[1]): Promise<ServiceRequest[]> => {
+export const listServiceRequests = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminServiceRequest[]> => {
 
-  return customFetch<ServiceRequest[]>(getListServiceRequestsUrl(),
+  return customFetch<AdminServiceRequest[]>(getListServiceRequestsUrl(),
   {
     ...options,
     method: 'GET'
@@ -916,9 +1201,9 @@ export const getCreateServiceRequestUrl = () => {
   return `/api/garage/requests`
 }
 
-export const createServiceRequest = async (serviceRequestInput: ServiceRequestInput, options?: Parameters<typeof customFetch>[1]): Promise<ServiceRequest> => {
+export const createServiceRequest = async (serviceRequestInput: ServiceRequestInput, options?: Parameters<typeof customFetch>[1]): Promise<GarageCreatedRequest> => {
 
-  return customFetch<ServiceRequest>(getCreateServiceRequestUrl(),
+  return customFetch<GarageCreatedRequest>(getCreateServiceRequestUrl(),
   {
     ...options,
     method: 'POST',
@@ -1037,6 +1322,546 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getUpdateServiceRequestMutationOptions(options));
+    }
+
+export const getPrepareServiceRequestAttachmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/garage/request-uploads/${id}/prepare`
+}
+
+export const prepareServiceRequestAttachment = async (id: number,
+    prepareRequestAttachmentInput: PrepareRequestAttachmentInput, options?: Parameters<typeof customFetch>[1]): Promise<PreparedRequestAttachment> => {
+
+  return customFetch<PreparedRequestAttachment>(getPrepareServiceRequestAttachmentUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(prepareRequestAttachmentInput)
+  }
+);}
+
+
+
+
+
+export const getPrepareServiceRequestAttachmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof prepareServiceRequestAttachment>>, TError,{id: number;data: BodyType<PrepareRequestAttachmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof prepareServiceRequestAttachment>>, TError,{id: number;data: BodyType<PrepareRequestAttachmentInput>}, TContext> => {
+
+const mutationKey = ['prepareServiceRequestAttachment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof prepareServiceRequestAttachment>>, {id: number;data: BodyType<PrepareRequestAttachmentInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  prepareServiceRequestAttachment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PrepareServiceRequestAttachmentMutationResult = NonNullable<Awaited<ReturnType<typeof prepareServiceRequestAttachment>>>
+    export type PrepareServiceRequestAttachmentMutationBody = BodyType<PrepareRequestAttachmentInput>
+    export type PrepareServiceRequestAttachmentMutationError = ErrorType<unknown>
+
+    export const usePrepareServiceRequestAttachment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof prepareServiceRequestAttachment>>, TError,{id: number;data: BodyType<PrepareRequestAttachmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof prepareServiceRequestAttachment>>,
+        TError,
+        {id: number;data: BodyType<PrepareRequestAttachmentInput>},
+        TContext
+      > => {
+      return useMutation(getPrepareServiceRequestAttachmentMutationOptions(options));
+    }
+
+export const getFinalizeServiceRequestAttachmentUrl = (id: number,
+    attachmentId: string,) => {
+
+
+
+
+  return `/api/garage/request-uploads/${id}/attachments/${attachmentId}/finalize`
+}
+
+export const finalizeServiceRequestAttachment = async (id: number,
+    attachmentId: string, options?: Parameters<typeof customFetch>[1]): Promise<FinalizeRequestAttachmentResponse> => {
+
+  return customFetch<FinalizeRequestAttachmentResponse>(getFinalizeServiceRequestAttachmentUrl(id,attachmentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getFinalizeServiceRequestAttachmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizeServiceRequestAttachment>>, TError,{id: number;attachmentId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof finalizeServiceRequestAttachment>>, TError,{id: number;attachmentId: string}, TContext> => {
+
+const mutationKey = ['finalizeServiceRequestAttachment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof finalizeServiceRequestAttachment>>, {id: number;attachmentId: string}> = (props) => {
+          const {id,attachmentId} = props ?? {};
+
+          return  finalizeServiceRequestAttachment(id,attachmentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FinalizeServiceRequestAttachmentMutationResult = NonNullable<Awaited<ReturnType<typeof finalizeServiceRequestAttachment>>>
+
+    export type FinalizeServiceRequestAttachmentMutationError = ErrorType<unknown>
+
+    export const useFinalizeServiceRequestAttachment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizeServiceRequestAttachment>>, TError,{id: number;attachmentId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof finalizeServiceRequestAttachment>>,
+        TError,
+        {id: number;attachmentId: string},
+        TContext
+      > => {
+      return useMutation(getFinalizeServiceRequestAttachmentMutationOptions(options));
+    }
+
+export const getCompleteServiceRequestUploadsUrl = (id: number,) => {
+
+
+
+
+  return `/api/garage/request-uploads/${id}/complete`
+}
+
+export const completeServiceRequestUploads = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<RequestDeliveryDetails> => {
+
+  return customFetch<RequestDeliveryDetails>(getCompleteServiceRequestUploadsUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompleteServiceRequestUploadsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeServiceRequestUploads>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeServiceRequestUploads>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['completeServiceRequestUploads'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeServiceRequestUploads>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  completeServiceRequestUploads(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteServiceRequestUploadsMutationResult = NonNullable<Awaited<ReturnType<typeof completeServiceRequestUploads>>>
+
+    export type CompleteServiceRequestUploadsMutationError = ErrorType<unknown>
+
+    export const useCompleteServiceRequestUploads = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeServiceRequestUploads>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof completeServiceRequestUploads>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getCompleteServiceRequestUploadsMutationOptions(options));
+    }
+
+export const getGetServiceRequestAttachmentUrl = (id: number,
+    attachmentId: string,) => {
+
+
+
+
+  return `/api/garage/requests/${id}/attachments/${attachmentId}`
+}
+
+export const getServiceRequestAttachment = async (id: number,
+    attachmentId: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetServiceRequestAttachmentUrl(id,attachmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetServiceRequestAttachmentQueryKey = (id: number,
+    attachmentId: string,) => {
+    return [
+    `/api/garage/requests/${id}/attachments/${attachmentId}`
+    ] as const;
+    }
+
+
+export const getGetServiceRequestAttachmentQueryOptions = <TData = Awaited<ReturnType<typeof getServiceRequestAttachment>>, TError = ErrorType<unknown>>(id: number,
+    attachmentId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getServiceRequestAttachment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetServiceRequestAttachmentQueryKey(id,attachmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getServiceRequestAttachment>>> = ({ signal }) => getServiceRequestAttachment(id,attachmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && attachmentId !== null && attachmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getServiceRequestAttachment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetServiceRequestAttachmentQueryResult = NonNullable<Awaited<ReturnType<typeof getServiceRequestAttachment>>>
+export type GetServiceRequestAttachmentQueryError = ErrorType<unknown>
+
+
+
+export function useGetServiceRequestAttachment<TData = Awaited<ReturnType<typeof getServiceRequestAttachment>>, TError = ErrorType<unknown>>(
+ id: number,
+    attachmentId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getServiceRequestAttachment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetServiceRequestAttachmentQueryOptions(id,attachmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRetryServiceRequestNotificationUrl = (id: number,) => {
+
+
+
+
+  return `/api/garage/requests/${id}/notify`
+}
+
+export const retryServiceRequestNotification = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<RequestDeliveryDetails> => {
+
+  return customFetch<RequestDeliveryDetails>(getRetryServiceRequestNotificationUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRetryServiceRequestNotificationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryServiceRequestNotification>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof retryServiceRequestNotification>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['retryServiceRequestNotification'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retryServiceRequestNotification>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  retryServiceRequestNotification(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RetryServiceRequestNotificationMutationResult = NonNullable<Awaited<ReturnType<typeof retryServiceRequestNotification>>>
+
+    export type RetryServiceRequestNotificationMutationError = ErrorType<unknown>
+
+    export const useRetryServiceRequestNotification = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryServiceRequestNotification>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof retryServiceRequestNotification>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRetryServiceRequestNotificationMutationOptions(options));
+    }
+
+export const getGetGarageNotificationSettingsUrl = () => {
+
+
+
+
+  return `/api/garage/admin/notifications`
+}
+
+export const getGarageNotificationSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<GarageNotificationSettings> => {
+
+  return customFetch<GarageNotificationSettings>(getGetGarageNotificationSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGarageNotificationSettingsQueryKey = () => {
+    return [
+    `/api/garage/admin/notifications`
+    ] as const;
+    }
+
+
+export const getGetGarageNotificationSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getGarageNotificationSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGarageNotificationSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGarageNotificationSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGarageNotificationSettings>>> = ({ signal }) => getGarageNotificationSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGarageNotificationSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGarageNotificationSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getGarageNotificationSettings>>>
+export type GetGarageNotificationSettingsQueryError = ErrorType<unknown>
+
+
+
+export function useGetGarageNotificationSettings<TData = Awaited<ReturnType<typeof getGarageNotificationSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGarageNotificationSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGarageNotificationSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateGarageNotificationSettingsUrl = () => {
+
+
+
+
+  return `/api/garage/admin/notifications`
+}
+
+export const updateGarageNotificationSettings = async (garageNotificationSettingsInput: GarageNotificationSettingsInput, options?: Parameters<typeof customFetch>[1]): Promise<GarageNotificationSettings> => {
+
+  return customFetch<GarageNotificationSettings>(getUpdateGarageNotificationSettingsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(garageNotificationSettingsInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateGarageNotificationSettingsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGarageNotificationSettings>>, TError,{data: BodyType<GarageNotificationSettingsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateGarageNotificationSettings>>, TError,{data: BodyType<GarageNotificationSettingsInput>}, TContext> => {
+
+const mutationKey = ['updateGarageNotificationSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateGarageNotificationSettings>>, {data: BodyType<GarageNotificationSettingsInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateGarageNotificationSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateGarageNotificationSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateGarageNotificationSettings>>>
+    export type UpdateGarageNotificationSettingsMutationBody = BodyType<GarageNotificationSettingsInput>
+    export type UpdateGarageNotificationSettingsMutationError = ErrorType<unknown>
+
+    export const useUpdateGarageNotificationSettings = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGarageNotificationSettings>>, TError,{data: BodyType<GarageNotificationSettingsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateGarageNotificationSettings>>,
+        TError,
+        {data: BodyType<GarageNotificationSettingsInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateGarageNotificationSettingsMutationOptions(options));
+    }
+
+export const getTestGarageNotificationDestinationUrl = () => {
+
+
+
+
+  return `/api/garage/admin/notifications/test`
+}
+
+export const testGarageNotificationDestination = async (garageNotificationTestInput: GarageNotificationTestInput, options?: Parameters<typeof customFetch>[1]): Promise<TestGarageNotificationDestination200> => {
+
+  return customFetch<TestGarageNotificationDestination200>(getTestGarageNotificationDestinationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(garageNotificationTestInput)
+  }
+);}
+
+
+
+
+
+export const getTestGarageNotificationDestinationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof testGarageNotificationDestination>>, TError,{data: BodyType<GarageNotificationTestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof testGarageNotificationDestination>>, TError,{data: BodyType<GarageNotificationTestInput>}, TContext> => {
+
+const mutationKey = ['testGarageNotificationDestination'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof testGarageNotificationDestination>>, {data: BodyType<GarageNotificationTestInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  testGarageNotificationDestination(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TestGarageNotificationDestinationMutationResult = NonNullable<Awaited<ReturnType<typeof testGarageNotificationDestination>>>
+    export type TestGarageNotificationDestinationMutationBody = BodyType<GarageNotificationTestInput>
+    export type TestGarageNotificationDestinationMutationError = ErrorType<unknown>
+
+    export const useTestGarageNotificationDestination = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof testGarageNotificationDestination>>, TError,{data: BodyType<GarageNotificationTestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof testGarageNotificationDestination>>,
+        TError,
+        {data: BodyType<GarageNotificationTestInput>},
+        TContext
+      > => {
+      return useMutation(getTestGarageNotificationDestinationMutationOptions(options));
     }
 
 export const getGetGarageDashboardUrl = () => {

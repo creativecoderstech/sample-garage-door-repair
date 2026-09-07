@@ -18,7 +18,7 @@ export type CustomerCareMessage = {
 export const CUSTOMER_CARE_NAME = "Maya";
 export const SERVICE_REQUEST_DRAFT_EVENT = "garage-service-request-draft";
 
-export const customerCareWelcome = (businessName = "Garage Door Service Preview") =>
+export const customerCareWelcome = (businessName = "Cumming Garage Door Service") =>
   `Hi, I’m Maya with the customer-care team at ${businessName}. Tell me what your garage door is doing and I’ll help point you toward the right service and the safest next step. The business will confirm coverage, timing, and any appointment.`;
 
 function isCustomerCareWelcome(content: string) {
@@ -46,6 +46,8 @@ function typingDurationFor(reply: string) {
 
 function toBookingService(service?: string) {
   const normalized = service?.toLowerCase() ?? "";
+  if (normalized.includes("commercial")) return "commercial";
+  if (/cable|roller|off.?track/.test(normalized)) return "hardware";
   if (normalized.includes("spring")) return "springs";
   if (normalized.includes("opener")) return "opener";
   if (normalized.includes("new garage") || normalized.includes("installation")) return "installation";
@@ -174,14 +176,13 @@ export function useCustomerCareChat() {
   const startServiceRequest = () => {
     if (typeof window === "undefined") return;
     const lastAssistant = [...messages].reverse().find((message) => message.role === "assistant");
-    const transcript = messages
-      .map((message) => `${message.role === "user" ? "Customer" : "Customer care"}: ${message.content}`)
-      .join("\n")
-      .slice(-2400);
+    // Transfer only the customer's original issue for review, never the full
+    // temporary conversation or Maya's responses into a persistent lead.
+    const issue = messages.find((message) => message.role === "user")?.content.trim().slice(0, 1000);
     const draft: ServiceRequestDraft = {
       service: toBookingService(lastAssistant?.service),
       urgency: messages.some((message) => message.safety === "urgent") ? "emergency" : "flexible",
-      details: `Started with customer care.\n\n${transcript}`,
+      details: issue ? `Issue shared with Maya: ${issue}` : "Started with Maya. Please describe the issue here.",
     };
     sessionStorage.setItem(SERVICE_REQUEST_DRAFT_KEY, JSON.stringify(draft));
     window.dispatchEvent(new CustomEvent(SERVICE_REQUEST_DRAFT_EVENT, { detail: draft }));
@@ -196,6 +197,6 @@ export function useCustomerCareChat() {
     startServiceRequest,
     isPending: askMutation.isPending || isTyping || isVerifying,
     hasUserMessages: messages.some((message) => message.role === "user"),
-    businessName: settings?.businessName || "Garage Door Service Preview",
+    businessName: settings?.businessName || "Cumming Garage Door Service",
   };
 }

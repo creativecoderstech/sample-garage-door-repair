@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 pnpm install --frozen-lockfile
-pnpm --filter @workspace/db run push
-pnpm --filter @workspace/db run seed:garage-content
+pnpm --filter @workspace/db run migrate:garage

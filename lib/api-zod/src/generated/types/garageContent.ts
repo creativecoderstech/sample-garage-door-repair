@@ -8,6 +8,8 @@
 import type { GarageContentKind } from './garageContentKind';
 import type { GarageContentStatus } from './garageContentStatus';
 import type { GarageContentVerificationStatus } from './garageContentVerificationStatus';
+import type { GarageMediaMetadata } from './garageMediaMetadata';
+import type { GarageServiceFaq } from './garageServiceFaq';
 
 export interface GarageContent {
   id: string;
@@ -15,10 +17,16 @@ export interface GarageContent {
   slug: string;
   aliases: string[];
   title: string;
+  navigationLabel: string;
+  navigationGroup: string;
   summary: string;
   body: string;
+  symptoms: string[];
+  expectations: string[];
+  serviceFaqs: GarageServiceFaq[];
   imageUrl: string;
   imageAlt: string;
+  mediaMetadata: GarageMediaMetadata;
   beforeImageUrl: string;
   seoTitle: string;
   seoDescription: string;
@@ -29,5 +37,6 @@ export interface GarageContent {
   verificationStatus: GarageContentVerificationStatus;
   featured: boolean;
   serviceCode: string;
+  readonly reviewedSeed: boolean;
   updatedAt: string;
 }

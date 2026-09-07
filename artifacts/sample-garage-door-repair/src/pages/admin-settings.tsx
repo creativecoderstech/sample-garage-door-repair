@@ -1,543 +1,245 @@
-import { useGetBusinessSettings, useUpdateBusinessSettings, getGetBusinessSettingsQueryKey, getGetPublicBusinessSettingsQueryKey } from "@workspace/api-client-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getGetBusinessSettingsQueryKey,
+  getGetPublicBusinessSettingsQueryKey,
+  useGetBusinessSettings,
+  useGetPublicBusinessSettings,
+  useUpdateBusinessSettings,
+  type BusinessSettings,
+  type GarageClaimVerificationMap,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useEffect, useState } from "react";
-import { ShieldAlert, ShieldCheck, Store, Palette, Save, Loader2, Images, CheckCircle2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { AlertTriangle, CheckCircle2, Eye, Loader2, Save, ShieldCheck, Store } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { THEMES, type ThemeOption } from "@/lib/theme-options";
+import { THEMES } from "@/lib/theme-options";
+import { NotificationSettings } from "@/components/notification-settings";
 
-const imageLocation = z.string().refine(
-  (value) => value.startsWith("/") || z.string().url().safeParse(value).success,
-  "Enter a full image URL or a same-site path beginning with /",
-);
+const EXAMPLES = {
+  phone: "(470) 555-0147",
+  email: "service@cumminggaragedoor.example",
+  hours: "Monday–Friday 8am–6pm; Saturday 9am–2pm; Sunday closed",
+  coverage: "Cumming and Forsyth County (provisional)",
+};
 
-const settingsSchema = z.object({
-  businessName: z.string().min(2, "Business name is required"),
-  phone: z.string().min(10, "Valid phone is required"),
-  email: z.string().email("Valid email is required"),
-  serviceArea: z.string().min(2, "Service area is required"),
-  theme: z.string(),
-  serviceId: z.string().min(1, "Service ID is required"),
-  emergencyEnabled: z.boolean(),
-  verificationAcknowledged: z.boolean(),
-  trustProfile: z.object({
-    hours: z.string().max(500),
-    ownerTeam: z.string().max(500),
-    yearsInBusiness: z.string().max(500),
-    brandsServiced: z.string().max(500),
-    paymentOptions: z.string().max(500),
-    financing: z.string().max(500),
-    licenseInsurance: z.string().max(500),
-    warranty: z.string().max(500),
-  }),
-  heroImage: imageLocation,
-  galleryImagesText: z.string().superRefine((value, context) => {
-    const invalid = value
-      .split("\n")
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-      .find((entry) => !imageLocation.safeParse(entry).success);
-    if (invalid) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Each line must be a full image URL or a same-site path beginning with /",
-      });
-    }
-  }),
-});
+const TRUST_FIELDS = [
+  ["ownerTeam", "Owner / team"],
+  ["yearsInBusiness", "Years in business"],
+  ["brandsServiced", "Brands serviced"],
+  ["paymentOptions", "Payment methods"],
+  ["financing", "Financing"],
+  ["licenseInsurance", "Licenses / insurance"],
+  ["warranty", "Warranty"],
+] as const;
 
-type SettingsFormValues = z.infer<typeof settingsSchema>;
+type ClaimKey = "businessName" | "phone" | "email" | "hours" | "coverage" | "urgentPolicy" | typeof TRUST_FIELDS[number][0];
 
-function ThemePreview({ theme }: { theme: ThemeOption }) {
-  const { preview } = theme;
+function isReservedExample(key: ClaimKey, value: string) {
+  if (key === "phone") return value.replace(/\D/g, "") === "4705550147" || /55501\d{2}$/.test(value.replace(/\D/g, ""));
+  if (key === "email") return value.trim().toLowerCase().endsWith(".example");
+  return key in EXAMPLES && value.trim() === EXAMPLES[key as keyof typeof EXAMPLES];
+}
+
+const claimValue = (settings: BusinessSettings, key: ClaimKey) => {
+  if (key in settings.trustProfile) return settings.trustProfile[key as keyof BusinessSettings["trustProfile"]] ?? "";
+  if (key === "coverage") return settings.coverage || settings.serviceArea;
+  return String(settings[key as keyof BusinessSettings] ?? "");
+};
+
+function ClaimControl({ name, value, claims, onChange }: {
+  name: ClaimKey;
+  value: string;
+  claims: GarageClaimVerificationMap;
+  onChange: (next: GarageClaimVerificationMap) => void;
+}) {
+  const current = claims[name];
+  const example = isReservedExample(name, value) || current?.isExample === true;
+  const verified = current?.status === "verified" && !example;
   return (
-    <div
-      className="phi-card mt-4 overflow-hidden border shadow-sm"
-      style={{ backgroundColor: preview.background, color: preview.foreground, borderColor: preview.border }}
-      aria-label={`${theme.name} color preview`}
-    >
-      <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: preview.primary, color: "#fff" }}>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: preview.accent }} />
-          <span className="text-[10px] font-bold tracking-wide">YOUR BUSINESS</span>
-        </div>
-        <span className="text-[9px] font-medium opacity-80">Services · Contact</span>
-      </div>
-      <div className="grid grid-cols-[1.35fr_1fr] gap-2 p-3">
-        <div>
-          <div className="mb-1 h-1.5 w-4/5 rounded-full" style={{ backgroundColor: preview.foreground, opacity: 0.9 }} />
-          <div className="mb-2 h-1.5 w-3/5 rounded-full" style={{ backgroundColor: preview.foreground, opacity: 0.45 }} />
-          <span className="inline-flex rounded px-2 py-1 text-[9px] font-bold" style={{ backgroundColor: preview.primary, color: "#fff" }}>
-            Book Service
-          </span>
-        </div>
-        <div className="rounded border p-2" style={{ backgroundColor: preview.card, borderColor: preview.border }}>
-          <div className="mb-2 h-2 w-3/5 rounded-full" style={{ backgroundColor: preview.foreground, opacity: 0.75 }} />
-          <div className="h-1.5 w-full rounded-full" style={{ backgroundColor: preview.secondary }} />
-          <div className="mt-1.5 h-1.5 w-4/5 rounded-full" style={{ backgroundColor: preview.accent, opacity: 0.8 }} />
-        </div>
-      </div>
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <Badge variant={verified ? "default" : "outline"}>{verified ? "Verified real claim" : example ? "Unverified example" : "Unverified"}</Badge>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        disabled={!value.trim() || example}
+        onClick={() => onChange({
+          ...claims,
+          [name]: { status: verified ? "unverified" : "verified", isExample: false, verifiedAt: null },
+        })}
+      >
+        {verified ? "Remove verification" : "Verify this claim"}
+      </Button>
+      {example ? <span className="text-xs text-amber-700">Replace this temporary example before verification.</span> : null}
     </div>
   );
 }
 
 export default function AdminSettingsPage() {
-  const settingsQuery = useGetBusinessSettings({ query: { queryKey: getGetBusinessSettingsQueryKey(), staleTime: 0, refetchOnMount: "always", refetchOnWindowFocus: true } });
-  const { data: settings, isLoading, isError, error } = settingsQuery;
-  const updateSettings = useUpdateBusinessSettings();
+  const settingsQuery = useGetBusinessSettings({ query: { queryKey: getGetBusinessSettingsQueryKey(), staleTime: 0, refetchOnMount: "always" } });
+  const publicQuery = useGetPublicBusinessSettings({ query: { queryKey: getGetPublicBusinessSettingsQueryKey(), staleTime: 0, refetchOnMount: "always" } });
+  const update = useUpdateBusinessSettings();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
-
-  const form = useForm<SettingsFormValues>({
-    resolver: zodResolver(settingsSchema),
-    defaultValues: {
-      businessName: "",
-      phone: "",
-      email: "",
-      serviceArea: "",
-      theme: "industrial",
-      serviceId: "",
-      emergencyEnabled: false,
-      verificationAcknowledged: false,
-      trustProfile: {
-        hours: "",
-        ownerTeam: "",
-        yearsInBusiness: "",
-        brandsServiced: "",
-        paymentOptions: "",
-        financing: "",
-        licenseInsurance: "",
-        warranty: "",
-      },
-      heroImage: "",
-      galleryImagesText: "",
-    },
-  });
+  const [draft, setDraft] = useState<BusinessSettings | null>(null);
 
   useEffect(() => {
-    if (settings) {
-      form.reset({
-        businessName: settings.businessName,
-        phone: settings.phone,
-        email: settings.email,
-        serviceArea: settings.serviceArea,
-        theme: settings.theme,
-        serviceId: settings.serviceId,
-        emergencyEnabled: settings.emergencyEnabled,
-        verificationAcknowledged: false,
-        trustProfile: {
-          hours: settings.trustProfile.hours ?? "",
-          ownerTeam: settings.trustProfile.ownerTeam ?? "",
-          yearsInBusiness: settings.trustProfile.yearsInBusiness ?? "",
-          brandsServiced: settings.trustProfile.brandsServiced ?? "",
-          paymentOptions: settings.trustProfile.paymentOptions ?? "",
-          financing: settings.trustProfile.financing ?? "",
-          licenseInsurance: settings.trustProfile.licenseInsurance ?? "",
-          warranty: settings.trustProfile.warranty ?? "",
+    if (settingsQuery.data) setDraft(settingsQuery.data);
+  }, [settingsQuery.data]);
+
+  const preview = useMemo(() => {
+    if (!draft) return null;
+    const visible = (key: ClaimKey) => {
+      const value = claimValue(draft, key);
+      const claim = draft.claimVerification[key];
+      return claim?.status === "verified" && claim.isExample === false && !isReservedExample(key, value) ? value : "";
+    };
+    return {
+      businessName: "Cumming Garage Door Service",
+      phone: visible("phone"),
+      email: visible("email"),
+      hours: visible("hours"),
+      coverage: visible("coverage"),
+      urgentPolicy: visible("urgentPolicy"),
+      trust: TRUST_FIELDS.map(([key, label]) => [label, visible(key)] as const).filter(([, value]) => value),
+    };
+  }, [draft]);
+
+  if (settingsQuery.isLoading || !draft) return <div className="flex min-h-72 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (settingsQuery.isError) return <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Settings could not be loaded</AlertTitle><AlertDescription>{settingsQuery.error instanceof Error ? settingsQuery.error.message : "Unknown error"}</AlertDescription></Alert>;
+
+  const set = <K extends keyof BusinessSettings>(key: K, value: BusinessSettings[K]) => setDraft((current) => current ? { ...current, [key]: value } : current);
+  const setFact = (key: ClaimKey, value: string) => {
+    setDraft((current) => {
+      if (!current) return current;
+      const isTrust = key in current.trustProfile;
+      return {
+        ...current,
+        ...(isTrust ? { trustProfile: { ...current.trustProfile, [key]: value || null } } : key === "coverage" ? { coverage: value, serviceArea: value } : { [key]: value }),
+        claimVerification: {
+          ...current.claimVerification,
+          [key]: { status: "unverified", isExample: isReservedExample(key, value), verifiedAt: null },
         },
-        heroImage: settings.heroImage,
-        galleryImagesText: settings.galleryImages.join("\n"),
-      });
-    }
-  }, [settings, form]);
-
-  useEffect(() => {
-    const subscription = form.watch((_values, { name }) => {
-      const changesVerifiedFact = Boolean(name && (
-        ["businessName", "phone", "email", "serviceArea", "emergencyEnabled"].includes(name)
-        || name.startsWith("trustProfile.")
-      ));
-      if (changesVerifiedFact && form.getValues("verificationAcknowledged")) {
-        form.setValue("verificationAcknowledged", false, { shouldDirty: true });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-
-  const onSubmit = (values: SettingsFormValues) => {
-    setIsSaving(true);
-    const { galleryImagesText, verificationAcknowledged, trustProfile, ...settingsValues } = values;
-    const dirty = form.formState.dirtyFields;
-    const sensitiveChanged = Boolean(dirty.businessName || dirty.phone || dirty.email || dirty.serviceArea || dirty.emergencyEnabled || dirty.trustProfile);
-    const verificationStatus = verificationAcknowledged
-      ? "verified"
-      : sensitiveChanged
-        ? "unverified"
-        : settings?.verificationStatus ?? "unverified";
-    updateSettings.mutate({ data: {
-      ...settingsValues,
-      galleryImages: galleryImagesText.split("\n").map((url) => url.trim()).filter(Boolean),
-      verificationStatus,
-      ...(verificationAcknowledged ? { verificationAcknowledged: true } : {}),
-      trustProfile: {
-        hours: trustProfile.hours.trim() || null,
-        ownerTeam: trustProfile.ownerTeam.trim() || null,
-        yearsInBusiness: trustProfile.yearsInBusiness.trim() || null,
-        brandsServiced: trustProfile.brandsServiced.trim() || null,
-        paymentOptions: trustProfile.paymentOptions.trim() || null,
-        financing: trustProfile.financing.trim() || null,
-        licenseInsurance: trustProfile.licenseInsurance.trim() || null,
-        warranty: trustProfile.warranty.trim() || null,
-      },
-    } }, {
-      onSuccess: async () => {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: getGetBusinessSettingsQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getGetPublicBusinessSettingsQueryKey() }),
-        ]);
-        toast({
-          title: "Settings saved",
-          description: "Business configuration has been updated successfully.",
-        });
-        setIsSaving(false);
-      },
-      onError: (saveError) => {
-        setIsSaving(false);
-        toast({
-          title: "Settings were not saved",
-          description: saveError instanceof Error ? saveError.message : "The server could not save settings. Please try again.",
-          variant: "destructive"
-        });
-      }
+        productionApproved: false,
+      };
     });
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex-1 p-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="rounded-xl border-2 border-red-200 bg-red-50 p-6 text-red-900 dark:border-red-900 dark:bg-red-950/30 dark:text-red-100">
-        <h2 className="font-display text-xl font-bold">Settings could not be loaded</h2>
-        <p className="mt-2 text-sm">{error instanceof Error ? error.message : "The server returned an unknown error."}</p>
-        <Button className="mt-4" variant="outline" onClick={() => settingsQuery.refetch()}>Try again</Button>
-      </div>
-    );
-  }
-
-  const selectedTheme = form.watch("theme");
-  const dirty = form.formState.dirtyFields;
-  const sensitiveChanged = Boolean(dirty.businessName || dirty.phone || dirty.email || dirty.serviceArea || dirty.emergencyEnabled || dirty.trustProfile);
-  const displayedVerification = form.watch("verificationAcknowledged")
-    ? "verified"
-    : sensitiveChanged
-      ? "unverified"
-      : settings?.verificationStatus ?? "unverified";
+  const save = () => update.mutate({ data: {
+    businessName: "Cumming Garage Door Service",
+    phone: draft.phone,
+    email: draft.email,
+    serviceArea: draft.coverage,
+    hours: draft.hours,
+    coverage: draft.coverage,
+    urgentPolicy: draft.urgentPolicy,
+    theme: draft.theme,
+    serviceId: draft.serviceId,
+    emergencyEnabled: draft.emergencyEnabled,
+    heroImage: draft.heroImage,
+    galleryImages: draft.galleryImages,
+    productionApproved: draft.productionApproved,
+    domainConfigured: draft.domainConfigured,
+    authConfigured: draft.authConfigured,
+    claimVerification: draft.claimVerification,
+    trustProfile: draft.trustProfile,
+  } }, {
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: getGetBusinessSettingsQueryKey() }),
+        queryClient.invalidateQueries({ queryKey: getGetPublicBusinessSettingsQueryKey() }),
+      ]);
+      toast({ title: "Business settings saved", description: "Public projection and launch checks were refreshed." });
+    },
+    onError: (error) => toast({ title: "Settings were not saved", description: error instanceof Error ? error.message : "Unknown error", variant: "destructive" }),
+  });
 
   return (
-    <div className="phi-admin-settings">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-[var(--phi-space-5)]">
-          <div className="phi-admin-section flex flex-col border-b border-slate-200 pb-[var(--phi-space-3)] sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Workspace configuration</p>
-              <div className="mt-1 flex flex-wrap items-center gap-3">
-                <h2 className="font-display text-xl font-bold tracking-tight text-slate-950 dark:text-white">Business controls</h2>
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">5 sections</span>
-              </div>
-              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                Keep the public identity, photography, visual theme, and dispatch settings aligned from one detailed workspace.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${displayedVerification === "verified" ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300" : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200"}`}>
-                {displayedVerification === "verified" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
-                {displayedVerification === "verified" ? "Business facts verified" : "Business facts unverified"}
-              </span>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">Loaded from database</span>
-            </div>
-          </div>
+    <div className="space-y-5">
+      <header className="border-b pb-4">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary">Business administration</p>
+        <h1 className="mt-1 font-display text-2xl font-bold">Cumming Garage Door Service settings</h1>
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Edit identity, contact, hours, coverage, trust claims, media, and publishing in one place. Every factual claim is verified separately; temporary examples can never be approved.</p>
+      </header>
 
-          <div className="grid gap-[var(--phi-space-2)] sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["Public identity", "Customer-facing business details"],
-              ["Photography", "Hero and gallery image sources"],
-              ["Site aesthetics", THEMES.find((theme) => theme.id === selectedTheme)?.name || "Theme selection"],
-              ["Operations", form.watch("emergencyEnabled") ? "Emergency mode enabled" : "Standard availability"],
-            ].map(([label, detail], index) => (
-              <div key={label} className="phi-admin-card border-2 border-slate-200 bg-white p-[var(--phi-space-3)] dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-                  <span className={`h-2 w-2 rounded-full ${index === 3 && form.watch("emergencyEnabled") ? "bg-red-500" : "bg-primary"}`} />
-                </div>
-                <p className="mt-3 text-sm font-bold text-slate-950 dark:text-white">{detail}</p>
-              </div>
-            ))}
-          </div>
-          
-          <Card className="phi-admin-card border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-display"><Store className="h-5 w-5 text-primary"/> Public Identity</CardTitle>
-              <CardDescription>How your business appears to customers on the site.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="businessName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Name</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="phi-field-grid grid grid-cols-1 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Public Phone Number</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Public Email</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="serviceArea"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Service Area Description</FormLabel>
-                    <FormControl><Input {...field} placeholder="e.g. Greater Seattle Area" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Store className="h-5 w-5" />Business details</CardTitle><CardDescription>The approved public name is fixed. Contact, hours, and coverage begin as editable unverified examples.</CardDescription></CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
+          <Field label="Approved business name"><Input value="Cumming Garage Door Service" disabled /></Field>
+          {([
+            ["phone", "Phone", "tel"],
+            ["email", "Email", "email"],
+            ["hours", "Business hours", "text"],
+            ["coverage", "Service coverage", "text"],
+          ] as const).map(([key, label, type]) => (
+            <Field key={key} label={label}>
+              <Input type={type} value={claimValue(draft, key)} onChange={(event) => setFact(key, event.target.value)} />
+              <ClaimControl name={key} value={claimValue(draft, key)} claims={draft.claimVerification} onChange={(claims) => set("claimVerification", claims)} />
+            </Field>
+          ))}
+          <Field label="Urgent-request policy" wide>
+            <Textarea value={draft.urgentPolicy} placeholder="Leave blank unless the owner has confirmed a truthful urgent-request policy." onChange={(event) => setFact("urgentPolicy", event.target.value)} />
+            <ClaimControl name="urgentPolicy" value={draft.urgentPolicy} claims={draft.claimVerification} onChange={(claims) => set("claimVerification", claims)} />
+          </Field>
+          <label className="flex items-center justify-between rounded-lg border p-4 md:col-span-2"><span><strong>Show urgent-request messaging</strong><span className="block text-xs text-muted-foreground">Only projects publicly when a real urgent policy is verified.</span></span><Switch checked={draft.emergencyEnabled} onCheckedChange={(value) => set("emergencyEnabled", value)} /></label>
+        </CardContent>
+      </Card>
 
-          <Card className="phi-admin-card border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-display"><ShieldCheck className="h-5 w-5 text-primary"/> Verified Trust Profile</CardTitle>
-              <CardDescription>Only enter accurate, supportable public business facts. Leave a field blank rather than estimating or inventing details.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="phi-field-grid grid grid-cols-1 md:grid-cols-2">
-                {([
-                  ["hours", "Business hours"],
-                  ["ownerTeam", "Owner / team"],
-                  ["yearsInBusiness", "Years in business"],
-                  ["brandsServiced", "Brands serviced"],
-                  ["paymentOptions", "Payment options"],
-                  ["financing", "Financing"],
-                  ["licenseInsurance", "License & insurance"],
-                  ["warranty", "Warranty"],
-                ] as const).map(([name, label]) => (
-                  <FormField
-                    key={name}
-                    control={form.control}
-                    name={`trustProfile.${name}`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{label}</FormLabel>
-                        <FormControl><Input {...field} placeholder="Leave blank if not confirmed" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-              </div>
-              <FormField
-                control={form.control}
-                name="verificationAcknowledged"
-                render={({ field }) => (
-                  <FormItem className={`rounded-xl border-2 p-4 ${field.value ? "border-emerald-300 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/20" : "border-amber-300 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/20"}`}>
-                    <div className="flex items-start gap-3">
-                      <FormControl><Checkbox checked={field.value} onCheckedChange={(value) => field.onChange(value === true)} /></FormControl>
-                      <div>
-                        <FormLabel className="font-bold">I verified these public business details</FormLabel>
-                        <FormDescription>I acknowledge that the identity, service area, availability, and trust facts are current and accurate. Changing any of those details resets verification until this is checked again and saved.</FormDescription>
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Trust claims</CardTitle><CardDescription>Blank and unverified optional claims are omitted from the public site.</CardDescription></CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
+          {TRUST_FIELDS.map(([key, label]) => <Field key={key} label={label}><Input value={claimValue(draft, key)} placeholder="Leave blank if not confirmed" onChange={(event) => setFact(key, event.target.value)} /><ClaimControl name={key} value={claimValue(draft, key)} claims={draft.claimVerification} onChange={(claims) => set("claimVerification", claims)} /></Field>)}
+        </CardContent>
+      </Card>
 
-          <Card className="phi-admin-card border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-display"><Images className="h-5 w-5 text-primary"/> Website Photography</CardTitle>
-              <CardDescription>Use licensed stock photos or your own hosted images. Changes appear on the customer website after saving.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <FormField
-                control={form.control}
-                name="heroImage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Homepage Hero Image URL</FormLabel>
-                    <FormControl><Input {...field} placeholder="https://..." /></FormControl>
-                    <FormDescription>A wide image of a clean garage-door installation works best.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="galleryImagesText"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project Gallery Image URLs</FormLabel>
-                    <FormControl>
-                      <textarea {...field} rows={5} className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder={"https://.../project-1.jpg\nhttps://.../project-2.jpg"} />
-                    </FormControl>
-                    <FormDescription>Enter one image URL per line. The first three appear on the homepage.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {form.watch("heroImage") && (
-                <div className="overflow-hidden rounded-xl border bg-muted aspect-[16/6]">
-                  <img src={form.watch("heroImage")} alt="Hero preview" className="h-full w-full object-cover" />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <Card>
+        <CardHeader><CardTitle>Appearance & media</CardTitle><CardDescription>Existing themes and licensed locally hosted imagery remain editable.</CardDescription></CardHeader>
+        <CardContent className="grid gap-5 md:grid-cols-2">
+          <Field label="Theme"><Select value={draft.theme} onValueChange={(value) => set("theme", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{THEMES.map((theme) => <SelectItem key={theme.id} value={theme.id}>{theme.name}</SelectItem>)}</SelectContent></Select></Field>
+          <Field label="Internal service ID"><Input value={draft.serviceId} onChange={(event) => set("serviceId", event.target.value)} /></Field>
+          <Field label="Hero image"><Input value={draft.heroImage} onChange={(event) => set("heroImage", event.target.value)} /></Field>
+          <Field label="Gallery images" wide><Textarea rows={5} value={draft.galleryImages.join("\n")} onChange={(event) => set("galleryImages", event.target.value.split("\n").map((value) => value.trim()).filter(Boolean))} /></Field>
+        </CardContent>
+      </Card>
 
-          <Card className="phi-admin-card border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-display"><Palette className="h-5 w-5 text-primary"/> Site Aesthetics</CardTitle>
-              <CardDescription>Choose the visual identity for your public website.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="theme"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        className="phi-field-grid grid grid-cols-1 md:grid-cols-2"
-                      >
-                        {THEMES.map((theme) => (
-                          <FormItem key={theme.id} className="relative flex items-center space-x-0 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem
-                                value={theme.id}
-                                className="peer sr-only"
-                                aria-label={`Use ${theme.name} theme`}
-                              />
-                            </FormControl>
-                            <FormLabel className="w-full cursor-pointer rounded-xl border-2 p-4 transition-all hover:bg-muted/50 peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5">
-                              <div className="flex items-start gap-3">
-                                <div className="flex shrink-0 gap-1 rounded-full border border-black/10 bg-background p-1 shadow-sm" aria-hidden="true">
-                                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.preview.primary }} />
-                                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.preview.secondary }} />
-                                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.preview.accent }} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <span className="font-bold">{theme.name}</span>
-                                    {selectedTheme === theme.id && (
-                                      <span className="inline-flex items-center gap-1 text-xs font-bold text-primary">
-                                        <CheckCircle2 className="h-3.5 w-3.5" /> Selected
-                                      </span>
-                                    )}
-                                  </div>
-                                  <span className="mt-0.5 block text-sm font-normal text-muted-foreground">{theme.desc}</span>
-                                  <span className="mt-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">{theme.mood}</span>
-                                </div>
-                              </div>
-                              <ThemePreview theme={theme} />
-                            </FormLabel>
-                          </FormItem>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Eye className="h-5 w-5" />Exact public projection</CardTitle><CardDescription>This is the factual identity and metadata-safe content exposed after saving. Empty facts do not create phone, email, urgent, or Maya actions.</CardDescription></CardHeader>
+        <CardContent className="space-y-3">
+          <h2 className="font-display text-xl font-bold">{preview?.businessName}</h2>
+          {preview?.phone ? <p>Phone: {preview.phone}</p> : <p className="text-sm text-muted-foreground">Phone omitted — current value is unverified/example.</p>}
+          {preview?.email ? <p>Email: {preview.email}</p> : <p className="text-sm text-muted-foreground">Email omitted — current value is unverified/example.</p>}
+          {preview?.hours ? <p>Hours: {preview.hours}</p> : <p className="text-sm text-muted-foreground">Hours omitted.</p>}
+          {preview?.coverage ? <p>Coverage: {preview.coverage}</p> : <p className="text-sm text-muted-foreground">Coverage omitted.</p>}
+          {preview?.urgentPolicy ? <p>Urgent requests: {preview.urgentPolicy}</p> : null}
+          {preview?.trust.map(([label, value]) => <p key={label}>{label}: {value}</p>)}
+          <Alert><AlertTriangle className="h-4 w-4" /><AlertTitle>Preview-only examples</AlertTitle><AlertDescription>{draft.phone} · {draft.email} · {draft.hours} · {draft.coverage}. These remain visibly unverified and are not contact actions or Maya facts.</AlertDescription></Alert>
+        </CardContent>
+      </Card>
 
-          <Card className="phi-admin-card border-2 border-destructive/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-display text-destructive"><ShieldAlert className="h-5 w-5"/> Operations & Safety</CardTitle>
-              <CardDescription>Critical flags for your dispatch logic.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-[var(--phi-space-4)]">
-              <FormField
-                control={form.control}
-                name="emergencyEnabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
-                    <div className="space-y-0.5 max-w-[80%]">
-                      <FormLabel className="text-base font-bold text-destructive">24/7 Emergency Mode</FormLabel>
-                      <FormDescription>
-                        When active, the site displays banners indicating immediate availability. The booking flow will highlight emergency options.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        className="data-[state=checked]:bg-destructive"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="serviceId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Creative Coders Service ID</FormLabel>
-                    <FormControl><Input {...field} className="font-mono text-sm max-w-sm" /></FormControl>
-                    <FormDescription>Internal identifier for API integration.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+      <Card className="border-amber-300">
+        <CardHeader><CardTitle>Production approval</CardTitle><CardDescription>Approval does not override required runtime, notification, domain, or authentication checks.</CardDescription></CardHeader>
+        <CardContent className="space-y-3">
+          {publicQuery.data ? Object.entries(publicQuery.data.launchChecks).map(([key, ready]) => <div key={key} className="flex items-center gap-2 text-sm">{ready ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <AlertTriangle className="h-4 w-4 text-amber-600" />}<span>{key.replace(/([A-Z])/g, " $1")}</span></div>) : <p className="text-sm text-muted-foreground">Save to refresh server launch checks.</p>}
+          <label className="flex items-start gap-3 rounded-lg border p-4"><Checkbox checked={draft.productionApproved} onCheckedChange={(value) => set("productionApproved", value === true)} /><span><strong>Owner production approval</strong><span className="block text-xs text-muted-foreground">Set only after replacing examples and completing every checklist item. This cannot make the site launch-ready by itself.</span></span></label>
+          <label className="flex items-center justify-between rounded-lg border p-4"><span><strong>Production domain setup recorded</strong><span className="block text-xs text-muted-foreground">Runtime host validation must also pass.</span></span><Switch checked={draft.domainConfigured} onCheckedChange={(value) => set("domainConfigured", value)} /></label>
+          <label className="flex items-center justify-between rounded-lg border p-4"><span><strong>Production auth callbacks recorded</strong><span className="block text-xs text-muted-foreground">Runtime authentication configuration must also pass.</span></span><Switch checked={draft.authConfigured} onCheckedChange={(value) => set("authConfigured", value)} /></label>
+        </CardContent>
+      </Card>
 
-          <div className="sticky bottom-[var(--phi-space-2)] z-10 flex items-center justify-end gap-[var(--phi-space-3)] rounded-[var(--phi-radius)] border-2 bg-background/95 px-[var(--phi-space-3)] py-[var(--phi-space-3)] shadow-lg backdrop-blur">
-            <Button type="button" variant="outline" onClick={() => form.reset()} disabled={isSaving}>
-              Discard Changes
-            </Button>
-            <Button type="submit" size="lg" className="min-w-[140px] font-bold shadow-md glow-primary" disabled={isSaving}>
-              {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <><Save className="mr-2 h-5 w-5" /> Save Settings</>}
-            </Button>
-          </div>
+      <NotificationSettings />
 
-        </form>
-      </Form>
+      <div className="sticky bottom-3 flex justify-end gap-2 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur"><Button variant="outline" onClick={() => settingsQuery.data && setDraft(settingsQuery.data)}>Discard</Button><Button onClick={save} disabled={update.isPending}>{update.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save business settings</Button></div>
     </div>
   );
+}
+
+function Field({ label, wide, children }: { label: string; wide?: boolean; children: React.ReactNode }) {
+  return <label className={`space-y-2 ${wide ? "md:col-span-2" : ""}`}><span className="text-sm font-semibold">{label}</span>{children}</label>;
 }

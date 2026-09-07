@@ -5,3 +5,4 @@
 - [Garage Pages provisioning contract](garage-pages-provisioning.md) — keep the provisioning block on Pages with all bindings; runtime changes can orphan live resources.
 - [Generated clients and hot reload](codegen-hmr.md) — API regeneration can cause temporary Vite missing-module errors; judge the completed build and fresh logs.
 - [Release review packaging](release-review-packaging.md) — stage new modules, migrations, contracts, and required build assets before completion review.
+- [Private storage verification](private-storage-verification.md) — verify real signed-method and range-response contracts; permissive storage mocks can hide provider incompatibilities.

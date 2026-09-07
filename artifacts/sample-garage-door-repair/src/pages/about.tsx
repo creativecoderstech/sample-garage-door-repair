@@ -37,13 +37,13 @@ function AboutPageContent() {
       <div className="phi-section bg-background">
         <div className="phi-container max-w-4xl">
           {aboutPage?.imageUrl && (
-            <div className="w-full aspect-[21/9] rounded-xl overflow-hidden mb-12 bg-muted shadow-lg">
+            <div className="w-full aspect-[21/9] overflow-hidden mb-12 bg-muted border border-border">
               <img src={publicAssetUrl(aboutPage.imageUrl)} alt={aboutPage.imageAlt || "About Us"} className="w-full h-full object-cover" />
             </div>
           )}
           
           {aboutPage?.body && (
-            <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed mb-16">
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed mb-16 prose-headings:font-display prose-headings:uppercase">
               {aboutPage.body.split('\n\n').map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
@@ -58,28 +58,28 @@ function AboutPageContent() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {settings.trustProfile.yearsInBusiness && (
                 <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center text-primary shadow-sm border border-border">
+                  <div className="w-16 h-16 bg-background rounded-none flex items-center justify-center text-primary border border-border">
                     <Award className="w-8 h-8" />
                   </div>
-                  <h3 className="font-display text-2xl uppercase tracking-tighter">Experience</h3>
+                  <h3 className="garage-display text-3xl uppercase tracking-wide">Experience</h3>
                   <p className="text-muted-foreground font-serif italic">{settings.trustProfile.yearsInBusiness}</p>
                 </div>
               )}
               {settings.trustProfile.licenseInsurance && (
                 <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center text-primary shadow-sm border border-border">
+                  <div className="w-16 h-16 bg-background rounded-none flex items-center justify-center text-primary border border-border">
                     <ShieldCheck className="w-8 h-8" />
                   </div>
-                  <h3 className="font-display text-2xl uppercase tracking-tighter">Licensed & Insured</h3>
+                  <h3 className="garage-display text-3xl uppercase tracking-wide">Licenses & Insurance</h3>
                   <p className="text-muted-foreground font-serif italic">{settings.trustProfile.licenseInsurance}</p>
                 </div>
               )}
               {settings.trustProfile.warranty && (
                 <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center text-primary shadow-sm border border-border">
+                  <div className="w-16 h-16 bg-background rounded-none flex items-center justify-center text-primary border border-border">
                     <HeartHandshake className="w-8 h-8" />
                   </div>
-                  <h3 className="font-display text-2xl uppercase tracking-tighter">Warranty</h3>
+                  <h3 className="garage-display text-3xl uppercase tracking-wide">Warranty</h3>
                   <p className="text-muted-foreground font-serif italic">{settings.trustProfile.warranty}</p>
                 </div>
               )}

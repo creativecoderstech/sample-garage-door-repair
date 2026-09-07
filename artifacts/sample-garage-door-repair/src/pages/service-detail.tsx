@@ -61,36 +61,83 @@ function ServiceDetailPageContent() {
             {/* Main Content */}
             <div className="w-full lg:w-2/3">
               {service.imageUrl && (
-                <div className="w-full aspect-video rounded-xl overflow-hidden mb-10 bg-muted">
+                <div className="w-full aspect-[16/9] overflow-hidden mb-10 bg-muted border border-border">
                   <img src={publicAssetUrl(service.imageUrl)} alt={service.imageAlt || service.title} className="w-full h-full object-cover" />
                 </div>
               )}
               
-              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed">
+              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed prose-headings:font-display prose-headings:uppercase">
                 {service.body.split('\n\n').map((paragraph, idx) => (
                   <p key={idx}>{paragraph}</p>
                 ))}
               </div>
               
+              {/* Service Structure */}
+              {(service.symptoms && service.symptoms.length > 0) && (
+                 <div className="mt-12 bg-muted/30 p-8 border border-border">
+                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-6">Common Symptoms</h3>
+                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     {service.symptoms.map((symptom, idx) => (
+                       <li key={idx} className="flex items-start gap-3 text-muted-foreground font-medium">
+                         <div className="w-6 h-6 rounded bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center mt-0.5">
+                           <span className="text-xs font-bold">{idx + 1}</span>
+                         </div>
+                         {symptom}
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
+              )}
+
+              {(service.expectations && service.expectations.length > 0) && (
+                 <div className="mt-12 border-t border-border pt-12">
+                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-6">Our Process</h3>
+                   <ul className="flex flex-col gap-4">
+                     {service.expectations.map((step, idx) => (
+                       <li key={idx} className="flex items-start gap-4 text-foreground">
+                         <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+                         <span className="text-lg font-medium">{step}</span>
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
+              )}
+
+              {(service.serviceFaqs && service.serviceFaqs.length > 0) && (
+                 <div className="mt-12 border-t border-border pt-12">
+                   <h3 className="garage-display text-3xl uppercase tracking-wide mb-8">Service FAQs</h3>
+                   <div className="flex flex-col gap-6">
+                     {service.serviceFaqs.map((faq, idx) => (
+                       <div key={idx} className="bg-card border border-border p-6 rounded-none">
+                         <h4 className="font-bold text-lg mb-2 flex items-start gap-3">
+                            <span className="text-primary mt-1">Q.</span> {faq.question}
+                         </h4>
+                         <p className="text-muted-foreground pl-6">{faq.answer}</p>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+              )}
+
               {/* Related Projects */}
               {relatedProjects.length > 0 && (
                 <div className="mt-16 pt-12 border-t border-border">
-                  <h3 className="font-display text-3xl uppercase tracking-tighter mb-8">Related Work</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-8">Related Work</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {relatedProjects.map(project => (
-                      <div key={project.id} className="group relative overflow-hidden rounded-lg aspect-square bg-muted">
+                      <div key={project.id} className="group relative overflow-hidden rounded-none aspect-square bg-muted border border-border">
                         {project.imageUrl && (
                           <>
-                            <img src={publicAssetUrl(project.imageUrl)} alt={project.imageAlt || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img src={publicAssetUrl(project.imageUrl)} alt={project.imageAlt || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             {!isVerified && project.verificationStatus !== "verified" && (
-                              <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded z-10">
-                                Representative
+                              <div className="absolute top-2 right-2 bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-widest px-2 py-1 border border-border z-10">
+                                Style Inspiration
                               </div>
                             )}
                           </>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6 text-white">
-                          <span className="font-display text-lg uppercase tracking-wider">{project.title}</span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6 text-white">
+                          <span className="garage-display text-xl uppercase tracking-wide transform translate-y-2 group-hover:translate-y-0 transition-transform">{project.title}</span>
                         </div>
                       </div>
                     ))}
@@ -104,16 +151,16 @@ function ServiceDetailPageContent() {
               <div className="sticky top-28 flex flex-col gap-8">
                 
                 {/* Booking Widget */}
-                <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-sm">
-                  <h3 className="font-display text-2xl uppercase tracking-tight mb-2">Request an Assessment</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Let us evaluate your {service.title.toLowerCase()} today.</p>
+                <div className="bg-card border border-border p-6 shadow-sm">
+                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-2">Request an Assessment</h3>
+                  <p className="text-sm text-muted-foreground mb-6">Tell us about the issue. We'll review your request and confirm coverage, timing and next steps.</p>
                   
                   <BookingForm />
                 </div>
                 
                 {/* Other Services */}
-                <div className="bg-muted/30 border border-border rounded-xl p-6">
-                  <h3 className="font-display text-xl uppercase tracking-wide mb-6">Other Services</h3>
+                <div className="bg-muted/30 border border-border p-6">
+                  <h3 className="garage-display text-2xl uppercase tracking-wide mb-6">Other Services</h3>
                   <ul className="flex flex-col gap-3">
                     {servicesList.filter(s => s.id !== service.id).map(s => (
                       <li key={s.id}>

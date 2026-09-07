@@ -65,11 +65,11 @@ function ServiceAreaPageContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {locations.map(loc => (
                 <Link key={loc.id} href={`/service-area/${loc.slug}`} className="group block">
-                  <div className="phi-card bg-card border border-border p-8 h-full flex flex-col items-start gap-4 hover:border-primary transition-colors">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <div className="phi-card bg-card border border-border p-8 h-full flex flex-col items-start gap-4 hover:border-primary transition-colors rounded-none">
+                    <div className="w-12 h-12 bg-primary/10 rounded flex items-center justify-center text-primary group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                       <MapPin className="w-5 h-5" />
                     </div>
-                    <h3 className="font-display text-2xl uppercase tracking-tight mt-2">{loc.title}</h3>
+                    <h3 className="garage-display text-2xl uppercase tracking-wide mt-2 group-hover:text-primary transition-colors">{loc.title}</h3>
                     <p className="text-muted-foreground flex-grow line-clamp-2">{loc.summary}</p>
                     <span className="text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2 mt-4">
                       View Location <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
@@ -87,12 +87,12 @@ function ServiceAreaPageContent() {
           )}
 
           <div className="mt-20 flex flex-col items-center">
-            <h3 className="font-display text-3xl uppercase tracking-tighter mb-4 text-center">Ready to schedule?</h3>
+            <h3 className="garage-display text-4xl uppercase tracking-wide mb-4 text-center">Ready to schedule?</h3>
             <p className="font-serif italic text-xl text-muted-foreground mb-8 text-center max-w-xl">
               Request an assessment for your garage door needs.
             </p>
-            <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest px-12 h-14">
-              <Link href="/book">Request Assessment</Link>
+            <Button asChild size="lg" className="rounded-none font-bold uppercase tracking-widest px-12 h-14 bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link href="/contact#booking">Request Assessment</Link>
             </Button>
           </div>
 

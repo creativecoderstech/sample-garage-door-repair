@@ -9,6 +9,55 @@ export interface HealthStatus {
   status: string;
 }
 
+export type GarageStaffRole = typeof GarageStaffRole[keyof typeof GarageStaffRole];
+
+
+export const GarageStaffRole = {
+  super_admin: 'super_admin',
+  admin: 'admin',
+  staff: 'staff',
+} as const;
+
+export type GarageAccessGrantRole = typeof GarageAccessGrantRole[keyof typeof GarageAccessGrantRole];
+
+
+export const GarageAccessGrantRole = {
+  admin: 'admin',
+  staff: 'staff',
+} as const;
+
+export interface GarageStaffSession {
+  accessId: string;
+  userId: string;
+  email: string;
+  role: GarageStaffRole;
+}
+
+export interface GarageAccessGrantInput {
+  /** @maxLength 320 */
+  email: string;
+  role: GarageAccessGrantRole;
+}
+
+export type GarageAccessGrantStatus = typeof GarageAccessGrantStatus[keyof typeof GarageAccessGrantStatus];
+
+
+export const GarageAccessGrantStatus = {
+  pending: 'pending',
+  active: 'active',
+} as const;
+
+export interface GarageAccessGrant {
+  id: string;
+  email: string;
+  role: GarageStaffRole;
+  status: GarageAccessGrantStatus;
+  protectedOwner?: boolean;
+  createdAt?: string;
+  /** @nullable */
+  redeemedAt?: string | null;
+}
+
 export interface GarageService {
   id: number;
   slug: string;
@@ -119,16 +168,45 @@ export const GarageContentVerificationStatus = {
   verified: 'verified',
 } as const;
 
+export interface GarageServiceFaq {
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  question: string;
+  /**
+     * @minLength 1
+     * @maxLength 1000
+     */
+  answer: string;
+}
+
+export interface GarageMediaMetadata {
+  /** @maxLength 2048 */
+  sourceUrl: string;
+  /** @maxLength 500 */
+  license: string;
+  /** @maxLength 500 */
+  attribution: string;
+  representative: boolean;
+}
+
 export interface GarageContent {
   id: string;
   kind: GarageContentKind;
   slug: string;
   aliases: string[];
   title: string;
+  navigationLabel: string;
+  navigationGroup: string;
   summary: string;
   body: string;
+  symptoms: string[];
+  expectations: string[];
+  serviceFaqs: GarageServiceFaq[];
   imageUrl: string;
   imageAlt: string;
+  mediaMetadata: GarageMediaMetadata;
   beforeImageUrl: string;
   seoTitle: string;
   seoDescription: string;
@@ -139,6 +217,7 @@ export interface GarageContent {
   verificationStatus: GarageContentVerificationStatus;
   featured: boolean;
   serviceCode: string;
+  readonly reviewedSeed: boolean;
   updatedAt: string;
 }
 
@@ -191,14 +270,36 @@ export interface GarageContentInput {
      * @maxLength 160
      */
   title: string;
+  /** @maxLength 100 */
+  navigationLabel: string;
+  /**
+     * @maxLength 100
+     * @pattern ^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$
+     */
+  navigationGroup: string;
   /** @maxLength 500 */
   summary: string;
   /** @maxLength 20000 */
   body: string;
+  /**
+     * @maxItems 20
+     * @items.minLength 1
+     * @items.maxLength 300
+     */
+  symptoms: string[];
+  /**
+     * @maxItems 20
+     * @items.minLength 1
+     * @items.maxLength 300
+     */
+  expectations: string[];
+  /** @maxItems 20 */
+  serviceFaqs: GarageServiceFaq[];
   /** @maxLength 2048 */
   imageUrl: string;
   /** @maxLength 300 */
   imageAlt: string;
+  mediaMetadata: GarageMediaMetadata;
   /** @maxLength 2048 */
   beforeImageUrl: string;
   /** @maxLength 160 */
@@ -263,6 +364,169 @@ export interface ServiceRequest {
   createdAt: string;
 }
 
+export type RequestAttachmentContentType = typeof RequestAttachmentContentType[keyof typeof RequestAttachmentContentType];
+
+
+export const RequestAttachmentContentType = {
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+  'video/mp4': 'video/mp4',
+  'video/quicktime': 'video/quicktime',
+  'video/webm': 'video/webm',
+} as const;
+
+export type RequestAttachmentStatus = typeof RequestAttachmentStatus[keyof typeof RequestAttachmentStatus];
+
+
+export const RequestAttachmentStatus = {
+  pending: 'pending',
+  uploaded: 'uploaded',
+} as const;
+
+export interface RequestAttachment {
+  id: string;
+  originalName: string;
+  contentType: RequestAttachmentContentType;
+  byteSize: number;
+  status: RequestAttachmentStatus;
+}
+
+export type NotificationDeliveryStatus = typeof NotificationDeliveryStatus[keyof typeof NotificationDeliveryStatus];
+
+
+export const NotificationDeliveryStatus = {
+  pending_uploads: 'pending_uploads',
+  unconfigured: 'unconfigured',
+  pending: 'pending',
+  processing: 'processing',
+  failed: 'failed',
+  delivered: 'delivered',
+} as const;
+
+export interface NotificationDelivery {
+  id: string;
+  requestId: number;
+  status: NotificationDeliveryStatus;
+  attempts: number;
+  lastError: string | null;
+  deliveredAt: string | null;
+  updatedAt: string;
+}
+
+export type RequestDeliveryDetailsUploadStatus = typeof RequestDeliveryDetailsUploadStatus[keyof typeof RequestDeliveryDetailsUploadStatus];
+
+
+export const RequestDeliveryDetailsUploadStatus = {
+  incomplete: 'incomplete',
+  completed: 'completed',
+} as const;
+
+export interface RequestDeliveryDetails {
+  uploadStatus: RequestDeliveryDetailsUploadStatus;
+  delivery: NotificationDelivery | null;
+  attachments: RequestAttachment[];
+}
+
+export type AdminServiceRequest = ServiceRequest & RequestDeliveryDetails;
+
+export interface GarageNotificationTestInput {
+  webhookUrl: string;
+}
+
+export type GarageCreatedRequest = ServiceRequest & RequestDeliveryDetails & {
+  /**
+     * Short-lived private attachment capability returned only to the submitting customer.
+     * @minLength 32
+     */
+  uploadCapability: string;
+};
+
+export type PrepareRequestAttachmentInputContentType = typeof PrepareRequestAttachmentInputContentType[keyof typeof PrepareRequestAttachmentInputContentType];
+
+
+export const PrepareRequestAttachmentInputContentType = {
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+  'video/mp4': 'video/mp4',
+  'video/quicktime': 'video/quicktime',
+  'video/webm': 'video/webm',
+} as const;
+
+export interface PrepareRequestAttachmentInput {
+  /**
+     * @minLength 1
+     * @maxLength 180
+     */
+  originalName: string;
+  contentType: PrepareRequestAttachmentInputContentType;
+  /**
+     * @minimum 1
+     * @maximum 104857600
+     */
+  byteSize: number;
+}
+
+export type PreparedRequestAttachmentStatus = typeof PreparedRequestAttachmentStatus[keyof typeof PreparedRequestAttachmentStatus];
+
+
+export const PreparedRequestAttachmentStatus = {
+  pending: 'pending',
+  uploaded: 'uploaded',
+} as const;
+
+export type PreparedRequestAttachmentMethod = typeof PreparedRequestAttachmentMethod[keyof typeof PreparedRequestAttachmentMethod];
+
+
+export const PreparedRequestAttachmentMethod = {
+  PUT: 'PUT',
+} as const;
+
+export type PreparedRequestAttachmentHeaders = {[key: string]: string};
+
+export interface PreparedRequestAttachment {
+  attachmentId: string;
+  uploadUrl: string;
+  status: PreparedRequestAttachmentStatus;
+  method: PreparedRequestAttachmentMethod;
+  headers: PreparedRequestAttachmentHeaders;
+}
+
+export type FinalizeRequestAttachmentResponseStatus = typeof FinalizeRequestAttachmentResponseStatus[keyof typeof FinalizeRequestAttachmentResponseStatus];
+
+
+export const FinalizeRequestAttachmentResponseStatus = {
+  uploaded: 'uploaded',
+} as const;
+
+export interface FinalizeRequestAttachmentResponse {
+  id: string;
+  status: FinalizeRequestAttachmentResponseStatus;
+}
+
+export type GarageNotificationSettingsId = typeof GarageNotificationSettingsId[keyof typeof GarageNotificationSettingsId];
+
+
+export const GarageNotificationSettingsId = {
+  NUMBER_1: 1,
+} as const;
+
+export interface GarageNotificationSettings {
+  id: GarageNotificationSettingsId;
+  webhookUrl: string | null;
+  enabled: boolean;
+  configured: boolean;
+  destinationVerified: boolean;
+  testedAt: string | null;
+  updatedAt?: string;
+}
+
+export interface GarageNotificationSettingsInput {
+  webhookUrl: string | null;
+  enabled: boolean;
+}
+
 export type ServiceRequestInputUrgency = typeof ServiceRequestInputUrgency[keyof typeof ServiceRequestInputUrgency];
 
 
@@ -294,6 +558,7 @@ export interface ServiceRequestInput {
   preferredDate: string;
   preferredTime?: string;
   details?: string;
+  turnstileToken?: string;
 }
 
 export type ServiceRequestUpdateStatus = typeof ServiceRequestUpdateStatus[keyof typeof ServiceRequestUpdateStatus];
@@ -330,6 +595,23 @@ export const BusinessSettingsVerificationStatus = {
   unverified: 'unverified',
 } as const;
 
+export type GarageClaimVerificationStatus = typeof GarageClaimVerificationStatus[keyof typeof GarageClaimVerificationStatus];
+
+
+export const GarageClaimVerificationStatus = {
+  verified: 'verified',
+  unverified: 'unverified',
+} as const;
+
+export interface GarageClaimVerification {
+  status: GarageClaimVerificationStatus;
+  isExample: boolean;
+  /** @nullable */
+  verifiedAt: string | null;
+}
+
+export interface GarageClaimVerificationMap {[key: string]: GarageClaimVerification}
+
 export interface PublicTrustProfile {
   /** @nullable */
   hours: string | null;
@@ -347,6 +629,8 @@ export interface PublicTrustProfile {
   licenseInsurance: string | null;
   /** @nullable */
   warranty: string | null;
+  /** @nullable */
+  urgentPolicy: string | null;
 }
 
 export interface BusinessSettings {
@@ -354,12 +638,19 @@ export interface BusinessSettings {
   phone: string;
   email: string;
   serviceArea: string;
+  hours: string;
+  coverage: string;
+  urgentPolicy: string;
   theme: string;
   serviceId: string;
   emergencyEnabled: boolean;
   heroImage: string;
   galleryImages: string[];
   verificationStatus: BusinessSettingsVerificationStatus;
+  productionApproved: boolean;
+  domainConfigured: boolean;
+  authConfigured: boolean;
+  claimVerification: GarageClaimVerificationMap;
   trustProfile: PublicTrustProfile;
 }
 
@@ -371,17 +662,49 @@ export const PublicBusinessSettingsVerificationStatus = {
   unverified: 'unverified',
 } as const;
 
+export interface GarageLaunchChecks {
+  productionApproved: boolean;
+  approvedBusinessName: boolean;
+  realPhone: boolean;
+  realEmail: boolean;
+  verifiedHours: boolean;
+  verifiedCoverage: boolean;
+  notificationConfigured: boolean;
+  notificationDestinationVerified: boolean;
+  notificationTested: boolean;
+  domainConfigured: boolean;
+  authConfigured: boolean;
+}
+
+export interface GarageExampleDetails {
+  phone: string;
+  email: string;
+  hours: string;
+  coverage: string;
+  visiblyUnverified: true;
+  label: string;
+}
+
 export interface PublicBusinessSettings {
   businessName: string;
   phone: string;
   email: string;
   serviceArea: string;
+  hours: string;
+  coverage: string;
+  urgentPolicy: string;
   theme: string;
   emergencyEnabled: boolean;
   heroImage: string;
   galleryImages: string[];
   verificationStatus: PublicBusinessSettingsVerificationStatus;
   trustProfile: PublicTrustProfile;
+  launchReady: boolean;
+  runtimeReady?: boolean;
+  /** @nullable */
+  canonicalOrigin?: string | null;
+  launchChecks: GarageLaunchChecks;
+  exampleDetails: GarageExampleDetails;
 }
 
 export type BusinessSettingsInputVerificationStatus = typeof BusinessSettingsInputVerificationStatus[keyof typeof BusinessSettingsInputVerificationStatus];
@@ -397,6 +720,9 @@ export interface BusinessSettingsInput {
   phone?: string;
   email?: string;
   serviceArea?: string;
+  hours?: string;
+  coverage?: string;
+  urgentPolicy?: string;
   theme?: string;
   serviceId?: string;
   emergencyEnabled?: boolean;
@@ -404,6 +730,10 @@ export interface BusinessSettingsInput {
   galleryImages?: string[];
   verificationStatus?: BusinessSettingsInputVerificationStatus;
   verificationAcknowledged?: boolean;
+  productionApproved?: boolean;
+  domainConfigured?: boolean;
+  authConfigured?: boolean;
+  claimVerification?: GarageClaimVerificationMap;
   trustProfile?: PublicTrustProfile;
 }
 
@@ -430,6 +760,7 @@ export interface AssistantInput {
      * @maxLength 1000
      */
   message: string;
+  turnstileToken?: string;
   /** @maxItems 12 */
   history?: AssistantMessage[];
 }
@@ -456,5 +787,9 @@ export type GetAvailabilityParams = {
  * @maxLength 10
  */
 zip: string;
+};
+
+export type TestGarageNotificationDestination200 = {
+  delivered: true;
 };
 

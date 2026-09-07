@@ -64,24 +64,24 @@ function LocationDetailPageContent() {
             {/* Main Content */}
             <div className="w-full lg:w-2/3">
               {location.imageUrl && (
-                <div className="w-full aspect-video rounded-xl overflow-hidden mb-10 bg-muted">
+                <div className="w-full aspect-[16/9] overflow-hidden mb-10 bg-muted border border-border">
                   <img src={publicAssetUrl(location.imageUrl)} alt={location.imageAlt || location.title} className="w-full h-full object-cover" />
                 </div>
               )}
               
-              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed">
+              <div className="prose prose-lg dark:prose-invert max-w-none text-foreground/90 font-medium leading-relaxed prose-headings:font-display prose-headings:uppercase">
                 {location.body.split('\n\n').map((paragraph, idx) => (
                   <p key={idx}>{paragraph}</p>
                 ))}
               </div>
               
-              <div className="mt-16 bg-muted/20 border border-border p-8 rounded-xl flex items-center gap-6">
-                <div className="hidden sm:flex w-16 h-16 rounded-full bg-primary/10 items-center justify-center flex-shrink-0 text-primary">
+              <div className="mt-16 bg-secondary text-secondary-foreground border border-border p-8 rounded-none flex items-center gap-6">
+                <div className="hidden sm:flex w-16 h-16 bg-primary items-center justify-center flex-shrink-0 text-primary-foreground">
                   <MapPin className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="font-display text-2xl uppercase tracking-tight mb-2">Local Garage Door Experts</h3>
-                  <p className="text-muted-foreground font-serif italic">We're proud to provide reliable service directly to homes in {location.title}.</p>
+                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-2">Local Garage Door Experts</h3>
+                  <p className="text-secondary-foreground/80 font-serif italic text-lg">We're proud to provide reliable service directly to homes in {location.title}.</p>
                 </div>
               </div>
             </div>
@@ -91,8 +91,8 @@ function LocationDetailPageContent() {
               <div className="sticky top-28 flex flex-col gap-8">
                 
                 {/* Booking Widget */}
-                <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                  <h3 className="font-display text-2xl uppercase tracking-tight mb-2">Book in {location.title}</h3>
+                <div className="bg-card border border-border p-6 shadow-sm">
+                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-2">Book in {location.title}</h3>
                   <p className="text-sm text-muted-foreground mb-6">Schedule your service appointment today.</p>
                   
                   <BookingForm />
@@ -100,8 +100,8 @@ function LocationDetailPageContent() {
                 
                 {/* Other Locations */}
                 {otherLocations.length > 0 && (
-                  <div className="bg-muted/30 border border-border rounded-xl p-6">
-                    <h3 className="font-display text-xl uppercase tracking-wide mb-6">Nearby Areas</h3>
+                  <div className="bg-muted/30 border border-border p-6">
+                    <h3 className="garage-display text-2xl uppercase tracking-wide mb-6">Nearby Areas</h3>
                     <ul className="flex flex-col gap-3">
                       {otherLocations.map(loc => (
                         <li key={loc.id}>

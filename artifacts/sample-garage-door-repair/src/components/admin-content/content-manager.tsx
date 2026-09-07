@@ -41,10 +41,16 @@ const EMPTY: GarageContentInput = {
   slug: "",
   aliases: [],
   title: "",
+  navigationLabel: "",
+  navigationGroup: "",
   summary: "",
   body: "",
+  symptoms: [],
+  expectations: [],
+  serviceFaqs: [],
   imageUrl: "",
   imageAlt: "",
+  mediaMetadata: { sourceUrl: "", license: "", attribution: "", representative: true },
   beforeImageUrl: "",
   seoTitle: "",
   seoDescription: "",
@@ -142,9 +148,11 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
   const begin = (item?: GarageContent) => {
     setEditing(item ?? null);
     setDraft(item ? {
-      kind: item.kind, slug: item.slug, title: item.title, summary: item.summary, body: item.body,
+      kind: item.kind, slug: item.slug, title: item.title, navigationLabel: item.navigationLabel,
+      navigationGroup: item.navigationGroup, summary: item.summary, body: item.body,
+      symptoms: item.symptoms, expectations: item.expectations, serviceFaqs: item.serviceFaqs,
       aliases: item.aliases,
-      imageUrl: item.imageUrl, imageAlt: item.imageAlt, beforeImageUrl: item.beforeImageUrl,
+      imageUrl: item.imageUrl, imageAlt: item.imageAlt, mediaMetadata: item.mediaMetadata, beforeImageUrl: item.beforeImageUrl,
       seoTitle: item.seoTitle, seoDescription: item.seoDescription, parentId: item.parentId,
       sortOrder: item.sortOrder, status: item.status, verificationStatus: item.verificationStatus,
       featured: item.featured, serviceCode: item.serviceCode,
@@ -262,10 +270,21 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
                   onChange={(e) => setField("aliases", e.target.value.split(",").map((value) => value.trim().toLowerCase().replace(/[^a-z0-9-]/g, "")).filter(Boolean))}
                 />
               </Field>
+              <Field label="Navigation label"><Input value={draft.navigationLabel} maxLength={100} onChange={(e) => setField("navigationLabel", e.target.value)} /></Field>
+              <Field label="Navigation group" hint="main, services, or legal"><Input value={draft.navigationGroup} maxLength={100} onChange={(e) => setField("navigationGroup", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} /></Field>
               <Field label="Summary" wide><Textarea rows={3} maxLength={500} value={draft.summary} onChange={(e) => setField("summary", e.target.value)} /></Field>
               <Field label={kind === "faq" ? "Answer" : "Body"} hint="Separate plain-text paragraphs with a blank line." wide><Textarea rows={9} maxLength={20000} value={draft.body} onChange={(e) => setField("body", e.target.value)} /></Field>
+              {kind === "service" ? <>
+                <Field label="Symptoms addressed" hint="One item per line" wide><Textarea rows={4} value={draft.symptoms.join("\n")} onChange={(e) => setField("symptoms", e.target.value.split("\n").map((item) => item.trim()).filter(Boolean))} /></Field>
+                <Field label="What customers can expect" hint="One item per line" wide><Textarea rows={4} value={draft.expectations.join("\n")} onChange={(e) => setField("expectations", e.target.value.split("\n").map((item) => item.trim()).filter(Boolean))} /></Field>
+                <Field label="Service FAQs" hint="One Question | Answer pair per line" wide><Textarea rows={5} value={draft.serviceFaqs.map((item) => `${item.question} | ${item.answer}`).join("\n")} onChange={(e) => setField("serviceFaqs", e.target.value.split("\n").map((line) => { const [question, ...answer] = line.split("|"); return { question: question.trim(), answer: answer.join("|").trim() }; }).filter((item) => item.question && item.answer))} /></Field>
+              </> : null}
               <Field label="Image URL"><Input value={draft.imageUrl} maxLength={2048} placeholder="/images/example.jpg or https://…" onChange={(e) => setField("imageUrl", e.target.value)} /></Field>
               <Field label="Image alt text"><Input value={draft.imageAlt} maxLength={300} onChange={(e) => setField("imageAlt", e.target.value)} /></Field>
+              <Field label="Media source URL"><Input value={draft.mediaMetadata.sourceUrl} maxLength={2048} onChange={(e) => setField("mediaMetadata", { ...draft.mediaMetadata, sourceUrl: e.target.value })} /></Field>
+              <Field label="Media license / rights record"><Input value={draft.mediaMetadata.license} maxLength={500} onChange={(e) => setField("mediaMetadata", { ...draft.mediaMetadata, license: e.target.value })} /></Field>
+              <Field label="Attribution"><Input value={draft.mediaMetadata.attribution} maxLength={500} onChange={(e) => setField("mediaMetadata", { ...draft.mediaMetadata, attribution: e.target.value })} /></Field>
+              <div className="flex items-end pb-2"><label className="flex items-center gap-2 text-sm"><Checkbox checked={draft.mediaMetadata.representative} onCheckedChange={(value) => setField("mediaMetadata", { ...draft.mediaMetadata, representative: value === true })} />Representative image, not completed work</label></div>
               {kind === "project" ? <Field label="Before image URL"><Input value={draft.beforeImageUrl} maxLength={2048} onChange={(e) => setField("beforeImageUrl", e.target.value)} /></Field> : null}
               {kind === "service" ? <Field label="Service code"><Input value={draft.serviceCode} maxLength={100} placeholder="spring-repair" onChange={(e) => setField("serviceCode", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} /></Field> : null}
               <Field label="Optional parent">
@@ -309,7 +328,7 @@ export function ContentManager({ kind }: { kind: GarageContentKind }) {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2"><h3 className="font-display text-lg font-bold">{item.title}</h3><Badge variant={item.status === "published" ? "default" : "secondary"}>{item.status}</Badge><Badge variant="outline">{item.verificationStatus}</Badge>{item.featured ? <Badge variant="secondary">Featured</Badge> : null}{protectedPage ? <Badge variant="outline">Core page</Badge> : null}</div>
-                  <p className="mt-1 truncate text-sm text-slate-500">/{item.slug} · order {item.sortOrder} · updated {new Date(item.updatedAt).toLocaleString()}</p>
+                  <p className="mt-1 truncate text-sm text-slate-500">/{item.slug} · order {item.sortOrder} · updated {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "not recorded"}</p>
                 </div>
                 <div className="flex shrink-0 gap-2">
                   {item.status === "published" ? <Button variant="outline" size="sm" asChild><Link href={publicPath(item)}><ExternalLink className="mr-1.5 h-3.5 w-3.5" />View</Link></Button> : null}

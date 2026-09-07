@@ -1,92 +1,135 @@
-# Cloudflare-first production architecture
+# Cumming Garage Door Service — runtime and release contract
 
-The application is organized around portable HTTP contracts so the same customer and admin UI can run at Cloudflare's edge.
+## Runtime boundaries
 
-## Target topology
+Production is the existing **Cloudflare Pages** project, not a standalone Worker.
+`build:pages` builds the Vite customer/staff UI and bundles the advanced-mode
+Function into `dist/public/_worker.js`. Every document is served through the
+Pages `ASSETS` binding with request-time content, redirects and metadata. Missing
+bindings fail explicitly; there is no fallback to an obsolete GitHub asset build.
 
-- **Cloudflare Pages + Pages Functions** serve the Vite SPA and public API globally.
-- **D1** stores service requests, business settings, theme choice, Creative Coders service ID, and media metadata.
-- **R2** stores business-uploaded hero and gallery photography. The current admin also accepts licensed stock-photo URLs, making the media surface usable before an R2 upload workflow is connected.
-- **Workers AI** is the production target for the safety-constrained garage-door assistant. Local preview uses Replit AI Integrations and does not require a user API key.
-- **Turnstile** should protect public lead and assistant forms before a live advertising campaign.
-- **Turnstile and application rate limiting** protect the public assistant and
-  request forms in this sample. A real customer deployment should add WAF
-  rules and Cloudflare Access before enabling staff operations.
-- **Cloudflare Access is intentionally disabled here.** This sample leaves
-  `/admin`, `/login`, and staff APIs available to any caller. A real
-  customer deployment must add Access before exposing business data.
-- **Web Analytics** should record service-page views, booking starts, completed requests, phone clicks, and iframe referrals.
+| Binding | Purpose |
+| --- | --- |
+| `DB` | D1 content, settings, verification, requests, staff access, audit, rate limits and delivery outbox |
+| `MEDIA` | R2 public business images and separately authorized private request attachments |
+| `AI` | Workers AI for production Maya responses |
+| `ASSETS` | Pages build files |
 
-## Creative Coders embedding
+Development uses the Express/PostgreSQL adapter, Replit AI Integrations and
+private App Storage. It does not share production data, staff grants or launch
+approval. The artifact's static preview is not a substitute production runtime.
 
-The Cloudflare headers permit framing only from `creativecoders.tech` and its subdomains. The admin-managed `serviceId` is the stable catalog key Creative Coders can associate with this sample. The app uses relative routes and responsive layouts so it remains usable inside an iframe.
+## Authentication and administration
 
-## Theme catalog
+Google sign-in uses the existing Clerk setup. Server verification checks the
+session and Clerk's server-side verified Google identity. A Google account alone
+does not authorize any staff API. Persisted roles are checked on every protected
+request:
 
-1. **Industrial** — high-visibility orange and charcoal for emergency-focused repair operators.
-2. **Trust** — reassuring blue for established suburban service companies.
-3. **Eco** — natural green for energy-efficient doors and sustainability positioning.
-4. **Modern** — architectural monochrome with red accents for premium contemporary installations.
-5. **Classic** — navy and gold for long-standing family service brands.
+- Staff: operational requests and private request attachments.
+- Admin: operational access plus content, business settings and media.
+- Super admin: those capabilities plus grant/revoke access management.
 
-## Production bindings
+The server-only `GARAGE_BOOTSTRAP_EMAIL` selects the exact approved initial owner.
+The bootstrap is atomic and once per environment. Thereafter access belongs to
+the immutable Clerk user ID; changing email cannot transfer or recreate ownership.
+The protected initial owner cannot revoke or downgrade their own sole-owner role.
+Grants, redemption, revocation and business mutations have actor-bound audit
+events. Client cache clearing is supplementary; the database check enforces
+revocation even with an existing Google session.
 
-Create separate preview and production resources. Bind them with these names:
+Pages requires production-compatible `CLERK_PUBLISHABLE_KEY`,
+`CLERK_SECRET_KEY`, optional explicit `CLERK_ISSUER`, and the domain's OAuth
+callbacks. Live Pages rejects development keys. The Replit-managed tenant was
+detected, but automatic external Pages domain compatibility is not assumed.
+Secrets are configured securely, never committed or copied into customer bundles.
 
-- `DB`: D1 database
-- `MEDIA`: R2 bucket
-- `AI`: Workers AI
-- `ASSETS`: Pages' built-in static asset binding
+## One approved public projection
 
-Additional variables are `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
-Access variables are intentionally absent from this sample. A real deployment
-must add its own Cloudflare Access policy and JWT configuration before exposing
-staff routes.
+The database contract drives public UI, navigation, service catalog, Maya and
+request-time SEO. Original service copy may be reviewed editorial content without
+claiming that business facts are verified. Locations, contact actions and optional
+trust claims require their corresponding verification.
 
-Never commit Cloudflare IDs or secrets. Resource identifiers belong in deployment configuration and secrets belong in Cloudflare's encrypted secret store.
+Owner-authorized examples remain editable and visibly unverified in settings and
+contained preview context. They never route phone calls, email, webhook deliveries
+or factual Maya answers. Production approval checks the real required facts and
+notification route. Indexing additionally requires the exact HTTPS
+`PUBLIC_SITE_ORIGIN`, `CLOUDFLARE_ENV=production`, live auth, non-test Turnstile
+configuration and runtime bindings. All other hosts are noindex with an empty
+sitemap. Staff/API/private resources are always excluded.
 
-## Release procedure
+The industrial, trust, eco, modern and classic palette tokens are presentation
+choices, not claims about insurance, business age, environmental credentials or
+urgent availability.
 
-The production target is the `sample-garage-door-repair` Cloudflare Pages
-project. Its advanced-mode Pages Function is generated as
-`dist/public/_worker.js`, and non-API requests are served through Pages'
-`ASSETS` binding.
+## Requests, photos, notifications and Maya
 
-1. Run `PORT=22004 BASE_PATH=/ pnpm run build:pages` from this artifact
-   directory.
-2. Apply the schema to the bound database with
-   `D1_DATABASE_NAME=your-database-name pnpm run migrate:d1:remote`. The
-   database name is supplied at deploy time and is not committed. D1 applies
-   the numbered migrations in order and records each application; do not paste
-   the files into a startup handler or reset the database. Migration
-   `0002_garage_content.sql` is additive and uses `INSERT OR IGNORE`, preserving
-   owner edits and deletions on later deploys.
+Request creation has an idempotency key and durable database storage. Photos use a
+short-lived request-bound upload capability, type/size/signature validation, and
+staff-only retrieval. The capability is never exposed in admin list responses.
+Public business photos and customer attachments have separate access rules.
 
-The development PostgreSQL seed is also one-time: `seed:garage-content` writes
-the `garage-content-v1` marker and seed rows in one transaction. Once the marker
-exists, rerunning post-merge setup does not recreate content an owner deleted.
-3. Confirm `dist/public/_worker.js`, `index.html`, and the generated assets
-   exist.
-4. Commit and push the source changes to `main` for Git-connected deployments,
-   or run `wrangler pages deploy dist/public --project-name
-   sample-garage-door-repair` for a direct upload.
-5. Verify `/`, `/sample-garage-door-repair/`, generated JavaScript and CSS, and
-   representative public API responses on the Pages deployment.
+An owner-configured HTTPS webhook receives notifications. Its destination is not
+derived from a login or example contact. The outbox exposes unconfigured, pending,
+processing, failed and delivered states. Retrying claims the existing delivery,
+not a new customer request; the receiver should deduplicate using the supplied
+idempotency identifier. Success is reported only after a successful HTTP response.
+No receiving destination has been authorized merely by building this feature.
+Failures are retained for a staff-authorized manual retry; no background scheduler
+is implied. A receiver hostname must also be explicitly permitted by the server's
+`NOTIFICATION_ALLOWED_HOSTS` configuration. Admin settings cannot extend that
+allowlist. Allowlisted receiver hostnames and their DNS operators are an explicit
+trusted boundary: this is exact hostname allowlisting, not DNS pinning. Only vet
+public HTTPS receivers controlled by the chosen notification provider; do not
+allow wildcard, local, reserved, IP-literal, or privately routed destinations.
 
-### Production administration safety gate
+Maya retains the existing temporary transcript, voice input and session-scoped
+service-summary handoff. Production uses Workers AI; development uses the
+configured Replit AI provider. Required provider failures are explicit. Maya does
+not invent prices, availability, warranty, credentials or coverage and does not
+offer dangerous high-tension repair instructions.
 
-The login-free admin is a local development demo, not production authorization.
-Express enables its demo staff APIs only with `NODE_ENV=development`. The Pages
-worker denies all staff reads/writes on public hosts. A local Worker test may
-set `LOCAL_DEMO_ADMIN=true`, but the request must also use a loopback hostname;
-this cannot enable access on a public hostname. Do not configure that test
-binding for a Pages deployment.
+Production requires real `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
+Missing/invalid tokens fail, including for request submission and Maya actions.
+Persistent application rate controls supplement Turnstile. Provider/domain
+configuration must be checked on the final domain before approval.
 
-Public content, educational guides, Maya, and service-request submission remain
-available. Production editing, settings, customer-request administration, and
-staff uploads require a separate real authorization implementation. No
-deployment or authentication-provider migration is part of this rebuild.
+## Additive migration and release procedure
 
-The previous standalone Worker release metadata remains available only as a
-rollback path. Account IDs, zone IDs, API credentials, and other Cloudflare
-resource identifiers must remain outside the repository.
+No remote operations are automatic during development or merge.
+
+1. Review the diff, licenses and [owner checklist](PRELAUNCH.md). Back up the target
+   D1 database using the account's approved export process and record the
+   corresponding R2 inventory. Keep backups private. Verify the exact target
+   resource IDs and that they still exist; do not recreate or rebind them blindly.
+2. Run the development versioned PostgreSQL migration and guarded content seed.
+   The migration ledger checks version/checksum and executes each additive change
+   transactionally. `scripts/post-merge.sh` does not perform a destructive schema
+   push. Use isolated fixtures to verify fresh and existing-data upgrades.
+3. Build and check the reviewed source:
+   `PORT=22004 BASE_PATH=/ pnpm --filter @workspace/sample-garage-door-repair run build:pages`
+   then `pnpm --filter @workspace/sample-garage-door-repair run verify:cloudflare-release`.
+   Include all imports, generated contracts, migration files, photo rights records
+   and referenced fingerprinted build assets in the release.
+   `node scripts/verify-garage-staged-release.mjs` independently builds the staged
+   tree in an isolated temporary folder with the frozen lockfile.
+4. After explicit owner release approval, provide `D1_DATABASE_NAME` and
+   `D1_DATABASE_ID` for the intended binding and run
+   `pnpm --filter @workspace/sample-garage-door-repair run migrate:d1:remote --approved-release`.
+   The helper constructs temporary Wrangler configuration pointing to
+   `cloudflare/migrations`; it refuses a remote migration without the approval
+   flag. D1's migration ledger prevents rerunning applied versions. Do not edit an
+   already-applied migration, reset tables, or rerun seed INSERTs from a handler.
+5. Deploy `dist/public` through the existing Pages release workflow only after
+   confirming DB, MEDIA, AI, ASSETS, secrets and domain/callback configuration.
+   Preview deployments must use separate resources and no launch approval.
+6. On the owner-approved domain, verify Google bootstrap/grant/revoke, private
+   attachment denial, a real request and notification, actual Workers AI,
+   Turnstile rejection and successful valid tokens, canonical URLs and indexing.
+   Observe failures before enabling marketing traffic; never declare live checks
+   passed based solely on local fixtures.
+
+For a release failure, stop promotion and use the approved backup/previous Pages
+deployment procedure. Do not replace the runtime or discard production data as a
+shortcut.

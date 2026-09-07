@@ -29,4 +29,5 @@ export interface ServiceRequestInput {
   preferredDate: string;
   preferredTime?: string;
   details?: string;
+  turnstileToken?: string;
 }

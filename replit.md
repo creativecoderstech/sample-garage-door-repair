@@ -1,4 +1,4 @@
-# Sample Garage Door Repair
+# Cumming Garage Door Service
 
 A customer-facing garage door repair website and operations admin with booking, dispatch, configurable themes and photography, and an AI safety assistant.
 
@@ -10,8 +10,8 @@ A customer-facing garage door repair website and operations admin with booking, 
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
-- Admin access is temporarily open with no login. Restore server-side authorization before exposing real customer or business data.
-- Public business claims fail closed. `PUBLIC_BUSINESS_VERIFIED=true` takes effect only when `PUBLIC_BUSINESS_NAME`, `PUBLIC_BUSINESS_PHONE`, `PUBLIC_BUSINESS_EMAIL`, and `PUBLIC_SERVICE_AREA` are all set. Optional verified trust fields use `PUBLIC_BUSINESS_HOURS`, `PUBLIC_OWNER_TEAM`, `PUBLIC_YEARS_IN_BUSINESS`, `PUBLIC_BRANDS_SERVICED`, `PUBLIC_PAYMENT_OPTIONS`, `PUBLIC_FINANCING_DETAILS`, `PUBLIC_LICENSE_INSURANCE`, and `PUBLIC_WARRANTY_DETAILS`.
+- Staff administration requires server-verified Google authentication and a persisted role. No development authorization bypass is permitted. Only the configured initial owner can atomically bootstrap super-admin; later access binds to immutable identity IDs.
+- Public facts are database-backed and individually verified. Owner-authorized temporary examples remain editable, but never enable contact actions, notifications, Maya facts or production launch approval. See `artifacts/sample-garage-door-repair/PRELAUNCH.md`.
 
 ## Stack
 
@@ -37,17 +37,18 @@ A customer-facing garage door repair website and operations admin with booking, 
 
 ## Architecture decisions
 
-- Customer site and admin share one responsive app so Creative Coders can embed a single service sample.
+- Customer site and admin share one responsive app; staff code is loaded separately from the first customer page.
 - The garage-door public site uses Cooper Family Garage Doors only as inspiration for local-service hierarchy and multi-page navigation. Do not copy its identity, photographs, prose, credentials, offers, reviews, or contact information. Preserve the existing booking form, Maya chat behavior, and five-theme system when changing the public design.
 - Media is admin-configurable through hosted image URLs now; R2 is the Cloudflare production upload target.
 - The AI assistant is constrained to safe intake guidance and must never coach customers through high-tension repairs.
 - API contracts remain provider-neutral so the Express preview adapter can be moved to Pages Functions + D1 without redesigning the frontend.
-- Express/PostgreSQL and the Cloudflare Pages Function/D1 share persistent content and settings. Authentication remains disabled for the local development demo only: keep a prominent warning and never use real customer data. Production staff APIs must remain disabled until real staff authorization is configured; keep every page non-indexed until access is secured.
-- Public CMS content comes from the API, not browser-local demo stores. Reviewed seed education is not evidence of verified business facts; owner edits require explicit acknowledgement before becoming public. Content/bootstrap migrations must not recreate records an owner deleted.
+- Express/PostgreSQL and the Cloudflare Pages Function/D1 implement the same contracts with separate environment data and approvals. Google accounts without a persistent staff grant cannot read private data or mutate content. Roles are checked on every protected request, including after revocation.
+- Public CMS content comes from the API, not browser-local stores. Original commercial service copy is not evidence of hours, coverage, credentials or completed projects. Owner edits require explicit acknowledgement before publication. Versioned migrations must preserve owner edits, deletions and verification decisions.
+- Public production indexing requires approved real business facts, tested notification delivery, the chosen canonical hostname and valid runtime/auth/security bindings. A technically finished preview is not an approved public launch.
 
 ## Product
 
-- Service catalog, ZIP response-time check, online booking, reviews, project gallery, emergency messaging, and AI issue triage.
+- Seven-service commercial catalog, address coverage requests, customer intake with private attachments, door-style inspiration and safety-first Maya assistance. Requests are not confirmed appointments; reviews and optional claims appear only when supported.
 - Admin dispatch dashboard, lead status management, business settings, five authentic theme presets, service ID, and photo controls.
 
 ## User preferences

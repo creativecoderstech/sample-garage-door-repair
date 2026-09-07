@@ -83,6 +83,9 @@ export const GetPublicBusinessSettingsResponse = zod.object({
   "phone": zod.string(),
   "email": zod.string(),
   "serviceArea": zod.string(),
+  "hours": zod.string(),
+  "coverage": zod.string(),
+  "urgentPolicy": zod.string(),
   "theme": zod.string(),
   "emergencyEnabled": zod.boolean(),
   "heroImage": zod.string(),
@@ -96,10 +99,45 @@ export const GetPublicBusinessSettingsResponse = zod.object({
   "paymentOptions": zod.string().nullable(),
   "financing": zod.string().nullable(),
   "licenseInsurance": zod.string().nullable(),
-  "warranty": zod.string().nullable()
+  "warranty": zod.string().nullable(),
+  "urgentPolicy": zod.string().nullable()
+}),
+  "launchReady": zod.boolean(),
+  "runtimeReady": zod.boolean().optional(),
+  "canonicalOrigin": zod.string().nullish(),
+  "launchChecks": zod.object({
+  "productionApproved": zod.boolean(),
+  "approvedBusinessName": zod.boolean(),
+  "realPhone": zod.boolean(),
+  "realEmail": zod.boolean(),
+  "verifiedHours": zod.boolean(),
+  "verifiedCoverage": zod.boolean(),
+  "notificationConfigured": zod.boolean(),
+  "notificationDestinationVerified": zod.boolean(),
+  "notificationTested": zod.boolean(),
+  "domainConfigured": zod.boolean(),
+  "authConfigured": zod.boolean()
+}),
+  "exampleDetails": zod.object({
+  "phone": zod.string(),
+  "email": zod.string(),
+  "hours": zod.string(),
+  "coverage": zod.string(),
+  "visiblyUnverified": zod.literal(true),
+  "label": zod.string()
 })
 })
 
+
+export const listGarageContentResponseServiceFaqsItemQuestionMax = 300;
+
+export const listGarageContentResponseServiceFaqsItemAnswerMax = 1000;
+
+export const listGarageContentResponseMediaMetadataSourceUrlMax = 2048;
+
+export const listGarageContentResponseMediaMetadataLicenseMax = 500;
+
+export const listGarageContentResponseMediaMetadataAttributionMax = 500;
 
 export const listGarageContentResponseSortOrderMultipleOf = 1;
 
@@ -111,10 +149,24 @@ export const ListGarageContentResponseItem = zod.object({
   "slug": zod.string(),
   "aliases": zod.array(zod.string()),
   "title": zod.string(),
+  "navigationLabel": zod.string(),
+  "navigationGroup": zod.string(),
   "summary": zod.string(),
   "body": zod.string(),
+  "symptoms": zod.array(zod.string()),
+  "expectations": zod.array(zod.string()),
+  "serviceFaqs": zod.array(zod.object({
+  "question": zod.string().min(1).max(listGarageContentResponseServiceFaqsItemQuestionMax),
+  "answer": zod.string().min(1).max(listGarageContentResponseServiceFaqsItemAnswerMax)
+})),
   "imageUrl": zod.string(),
   "imageAlt": zod.string(),
+  "mediaMetadata": zod.object({
+  "sourceUrl": zod.string().max(listGarageContentResponseMediaMetadataSourceUrlMax),
+  "license": zod.string().max(listGarageContentResponseMediaMetadataLicenseMax),
+  "attribution": zod.string().max(listGarageContentResponseMediaMetadataAttributionMax),
+  "representative": zod.boolean()
+}),
   "beforeImageUrl": zod.string(),
   "seoTitle": zod.string(),
   "seoDescription": zod.string(),
@@ -124,10 +176,72 @@ export const ListGarageContentResponseItem = zod.object({
   "verificationStatus": zod.enum(['unverified', 'verified']),
   "featured": zod.boolean(),
   "serviceCode": zod.string(),
+  "reviewedSeed": zod.boolean(),
   "updatedAt": zod.string()
 })
 export const ListGarageContentResponse = zod.array(ListGarageContentResponseItem)
 
+
+export const GetGarageAdminSessionResponse = zod.object({
+  "accessId": zod.string(),
+  "userId": zod.string(),
+  "email": zod.string().email(),
+  "role": zod.enum(['super_admin', 'admin', 'staff'])
+})
+
+
+export const ListGarageStaffAccessResponseItem = zod.object({
+  "id": zod.string(),
+  "email": zod.string().email(),
+  "role": zod.enum(['super_admin', 'admin', 'staff']),
+  "status": zod.enum(['pending', 'active']),
+  "protectedOwner": zod.boolean().optional(),
+  "createdAt": zod.string().optional(),
+  "redeemedAt": zod.string().nullish()
+})
+export const ListGarageStaffAccessResponse = zod.array(ListGarageStaffAccessResponseItem)
+
+
+export const grantGarageStaffAccessBodyEmailMax = 320;
+
+
+
+export const GrantGarageStaffAccessBody = zod.object({
+  "email": zod.string().email().max(grantGarageStaffAccessBodyEmailMax),
+  "role": zod.enum(['admin', 'staff'])
+})
+
+export const GrantGarageStaffAccessResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string().email(),
+  "role": zod.enum(['super_admin', 'admin', 'staff']),
+  "status": zod.enum(['pending', 'active']),
+  "protectedOwner": zod.boolean().optional(),
+  "createdAt": zod.string().optional(),
+  "redeemedAt": zod.string().nullish()
+})
+
+
+export const revokeGarageStaffAccessPathIdMax = 100;
+
+
+
+export const RevokeGarageStaffAccessParams = zod.object({
+  "id": zod.coerce.string().min(1).max(revokeGarageStaffAccessPathIdMax)
+})
+
+export const RevokeGarageStaffAccessResponse = zod.void()
+
+
+export const listAdminGarageContentResponseServiceFaqsItemQuestionMax = 300;
+
+export const listAdminGarageContentResponseServiceFaqsItemAnswerMax = 1000;
+
+export const listAdminGarageContentResponseMediaMetadataSourceUrlMax = 2048;
+
+export const listAdminGarageContentResponseMediaMetadataLicenseMax = 500;
+
+export const listAdminGarageContentResponseMediaMetadataAttributionMax = 500;
 
 export const listAdminGarageContentResponseSortOrderMultipleOf = 1;
 
@@ -139,10 +253,24 @@ export const ListAdminGarageContentResponseItem = zod.object({
   "slug": zod.string(),
   "aliases": zod.array(zod.string()),
   "title": zod.string(),
+  "navigationLabel": zod.string(),
+  "navigationGroup": zod.string(),
   "summary": zod.string(),
   "body": zod.string(),
+  "symptoms": zod.array(zod.string()),
+  "expectations": zod.array(zod.string()),
+  "serviceFaqs": zod.array(zod.object({
+  "question": zod.string().min(1).max(listAdminGarageContentResponseServiceFaqsItemQuestionMax),
+  "answer": zod.string().min(1).max(listAdminGarageContentResponseServiceFaqsItemAnswerMax)
+})),
   "imageUrl": zod.string(),
   "imageAlt": zod.string(),
+  "mediaMetadata": zod.object({
+  "sourceUrl": zod.string().max(listAdminGarageContentResponseMediaMetadataSourceUrlMax),
+  "license": zod.string().max(listAdminGarageContentResponseMediaMetadataLicenseMax),
+  "attribution": zod.string().max(listAdminGarageContentResponseMediaMetadataAttributionMax),
+  "representative": zod.boolean()
+}),
   "beforeImageUrl": zod.string(),
   "seoTitle": zod.string(),
   "seoDescription": zod.string(),
@@ -152,6 +280,7 @@ export const ListAdminGarageContentResponseItem = zod.object({
   "verificationStatus": zod.enum(['unverified', 'verified']),
   "featured": zod.boolean(),
   "serviceCode": zod.string(),
+  "reviewedSeed": zod.boolean(),
   "updatedAt": zod.string()
 })
 export const ListAdminGarageContentResponse = zod.array(ListAdminGarageContentResponseItem)
@@ -169,13 +298,39 @@ export const createGarageContentBodyAliasesMax = 25;
 
 export const createGarageContentBodyTitleMax = 160;
 
+export const createGarageContentBodyNavigationLabelMax = 100;
+
+export const createGarageContentBodyNavigationGroupMax = 100;
+
+
+export const createGarageContentBodyNavigationGroupRegExp = new RegExp('^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$');
 export const createGarageContentBodySummaryMax = 500;
 
 export const createGarageContentBodyBodyMax = 20000;
 
+export const createGarageContentBodySymptomsItemMax = 300;
+
+export const createGarageContentBodySymptomsMax = 20;
+
+export const createGarageContentBodyExpectationsItemMax = 300;
+
+export const createGarageContentBodyExpectationsMax = 20;
+
+export const createGarageContentBodyServiceFaqsItemQuestionMax = 300;
+
+export const createGarageContentBodyServiceFaqsItemAnswerMax = 1000;
+
+export const createGarageContentBodyServiceFaqsMax = 20;
+
 export const createGarageContentBodyImageUrlMax = 2048;
 
 export const createGarageContentBodyImageAltMax = 300;
+
+export const createGarageContentBodyMediaMetadataSourceUrlMax = 2048;
+
+export const createGarageContentBodyMediaMetadataLicenseMax = 500;
+
+export const createGarageContentBodyMediaMetadataAttributionMax = 500;
 
 export const createGarageContentBodyBeforeImageUrlMax = 2048;
 
@@ -200,10 +355,24 @@ export const CreateGarageContentBody = zod.object({
   "slug": zod.string().min(1).max(createGarageContentBodySlugMax).regex(createGarageContentBodySlugRegExp),
   "aliases": zod.array(zod.string().min(1).max(createGarageContentBodyAliasesItemMax).regex(createGarageContentBodyAliasesItemRegExp)).max(createGarageContentBodyAliasesMax),
   "title": zod.string().min(1).max(createGarageContentBodyTitleMax),
+  "navigationLabel": zod.string().max(createGarageContentBodyNavigationLabelMax),
+  "navigationGroup": zod.string().max(createGarageContentBodyNavigationGroupMax).regex(createGarageContentBodyNavigationGroupRegExp),
   "summary": zod.string().max(createGarageContentBodySummaryMax),
   "body": zod.string().max(createGarageContentBodyBodyMax),
+  "symptoms": zod.array(zod.string().min(1).max(createGarageContentBodySymptomsItemMax)).max(createGarageContentBodySymptomsMax),
+  "expectations": zod.array(zod.string().min(1).max(createGarageContentBodyExpectationsItemMax)).max(createGarageContentBodyExpectationsMax),
+  "serviceFaqs": zod.array(zod.object({
+  "question": zod.string().min(1).max(createGarageContentBodyServiceFaqsItemQuestionMax),
+  "answer": zod.string().min(1).max(createGarageContentBodyServiceFaqsItemAnswerMax)
+})).max(createGarageContentBodyServiceFaqsMax),
   "imageUrl": zod.string().max(createGarageContentBodyImageUrlMax),
   "imageAlt": zod.string().max(createGarageContentBodyImageAltMax),
+  "mediaMetadata": zod.object({
+  "sourceUrl": zod.string().max(createGarageContentBodyMediaMetadataSourceUrlMax),
+  "license": zod.string().max(createGarageContentBodyMediaMetadataLicenseMax),
+  "attribution": zod.string().max(createGarageContentBodyMediaMetadataAttributionMax),
+  "representative": zod.boolean()
+}),
   "beforeImageUrl": zod.string().max(createGarageContentBodyBeforeImageUrlMax),
   "seoTitle": zod.string().max(createGarageContentBodySeoTitleMax),
   "seoDescription": zod.string().max(createGarageContentBodySeoDescriptionMax),
@@ -216,6 +385,16 @@ export const CreateGarageContentBody = zod.object({
   "verificationAcknowledged": zod.boolean().optional()
 })
 
+export const createGarageContentResponseServiceFaqsItemQuestionMax = 300;
+
+export const createGarageContentResponseServiceFaqsItemAnswerMax = 1000;
+
+export const createGarageContentResponseMediaMetadataSourceUrlMax = 2048;
+
+export const createGarageContentResponseMediaMetadataLicenseMax = 500;
+
+export const createGarageContentResponseMediaMetadataAttributionMax = 500;
+
 export const createGarageContentResponseSortOrderMultipleOf = 1;
 
 
@@ -226,10 +405,24 @@ export const CreateGarageContentResponse = zod.object({
   "slug": zod.string(),
   "aliases": zod.array(zod.string()),
   "title": zod.string(),
+  "navigationLabel": zod.string(),
+  "navigationGroup": zod.string(),
   "summary": zod.string(),
   "body": zod.string(),
+  "symptoms": zod.array(zod.string()),
+  "expectations": zod.array(zod.string()),
+  "serviceFaqs": zod.array(zod.object({
+  "question": zod.string().min(1).max(createGarageContentResponseServiceFaqsItemQuestionMax),
+  "answer": zod.string().min(1).max(createGarageContentResponseServiceFaqsItemAnswerMax)
+})),
   "imageUrl": zod.string(),
   "imageAlt": zod.string(),
+  "mediaMetadata": zod.object({
+  "sourceUrl": zod.string().max(createGarageContentResponseMediaMetadataSourceUrlMax),
+  "license": zod.string().max(createGarageContentResponseMediaMetadataLicenseMax),
+  "attribution": zod.string().max(createGarageContentResponseMediaMetadataAttributionMax),
+  "representative": zod.boolean()
+}),
   "beforeImageUrl": zod.string(),
   "seoTitle": zod.string(),
   "seoDescription": zod.string(),
@@ -239,6 +432,7 @@ export const CreateGarageContentResponse = zod.object({
   "verificationStatus": zod.enum(['unverified', 'verified']),
   "featured": zod.boolean(),
   "serviceCode": zod.string(),
+  "reviewedSeed": zod.boolean(),
   "updatedAt": zod.string()
 })
 
@@ -263,13 +457,39 @@ export const updateGarageContentBodyAliasesMax = 25;
 
 export const updateGarageContentBodyTitleMax = 160;
 
+export const updateGarageContentBodyNavigationLabelMax = 100;
+
+export const updateGarageContentBodyNavigationGroupMax = 100;
+
+
+export const updateGarageContentBodyNavigationGroupRegExp = new RegExp('^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$');
 export const updateGarageContentBodySummaryMax = 500;
 
 export const updateGarageContentBodyBodyMax = 20000;
 
+export const updateGarageContentBodySymptomsItemMax = 300;
+
+export const updateGarageContentBodySymptomsMax = 20;
+
+export const updateGarageContentBodyExpectationsItemMax = 300;
+
+export const updateGarageContentBodyExpectationsMax = 20;
+
+export const updateGarageContentBodyServiceFaqsItemQuestionMax = 300;
+
+export const updateGarageContentBodyServiceFaqsItemAnswerMax = 1000;
+
+export const updateGarageContentBodyServiceFaqsMax = 20;
+
 export const updateGarageContentBodyImageUrlMax = 2048;
 
 export const updateGarageContentBodyImageAltMax = 300;
+
+export const updateGarageContentBodyMediaMetadataSourceUrlMax = 2048;
+
+export const updateGarageContentBodyMediaMetadataLicenseMax = 500;
+
+export const updateGarageContentBodyMediaMetadataAttributionMax = 500;
 
 export const updateGarageContentBodyBeforeImageUrlMax = 2048;
 
@@ -294,10 +514,24 @@ export const UpdateGarageContentBody = zod.object({
   "slug": zod.string().min(1).max(updateGarageContentBodySlugMax).regex(updateGarageContentBodySlugRegExp),
   "aliases": zod.array(zod.string().min(1).max(updateGarageContentBodyAliasesItemMax).regex(updateGarageContentBodyAliasesItemRegExp)).max(updateGarageContentBodyAliasesMax),
   "title": zod.string().min(1).max(updateGarageContentBodyTitleMax),
+  "navigationLabel": zod.string().max(updateGarageContentBodyNavigationLabelMax),
+  "navigationGroup": zod.string().max(updateGarageContentBodyNavigationGroupMax).regex(updateGarageContentBodyNavigationGroupRegExp),
   "summary": zod.string().max(updateGarageContentBodySummaryMax),
   "body": zod.string().max(updateGarageContentBodyBodyMax),
+  "symptoms": zod.array(zod.string().min(1).max(updateGarageContentBodySymptomsItemMax)).max(updateGarageContentBodySymptomsMax),
+  "expectations": zod.array(zod.string().min(1).max(updateGarageContentBodyExpectationsItemMax)).max(updateGarageContentBodyExpectationsMax),
+  "serviceFaqs": zod.array(zod.object({
+  "question": zod.string().min(1).max(updateGarageContentBodyServiceFaqsItemQuestionMax),
+  "answer": zod.string().min(1).max(updateGarageContentBodyServiceFaqsItemAnswerMax)
+})).max(updateGarageContentBodyServiceFaqsMax),
   "imageUrl": zod.string().max(updateGarageContentBodyImageUrlMax),
   "imageAlt": zod.string().max(updateGarageContentBodyImageAltMax),
+  "mediaMetadata": zod.object({
+  "sourceUrl": zod.string().max(updateGarageContentBodyMediaMetadataSourceUrlMax),
+  "license": zod.string().max(updateGarageContentBodyMediaMetadataLicenseMax),
+  "attribution": zod.string().max(updateGarageContentBodyMediaMetadataAttributionMax),
+  "representative": zod.boolean()
+}),
   "beforeImageUrl": zod.string().max(updateGarageContentBodyBeforeImageUrlMax),
   "seoTitle": zod.string().max(updateGarageContentBodySeoTitleMax),
   "seoDescription": zod.string().max(updateGarageContentBodySeoDescriptionMax),
@@ -310,6 +544,16 @@ export const UpdateGarageContentBody = zod.object({
   "verificationAcknowledged": zod.boolean().optional()
 })
 
+export const updateGarageContentResponseServiceFaqsItemQuestionMax = 300;
+
+export const updateGarageContentResponseServiceFaqsItemAnswerMax = 1000;
+
+export const updateGarageContentResponseMediaMetadataSourceUrlMax = 2048;
+
+export const updateGarageContentResponseMediaMetadataLicenseMax = 500;
+
+export const updateGarageContentResponseMediaMetadataAttributionMax = 500;
+
 export const updateGarageContentResponseSortOrderMultipleOf = 1;
 
 
@@ -320,10 +564,24 @@ export const UpdateGarageContentResponse = zod.object({
   "slug": zod.string(),
   "aliases": zod.array(zod.string()),
   "title": zod.string(),
+  "navigationLabel": zod.string(),
+  "navigationGroup": zod.string(),
   "summary": zod.string(),
   "body": zod.string(),
+  "symptoms": zod.array(zod.string()),
+  "expectations": zod.array(zod.string()),
+  "serviceFaqs": zod.array(zod.object({
+  "question": zod.string().min(1).max(updateGarageContentResponseServiceFaqsItemQuestionMax),
+  "answer": zod.string().min(1).max(updateGarageContentResponseServiceFaqsItemAnswerMax)
+})),
   "imageUrl": zod.string(),
   "imageAlt": zod.string(),
+  "mediaMetadata": zod.object({
+  "sourceUrl": zod.string().max(updateGarageContentResponseMediaMetadataSourceUrlMax),
+  "license": zod.string().max(updateGarageContentResponseMediaMetadataLicenseMax),
+  "attribution": zod.string().max(updateGarageContentResponseMediaMetadataAttributionMax),
+  "representative": zod.boolean()
+}),
   "beforeImageUrl": zod.string(),
   "seoTitle": zod.string(),
   "seoDescription": zod.string(),
@@ -333,6 +591,7 @@ export const UpdateGarageContentResponse = zod.object({
   "verificationStatus": zod.enum(['unverified', 'verified']),
   "featured": zod.boolean(),
   "serviceCode": zod.string(),
+  "reviewedSeed": zod.boolean(),
   "updatedAt": zod.string()
 })
 
@@ -364,9 +623,38 @@ export const ListServiceRequestsResponseItem = zod.object({
   "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
-})
+}).and(zod.object({
+  "uploadStatus": zod.enum(['incomplete', 'completed']),
+  "delivery": zod.object({
+  "id": zod.string().uuid(),
+  "requestId": zod.number(),
+  "status": zod.enum(['pending_uploads', 'unconfigured', 'pending', 'processing', 'failed', 'delivered']),
+  "attempts": zod.number().int(),
+  "lastError": zod.string().nullable(),
+  "deliveredAt": zod.string().nullable(),
+  "updatedAt": zod.string()
+}).nullable(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "originalName": zod.string(),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']),
+  "byteSize": zod.number().int(),
+  "status": zod.enum(['pending', 'uploaded'])
+}))
+}))
 export const ListServiceRequestsResponse = zod.array(ListServiceRequestsResponseItem)
 
+
+export const createServiceRequestHeaderIdempotencyKeyMin = 20;
+export const createServiceRequestHeaderIdempotencyKeyMax = 100;
+
+
+export const createServiceRequestHeaderIdempotencyKeyRegExp = new RegExp('^[A-Za-z0-9_-]+$');
+
+
+export const CreateServiceRequestHeader = zod.object({
+  "Idempotency-Key": zod.string().min(createServiceRequestHeaderIdempotencyKeyMin).max(createServiceRequestHeaderIdempotencyKeyMax).regex(createServiceRequestHeaderIdempotencyKeyRegExp)
+})
 
 export const createServiceRequestBodyCustomerNameMin = 2;
 
@@ -395,8 +683,13 @@ export const CreateServiceRequestBody = zod.object({
   "urgency": zod.enum(['emergency', 'soon', 'flexible']),
   "preferredDate": zod.string(),
   "preferredTime": zod.string().optional(),
-  "details": zod.string().optional()
+  "details": zod.string().optional(),
+  "turnstileToken": zod.string().optional()
 })
+
+export const createServiceRequestResponseThreeUploadCapabilityMin = 32;
+
+
 
 export const CreateServiceRequestResponse = zod.object({
   "id": zod.number(),
@@ -414,7 +707,27 @@ export const CreateServiceRequestResponse = zod.object({
   "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
-})
+}).and(zod.object({
+  "uploadStatus": zod.enum(['incomplete', 'completed']),
+  "delivery": zod.object({
+  "id": zod.string().uuid(),
+  "requestId": zod.number(),
+  "status": zod.enum(['pending_uploads', 'unconfigured', 'pending', 'processing', 'failed', 'delivered']),
+  "attempts": zod.number().int(),
+  "lastError": zod.string().nullable(),
+  "deliveredAt": zod.string().nullable(),
+  "updatedAt": zod.string()
+}).nullable(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "originalName": zod.string(),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']),
+  "byteSize": zod.number().int(),
+  "status": zod.enum(['pending', 'uploaded'])
+}))
+})).and(zod.object({
+  "uploadCapability": zod.string().min(createServiceRequestResponseThreeUploadCapabilityMin).describe('Short-lived private attachment capability returned only to the submitting customer.')
+}))
 
 
 export const UpdateServiceRequestParams = zod.object({
@@ -444,6 +757,166 @@ export const UpdateServiceRequestResponse = zod.object({
   "preferredTime": zod.string(),
   "details": zod.string().optional(),
   "createdAt": zod.string()
+})
+
+
+export const PrepareServiceRequestAttachmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const prepareServiceRequestAttachmentHeaderXUploadCapabilityMin = 32;
+
+export const prepareServiceRequestAttachmentHeaderIdempotencyKeyMin = 20;
+export const prepareServiceRequestAttachmentHeaderIdempotencyKeyMax = 100;
+
+
+export const prepareServiceRequestAttachmentHeaderIdempotencyKeyRegExp = new RegExp('^[A-Za-z0-9_-]+$');
+
+
+export const PrepareServiceRequestAttachmentHeader = zod.object({
+  "X-Upload-Capability": zod.string().min(prepareServiceRequestAttachmentHeaderXUploadCapabilityMin),
+  "Idempotency-Key": zod.string().min(prepareServiceRequestAttachmentHeaderIdempotencyKeyMin).max(prepareServiceRequestAttachmentHeaderIdempotencyKeyMax).regex(prepareServiceRequestAttachmentHeaderIdempotencyKeyRegExp).describe('Stable key for this selected file; reuse it when retrying prepare or upload.')
+})
+
+export const prepareServiceRequestAttachmentBodyOriginalNameMax = 180;
+
+export const prepareServiceRequestAttachmentBodyByteSizeMax = 104857600;
+
+
+
+export const PrepareServiceRequestAttachmentBody = zod.object({
+  "originalName": zod.string().min(1).max(prepareServiceRequestAttachmentBodyOriginalNameMax),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']),
+  "byteSize": zod.number().int().min(1).max(prepareServiceRequestAttachmentBodyByteSizeMax)
+})
+
+export const PrepareServiceRequestAttachmentResponse = zod.object({
+  "attachmentId": zod.string().uuid(),
+  "uploadUrl": zod.string(),
+  "status": zod.enum(['pending', 'uploaded']),
+  "method": zod.enum(['PUT']),
+  "headers": zod.record(zod.string(), zod.string())
+})
+
+
+export const FinalizeServiceRequestAttachmentParams = zod.object({
+  "id": zod.coerce.number(),
+  "attachmentId": zod.coerce.string().uuid()
+})
+
+export const finalizeServiceRequestAttachmentHeaderXUploadCapabilityMin = 32;
+
+
+
+export const FinalizeServiceRequestAttachmentHeader = zod.object({
+  "X-Upload-Capability": zod.string().min(finalizeServiceRequestAttachmentHeaderXUploadCapabilityMin)
+})
+
+export const FinalizeServiceRequestAttachmentResponse = zod.object({
+  "id": zod.string().uuid(),
+  "status": zod.enum(['uploaded'])
+})
+
+
+export const CompleteServiceRequestUploadsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const completeServiceRequestUploadsHeaderXUploadCapabilityMin = 32;
+
+
+
+export const CompleteServiceRequestUploadsHeader = zod.object({
+  "X-Upload-Capability": zod.string().min(completeServiceRequestUploadsHeaderXUploadCapabilityMin)
+})
+
+export const CompleteServiceRequestUploadsResponse = zod.object({
+  "uploadStatus": zod.enum(['incomplete', 'completed']),
+  "delivery": zod.object({
+  "id": zod.string().uuid(),
+  "requestId": zod.number(),
+  "status": zod.enum(['pending_uploads', 'unconfigured', 'pending', 'processing', 'failed', 'delivered']),
+  "attempts": zod.number().int(),
+  "lastError": zod.string().nullable(),
+  "deliveredAt": zod.string().nullable(),
+  "updatedAt": zod.string()
+}).nullable(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "originalName": zod.string(),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']),
+  "byteSize": zod.number().int(),
+  "status": zod.enum(['pending', 'uploaded'])
+}))
+})
+
+
+export const GetServiceRequestAttachmentParams = zod.object({
+  "id": zod.coerce.number(),
+  "attachmentId": zod.coerce.string().uuid()
+})
+
+export const GetServiceRequestAttachmentResponse = zod.unknown()
+
+
+export const RetryServiceRequestNotificationParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RetryServiceRequestNotificationResponse = zod.object({
+  "uploadStatus": zod.enum(['incomplete', 'completed']),
+  "delivery": zod.object({
+  "id": zod.string().uuid(),
+  "requestId": zod.number(),
+  "status": zod.enum(['pending_uploads', 'unconfigured', 'pending', 'processing', 'failed', 'delivered']),
+  "attempts": zod.number().int(),
+  "lastError": zod.string().nullable(),
+  "deliveredAt": zod.string().nullable(),
+  "updatedAt": zod.string()
+}).nullable(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "originalName": zod.string(),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']),
+  "byteSize": zod.number().int(),
+  "status": zod.enum(['pending', 'uploaded'])
+}))
+})
+
+
+export const GetGarageNotificationSettingsResponse = zod.object({
+  "id": zod.literal(1),
+  "webhookUrl": zod.string().nullable(),
+  "enabled": zod.boolean(),
+  "configured": zod.boolean(),
+  "destinationVerified": zod.boolean(),
+  "testedAt": zod.string().nullable(),
+  "updatedAt": zod.string().optional()
+})
+
+
+export const UpdateGarageNotificationSettingsBody = zod.object({
+  "webhookUrl": zod.string().nullable(),
+  "enabled": zod.boolean()
+})
+
+export const UpdateGarageNotificationSettingsResponse = zod.object({
+  "id": zod.literal(1),
+  "webhookUrl": zod.string().nullable(),
+  "enabled": zod.boolean(),
+  "configured": zod.boolean(),
+  "destinationVerified": zod.boolean(),
+  "testedAt": zod.string().nullable(),
+  "updatedAt": zod.string().optional()
+})
+
+
+export const TestGarageNotificationDestinationBody = zod.object({
+  "webhookUrl": zod.string().url()
+})
+
+export const TestGarageNotificationDestinationResponse = zod.object({
+  "delivered": zod.literal(true)
 })
 
 
@@ -478,12 +951,23 @@ export const GetBusinessSettingsResponse = zod.object({
   "phone": zod.string(),
   "email": zod.string(),
   "serviceArea": zod.string(),
+  "hours": zod.string(),
+  "coverage": zod.string(),
+  "urgentPolicy": zod.string(),
   "theme": zod.string(),
   "serviceId": zod.string(),
   "emergencyEnabled": zod.boolean(),
   "heroImage": zod.string(),
   "galleryImages": zod.array(zod.string()),
   "verificationStatus": zod.enum(['verified', 'unverified']),
+  "productionApproved": zod.boolean(),
+  "domainConfigured": zod.boolean(),
+  "authConfigured": zod.boolean(),
+  "claimVerification": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['verified', 'unverified']),
+  "isExample": zod.boolean(),
+  "verifiedAt": zod.string().nullable()
+})),
   "trustProfile": zod.object({
   "hours": zod.string().nullable(),
   "ownerTeam": zod.string().nullable(),
@@ -492,7 +976,8 @@ export const GetBusinessSettingsResponse = zod.object({
   "paymentOptions": zod.string().nullable(),
   "financing": zod.string().nullable(),
   "licenseInsurance": zod.string().nullable(),
-  "warranty": zod.string().nullable()
+  "warranty": zod.string().nullable(),
+  "urgentPolicy": zod.string().nullable()
 })
 })
 
@@ -502,6 +987,9 @@ export const UpdateBusinessSettingsBody = zod.object({
   "phone": zod.string().optional(),
   "email": zod.string().optional(),
   "serviceArea": zod.string().optional(),
+  "hours": zod.string().optional(),
+  "coverage": zod.string().optional(),
+  "urgentPolicy": zod.string().optional(),
   "theme": zod.string().optional(),
   "serviceId": zod.string().optional(),
   "emergencyEnabled": zod.boolean().optional(),
@@ -509,6 +997,14 @@ export const UpdateBusinessSettingsBody = zod.object({
   "galleryImages": zod.array(zod.string()).optional(),
   "verificationStatus": zod.enum(['verified', 'unverified']).optional(),
   "verificationAcknowledged": zod.boolean().optional(),
+  "productionApproved": zod.boolean().optional(),
+  "domainConfigured": zod.boolean().optional(),
+  "authConfigured": zod.boolean().optional(),
+  "claimVerification": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['verified', 'unverified']),
+  "isExample": zod.boolean(),
+  "verifiedAt": zod.string().nullable()
+})).optional(),
   "trustProfile": zod.object({
   "hours": zod.string().nullable(),
   "ownerTeam": zod.string().nullable(),
@@ -517,7 +1013,8 @@ export const UpdateBusinessSettingsBody = zod.object({
   "paymentOptions": zod.string().nullable(),
   "financing": zod.string().nullable(),
   "licenseInsurance": zod.string().nullable(),
-  "warranty": zod.string().nullable()
+  "warranty": zod.string().nullable(),
+  "urgentPolicy": zod.string().nullable()
 }).optional()
 })
 
@@ -526,12 +1023,23 @@ export const UpdateBusinessSettingsResponse = zod.object({
   "phone": zod.string(),
   "email": zod.string(),
   "serviceArea": zod.string(),
+  "hours": zod.string(),
+  "coverage": zod.string(),
+  "urgentPolicy": zod.string(),
   "theme": zod.string(),
   "serviceId": zod.string(),
   "emergencyEnabled": zod.boolean(),
   "heroImage": zod.string(),
   "galleryImages": zod.array(zod.string()),
   "verificationStatus": zod.enum(['verified', 'unverified']),
+  "productionApproved": zod.boolean(),
+  "domainConfigured": zod.boolean(),
+  "authConfigured": zod.boolean(),
+  "claimVerification": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['verified', 'unverified']),
+  "isExample": zod.boolean(),
+  "verifiedAt": zod.string().nullable()
+})),
   "trustProfile": zod.object({
   "hours": zod.string().nullable(),
   "ownerTeam": zod.string().nullable(),
@@ -540,7 +1048,8 @@ export const UpdateBusinessSettingsResponse = zod.object({
   "paymentOptions": zod.string().nullable(),
   "financing": zod.string().nullable(),
   "licenseInsurance": zod.string().nullable(),
-  "warranty": zod.string().nullable()
+  "warranty": zod.string().nullable(),
+  "urgentPolicy": zod.string().nullable()
 })
 })
 
@@ -555,6 +1064,7 @@ export const askGarageAssistantBodyHistoryMax = 12;
 
 export const AskGarageAssistantBody = zod.object({
   "message": zod.string().min(1).max(askGarageAssistantBodyMessageMax),
+  "turnstileToken": zod.string().optional(),
   "history": zod.array(zod.object({
   "role": zod.enum(['user', 'assistant']),
   "content": zod.string().min(1).max(askGarageAssistantBodyHistoryItemContentMax)

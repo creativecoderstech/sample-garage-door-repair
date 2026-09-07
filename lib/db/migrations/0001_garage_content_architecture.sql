@@ -1,11 +1,42 @@
 -- Additive PostgreSQL schema reference. Replit production applies the equivalent
 -- Drizzle diff during Publish; this file must not run at application startup.
+CREATE TABLE IF NOT EXISTS garage_service_requests (
+  id serial PRIMARY KEY,
+  customer_name text NOT NULL,
+  phone text NOT NULL,
+  email text NOT NULL,
+  street_address text NOT NULL DEFAULT '',
+  city text NOT NULL DEFAULT '',
+  state text NOT NULL DEFAULT 'GA',
+  zip text NOT NULL,
+  service text NOT NULL,
+  urgency text NOT NULL,
+  status text NOT NULL DEFAULT 'new',
+  preferred_date text NOT NULL,
+  preferred_time text NOT NULL DEFAULT '',
+  details text NOT NULL DEFAULT '',
+  created_at timestamp with time zone NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS garage_business_settings (
+  id integer PRIMARY KEY DEFAULT 1,
+  business_name text NOT NULL,
+  phone text NOT NULL,
+  email text NOT NULL,
+  service_area text NOT NULL,
+  theme text NOT NULL,
+  service_id text NOT NULL,
+  emergency_enabled boolean NOT NULL DEFAULT false,
+  hero_image text NOT NULL,
+  gallery_images jsonb NOT NULL DEFAULT '[]'::jsonb
+);
+
 ALTER TABLE garage_business_settings
   ADD COLUMN IF NOT EXISTS verification_status text NOT NULL DEFAULT 'unverified';
 
 ALTER TABLE garage_business_settings
   ADD COLUMN IF NOT EXISTS trust_profile jsonb NOT NULL DEFAULT
-    '{"hours":null,"ownerTeam":null,"yearsInBusiness":null,"brandsServiced":null,"paymentOptions":null,"financing":null,"licenseInsurance":null,"warranty":null}'::jsonb;
+    '{"hours":null,"ownerTeam":null,"yearsInBusiness":null,"brandsServiced":null,"paymentOptions":null,"financing":null,"licenseInsurance":null,"warranty":null,"urgentPolicy":null}'::jsonb;
 
 CREATE TABLE IF NOT EXISTS garage_content (
   id text PRIMARY KEY,
@@ -36,4 +67,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS garage_content_kind_slug_unique
 CREATE TABLE IF NOT EXISTS garage_seed_events (
   key text PRIMARY KEY,
   applied_at timestamp with time zone NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS garage_audit_logs (
+  id serial PRIMARY KEY,
+  actor_user_id text NOT NULL,
+  actor_role text NOT NULL,
+  action text NOT NULL,
+  resource_type text NOT NULL,
+  resource_id text,
+  changed_fields jsonb NOT NULL DEFAULT '[]'::jsonb,
+  created_at timestamp with time zone NOT NULL DEFAULT now()
 );

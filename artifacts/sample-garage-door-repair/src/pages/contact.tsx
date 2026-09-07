@@ -48,12 +48,12 @@ function ContactPageContent() {
             
             {/* Contact Details */}
             <div className="flex flex-col gap-8">
-              <h2 className="font-display text-3xl uppercase tracking-tighter mb-4">Contact Information</h2>
+              <h2 className="garage-display text-4xl uppercase tracking-wide mb-4">Contact Information</h2>
               
               <div className="flex flex-col gap-6">
                 {settings?.phone && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <Phone className="w-5 h-5" />
                     </div>
                     <div>
@@ -65,7 +65,7 @@ function ContactPageContent() {
                 
                 {settings?.email && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
@@ -77,7 +77,7 @@ function ContactPageContent() {
                 
                 {settings?.serviceArea && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
@@ -89,7 +89,7 @@ function ContactPageContent() {
                 
                 {isVerified && settings?.trustProfile?.hours && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary rounded flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-sm">
                       <Clock className="w-5 h-5" />
                     </div>
                     <div>
@@ -102,10 +102,9 @@ function ContactPageContent() {
             </div>
             
             {/* Booking Form */}
-            <div id="booking" className="bg-card border border-border shadow-lg p-6 md:p-10 rounded-xl relative overflow-hidden scroll-mt-24">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none" />
-              <h2 className="font-display text-3xl uppercase tracking-tighter mb-2 relative z-10">Send a Request</h2>
-              <p className="text-muted-foreground mb-8 relative z-10">Fill out the form below to get started.</p>
+            <div id="booking" className="bg-card border border-border shadow-sm p-6 md:p-10 rounded-none relative overflow-hidden scroll-mt-24">
+              <h2 className="garage-display text-4xl uppercase tracking-wide mb-2 relative z-10">Send a Request</h2>
+              <p className="text-muted-foreground mb-8 relative z-10 font-serif italic text-lg">Fill out the form below to get started.</p>
               
               <div className="relative z-10">
                 <BookingForm />

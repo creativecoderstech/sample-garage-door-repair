@@ -1,6 +1,7 @@
 import { clearServiceRequestDraft } from "@/lib/service-request-draft";
 import { useState, useRef, useEffect } from 'react';
-import { useCreateServiceRequest, type ServiceRequestInput } from '@workspace/api-client-react';
+import { useListGarageServices, type ServiceRequestInput } from '@workspace/api-client-react';
+import { approvedServiceOptions } from "@/lib/service-options";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -82,7 +83,10 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 
 export function BookingForm({ className = "" }: { className?: string }) {
   const { toast } = useToast();
-  const createRequest = useCreateServiceRequest();
+  const { data: approvedServices, isLoading: servicesLoading, isError: servicesError } = useListGarageServices();
+  const serviceOptions = approvedServiceOptions(approvedServices);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const idempotencyKeyRef = useRef(crypto.randomUUID());
   const [assistantDraft, setAssistantDraft] = useState(() => consumeServiceRequestDraft());
   
   const form = useForm<BookingFormValues>({
@@ -117,6 +121,14 @@ export function BookingForm({ className = "" }: { className?: string }) {
   useEffect(() => {
     photosRef.current = photos;
   }, [photos]);
+
+  useEffect(() => {
+    if (servicesLoading) return;
+    const options = approvedServiceOptions(approvedServices);
+    if (!options.some(option => option.value === form.getValues("service"))) {
+      form.setValue("service", "other");
+    }
+  }, [approvedServices, servicesLoading, form]);
 
   useEffect(() => {
     const applyAssistantDraft = (event: Event) => {
@@ -230,12 +242,6 @@ export function BookingForm({ className = "" }: { className?: string }) {
       });
       return;
     }
-    let combinedDetails = values.details || "";
-
-    if (photos.length > 0 || videos.length > 0) {
-      combinedDetails = `${combinedDetails}\n\n[Media note: Customer selected ${photos.length} photo(s) and ${videos.length} video(s) for local preview. The files were not uploaded or sent with this request.]`.trim();
-    }
-
     const data: ServiceRequestInput & { turnstileToken?: string } = {
       customerName: values.customerName,
       phone: values.phone,
@@ -248,12 +254,58 @@ export function BookingForm({ className = "" }: { className?: string }) {
       urgency: values.urgency,
       preferredDate: values.preferredDate || new Date().toISOString().split('T')[0],
       preferredTime: values.preferredTime || "",
-      details: combinedDetails,
+      details: values.details || "",
       ...(turnstileToken ? { turnstileToken } : {}),
     };
 
-    createRequest.mutate({ data: data as ServiceRequestInput }, {
-      onSuccess: () => {
+    setIsSubmitting(true);
+    let requestWasSaved = false;
+    try {
+      const response = await fetch("/api/garage/requests", {
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": idempotencyKeyRef.current },
+        body: JSON.stringify(data),
+      });
+      const created = await response.json() as { id?: number; uploadCapability?: string; error?: string };
+      if (!response.ok || !created.id) throw new Error(created.error || "The request could not be saved.");
+      requestWasSaved = true;
+
+      if (photos.length || videos.length) {
+        if (!created.uploadCapability) throw new Error("The request was saved, but its private upload permission was unavailable. Retry to continue.");
+        for (const item of [...photos.map(item => ({ key: item.id, file: item.file })), ...videos.map(item => ({ key: item.id, file: item.file }))]) {
+          const file = item.file;
+          const prepare = await fetch(`/api/garage/request-uploads/${created.id}/prepare`, {
+            method: "POST",
+            headers: { "content-type": "application/json", "x-upload-capability": created.uploadCapability, "idempotency-key": item.key },
+            body: JSON.stringify({ originalName: file.name, contentType: file.type, byteSize: file.size }),
+          });
+          const target = await prepare.json() as { attachmentId?: string; uploadUrl?: string; method?: string; headers?: Record<string, string>; status?: string; error?: string };
+          if (!prepare.ok || !target.attachmentId) throw new Error(target.error || `Could not prepare ${file.name}.`);
+          if (target.status === "uploaded") continue;
+          if (!target.uploadUrl) throw new Error(`Could not resume ${file.name}.`);
+          const uploaded = await fetch(target.uploadUrl, { method: target.method || "PUT", headers: target.headers, body: file });
+          if (!uploaded.ok) throw new Error(`Could not upload ${file.name}.`);
+          let uploadedStatus = "";
+          try { uploadedStatus = String((await uploaded.clone().json() as { status?: string }).status || ""); } catch { /* signed storage returns no JSON */ }
+          if (uploadedStatus !== "uploaded") {
+            const finalized = await fetch(`/api/garage/request-uploads/${created.id}/attachments/${target.attachmentId}/finalize`, {
+              method: "POST",
+              headers: { "x-upload-capability": created.uploadCapability },
+            });
+            if (!finalized.ok) throw new Error(`Could not verify ${file.name}.`);
+          }
+        }
+      }
+      if (!created.uploadCapability) throw new Error("The request was saved, but its completion permission was unavailable. Retry to continue.");
+      const completion = await fetch(`/api/garage/request-uploads/${created.id}/complete`, {
+        method: "POST",
+        headers: { "x-upload-capability": created.uploadCapability },
+      });
+      if (!completion.ok) {
+        const result = await completion.json().catch(() => ({})) as { error?: string };
+        throw new Error(result.error || "The request was saved, but upload completion could not be confirmed.");
+      }
+      {
         toast({
           title: "Request Received!",
           description: "Your request was sent. The business must confirm coverage, timing, and any appointment.",
@@ -268,15 +320,19 @@ export function BookingForm({ className = "" }: { className?: string }) {
         revokePreviews(photos);
         setPhotos([]);
         setVideos([]);
-      },
-      onError: () => {
-        toast({
-          title: "Error",
-          description: "Something went wrong. Please try again later.",
-          variant: "destructive"
-        });
+        idempotencyKeyRef.current = crypto.randomUUID();
       }
-    });
+    } catch (error) {
+      toast({
+        title: requestWasSaved ? "Request saved — photos need attention" : "Request needs attention",
+        description: requestWasSaved
+          ? `Your service request is durably saved and visible to staff, but it is still marked upload incomplete. ${error instanceof Error ? error.message : "Retry to finish the photos and send the notification."}`
+          : error instanceof Error ? error.message : "Something went wrong. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -290,7 +346,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
       {assistantDraft && (
         <div className="mx-6 mt-6 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
           <span className="font-bold text-foreground">Customer care notes added.</span>{" "}
-          We carried your conversation into the request so you can review it and add your contact details.
+          Your issue summary is ready to review or remove. The full chat stays temporary and is not included in this request.
         </div>
       )}
       <Form {...form}>
@@ -396,17 +452,13 @@ export function BookingForm({ className = "" }: { className?: string }) {
               <FormLabel>Service Needed *</FormLabel>
                <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={servicesLoading ? "Loading services…" : "Select a service"} /></SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="repair">General Repair</SelectItem>
-                  <SelectItem value="springs">Broken Springs</SelectItem>
-                  <SelectItem value="opener">Opener Issues</SelectItem>
-                  <SelectItem value="installation">New Door Installation</SelectItem>
-                  <SelectItem value="maintenance">Routine Maintenance</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {serviceOptions.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {servicesError && <p role="status" className="text-sm text-muted-foreground">The service list is temporarily unavailable. Choose “Not sure / other” and describe the issue below.</p>}
               <FormMessage />
             </FormItem>
           )} />
@@ -468,7 +520,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             <FormField control={form.control} name="preferredTime" render={({ field }) => (
               <FormItem>
                 <FormLabel>Preferred Time (Optional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger><SelectValue placeholder="Any time" /></SelectTrigger>
                   </FormControl>
@@ -512,7 +564,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             <div>
                <h3 id="media-heading" className="font-display text-lg font-bold text-foreground">Photos &amp; Videos (Optional)</h3>
                <p id="media-help" className="text-sm text-muted-foreground mt-1">
-                 Selected files are previewed only in this browser tab. They are not uploaded, retained, or sent with the request. The request notes only how many files you selected.
+                  Selected files stay in this browser until you submit. They are then uploaded privately with your request for authorized staff to review.
               </p>
             </div>
 
@@ -597,8 +649,8 @@ export function BookingForm({ className = "" }: { className?: string }) {
 
              <p id="media-status" role="status" aria-live="polite" aria-atomic="true" className="text-xs text-muted-foreground">
                {photos.length + videos.length === 0
-                 ? "No local media selected."
-                 : `${photos.length} photo${photos.length === 1 ? "" : "s"} and ${videos.length} video${videos.length === 1 ? "" : "s"} selected locally; none will be uploaded.`}
+                  ? "No media selected."
+                  : `${photos.length} photo${photos.length === 1 ? "" : "s"} and ${videos.length} video${videos.length === 1 ? "" : "s"} ready to upload privately with this request.`}
              </p>
 
              {photos.length > 0 && (
@@ -664,8 +716,11 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )}
            </section>
 
-          <Button type="submit" size="lg" className="w-full font-bold text-lg min-h-[var(--phi-control)] py-4 mt-4 shadow-md glow-primary" disabled={createRequest.isPending}>
-             {createRequest.isPending ? <><Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /><span>Sending request…</span></> : "Request Service"}
+          <p className="text-xs leading-5 text-muted-foreground">
+            By sending this request, you agree to the <a className="font-semibold text-primary underline" href="/pages/request-terms">request terms</a> and acknowledge the <a className="font-semibold text-primary underline" href="/pages/privacy">privacy notice</a>. This is not marketing consent or a confirmed appointment.
+          </p>
+          <Button type="submit" size="lg" className="w-full font-bold text-lg min-h-[var(--phi-control)] py-4 mt-4 shadow-md glow-primary" disabled={isSubmitting}>
+             {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /><span>Sending request…</span></> : "Request Service"}
           </Button>
         </form>
       </Form>

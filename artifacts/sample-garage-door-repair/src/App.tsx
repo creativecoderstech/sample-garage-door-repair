@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from 'react';
+import { lazy, Suspense, type ReactNode, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -33,7 +33,7 @@ import ContactPage from '@/pages/contact';
 import GalleryPage from '@/pages/gallery';
 import FaqsPage from '@/pages/faqs';
 import CustomPage from '@/pages/custom-page';
-import AdminPage from '@/pages/admin';
+const StaffAccessApp = lazy(() => import('@/pages/staff-access'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,18 +95,18 @@ function Router() {
               <LegacyPublicRoute section="beforeAfter" />
             </Route>
             
-             <Route path="/login">
-               <Redirect to="/admin" />
-             </Route>
+             <Route path="/login"><Redirect to="/sign-in" /></Route>
              <Route path="/sign-in/*?">
-               <Redirect to="/admin" />
+               <Suspense fallback={null}><StaffAccessApp /></Suspense>
              </Route>
              <Route path="/sign-up/*?">
                <Redirect to="/admin" />
              </Route>
             
             {/* Admin Route */}
-             <Route path="/admin" component={AdminPage} />
+              <Route path="/admin">
+                <Suspense fallback={null}><StaffAccessApp /></Suspense>
+              </Route>
             
             <Route component={NotFound} />
           </Switch>

@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
+import { randomUUID } from "node:crypto";
 import { asc, desc, eq, sql } from "drizzle-orm";
-import { db, businessSettings, GARAGE_CORE_PAGE_SLUGS, garageAuditLogs, garageContent, googleReviews, isSafeGarageImageUrl, serviceRequests } from "@workspace/db";
+import { db, pool, businessSettings, GARAGE_CORE_PAGE_SLUGS, garageAuditLogs, garageContent, googleReviews, isSafeGarageImageUrl, projectGarageBusinessSettings, serviceRequests, garageNotificationSettings } from "@workspace/db";
 import {
   AskGarageAssistantBody,
   CreateGarageContentBody,
@@ -14,24 +15,39 @@ import {
   UpdateServiceRequestParams,
 } from "@workspace/api-zod";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import {
+  completeRequestUploads,
+  deliverNotification,
+  finalizeAttachment,
+  getPrivateAttachment,
+  persistentRateLimit,
+  prepareAttachment,
+  requestDeliveryDetails,
+  validateWebhookDestination,
+  verifyRequestTurnstile,
+} from "../lib/request-delivery";
+import {
+  grantGarageAccess,
+  listGarageAccess,
+  requireGarageRole,
+  revokeGarageAccess,
+  type GarageStaffActor,
+} from "@workspace/db/garage-auth";
+import { requireTrustedStaffOrigin } from "../middlewares/staffOriginMiddleware";
 
 const router: IRouter = Router();
 
-// Keep the requested login-free development demo without exposing staff data
-// or write access from a production process. Real staff authorization is a
-// separate prerequisite for enabling production administration.
 router.use((req, res, next) => {
   const path = req.path.replace(/\/+$/, "");
-  const staffRoute = path === "/garage/admin" || path.startsWith("/garage/admin/") ||
-    path === "/garage/settings" || path === "/garage/dashboard" ||
-    path.startsWith("/garage/requests/") ||
-    (path === "/garage/requests" && req.method !== "POST") ||
-    (path === "/garage/media" && req.method !== "GET");
-  if (staffRoute && process.env.NODE_ENV !== "development") {
-    res.status(403).json({ error: "Production administration is disabled until staff authorization is configured. Use the local demo only." });
-    return;
-  }
-  next();
+  const accessRoute = path === "/garage/admin/access" || path.startsWith("/garage/admin/access/");
+  if (accessRoute) return requireTrustedStaffOrigin(req, res, () => requireGarageRole("super_admin")(req, res, next));
+  const managerRoute = path.startsWith("/garage/admin/content") || path.startsWith("/garage/admin/notifications") ||
+    path === "/garage/settings" || path === "/garage/media" || path.startsWith("/garage/media/");
+  if (managerRoute) return requireTrustedStaffOrigin(req, res, () => requireGarageRole("admin")(req, res, next));
+  const staffRoute = path === "/garage/admin/session" || path === "/garage/dashboard" ||
+    path.startsWith("/garage/requests/") || (path === "/garage/requests" && req.method !== "POST");
+  if (staffRoute) return requireTrustedStaffOrigin(req, res, () => requireGarageRole("staff")(req, res, next));
+  return next();
 });
 
 const testimonials: Array<{
@@ -165,13 +181,16 @@ async function getGoogleReviewFeed() {
 
 const defaultSettings = {
   id: 1,
-  businessName: "Summit Garage Door Co.",
-  phone: "(888) 555-0142",
-  email: "service@summitgaragedoor.com",
-  serviceArea: "Serving Metro Atlanta and nearby Georgia communities",
+  businessName: "Cumming Garage Door Service",
+  phone: "(470) 555-0147",
+  email: "service@cumminggaragedoor.example",
+  serviceArea: "Cumming and Forsyth County (provisional)",
+  hours: "Monday–Friday 8am–6pm; Saturday 9am–2pm; Sunday closed",
+  coverage: "Cumming and Forsyth County (provisional)",
+  urgentPolicy: "",
   theme: "industrial",
   serviceId: "garage-door-repair",
-  emergencyEnabled: true,
+  emergencyEnabled: false,
   heroImage: "/images/garage/hero-door-forward.jpg",
   galleryImages: [
     "/images/garage/modern-white-home.jpg",
@@ -184,9 +203,19 @@ const defaultSettings = {
     "/images/garage/gallery/garage-interior-ev.jpg",
   ],
   verificationStatus: "unverified" as const,
+  productionApproved: false,
+  domainConfigured: false,
+  authConfigured: false,
+  claimVerification: {
+    businessName: { status: "verified" as const, isExample: false, verifiedAt: null },
+    phone: { status: "unverified" as const, isExample: true, verifiedAt: null },
+    email: { status: "unverified" as const, isExample: true, verifiedAt: null },
+    hours: { status: "unverified" as const, isExample: true, verifiedAt: null },
+    coverage: { status: "unverified" as const, isExample: true, verifiedAt: null },
+  },
   trustProfile: {
     hours: null, ownerTeam: null, yearsInBusiness: null, brandsServiced: null,
-    paymentOptions: null, financing: null, licenseInsurance: null, warranty: null,
+    paymentOptions: null, financing: null, licenseInsurance: null, warranty: null, urgentPolicy: null,
   },
 };
 
@@ -221,21 +250,19 @@ const withRefreshedSeedImages = (settings: typeof businessSettings.$inferSelect)
 
 const toPublicSettings = (
   settings: typeof businessSettings.$inferSelect | typeof defaultSettings,
-) => {
-  const verified = settings.verificationStatus === "verified";
+  notification = { notificationConfigured: false, notificationDestinationVerified: false, notificationTested: false },
+) => projectGarageBusinessSettings(settings, notification);
+
+async function notificationReadiness() {
+  const [notification] = await db.select().from(garageNotificationSettings).where(eq(garageNotificationSettings.id, 1)).limit(1);
+  let authorized = false;
+  try { if (notification?.webhookUrl) { await validateWebhookDestination(notification.webhookUrl); authorized = true; } } catch { authorized = false; }
   return {
-  businessName: verified ? settings.businessName : "Garage Door Service Preview",
-  phone: verified ? settings.phone : "",
-  email: verified ? settings.email : "",
-  serviceArea: verified ? settings.serviceArea : "Service area awaiting verification",
-  theme: settings.theme,
-  emergencyEnabled: verified && settings.emergencyEnabled,
-  heroImage: settings.heroImage,
-  galleryImages: settings.galleryImages,
-  verificationStatus: verified ? "verified" as const : "unverified" as const,
-  trustProfile: verified ? settings.trustProfile : defaultSettings.trustProfile,
+    notificationConfigured: Boolean(notification?.enabled && authorized),
+    notificationDestinationVerified: notification?.destinationVerified === true && authorized,
+    notificationTested: Boolean(notification?.testedAt),
   };
-};
+}
 
 const customerCareFaqs = [
   ["Service area", "Coverage is not confirmed unless the verified public profile states it. Customers can submit a ZIP code and the business must confirm coverage."],
@@ -255,7 +282,7 @@ const customerCareFaqs = [
 async function getCustomerCareContext() {
   const [storedSettings] = await db.select().from(businessSettings).limit(1);
   const storedOrDefault = storedSettings ? withRefreshedSeedImages(storedSettings) : defaultSettings;
-  const settings = toPublicSettings(storedOrDefault);
+  const settings = toPublicSettings(storedOrDefault, await notificationReadiness());
   const emergencyGuidance = settings.emergencyEnabled
     ? "Priority help is enabled for urgent door problems; never promise a specific arrival time."
     : "Urgent-service availability is not verified; never imply that priority or after-hours service is available.";
@@ -274,7 +301,7 @@ async function getCustomerCareContext() {
 
   return {
     settings,
-    serviceCodes: new Set(serviceContent.map((item) => item.serviceCode).filter(Boolean)),
+    serviceCodes: new Set(serviceContent.map((item) => item.serviceCode || item.slug).filter(Boolean)),
     text: [
       "AUTHORITATIVE WEBSITE AND BUSINESS CONTEXT — use only these facts.",
       `Business: ${settings.businessName}`,
@@ -283,7 +310,7 @@ async function getCustomerCareContext() {
       `Service area: ${settings.serviceArea}`,
       `Emergency setting: ${settings.emergencyEnabled ? "enabled" : "not enabled"}. ${emergencyGuidance}`,
       "Response expectation: a submitted request is not a confirmed appointment. Do not promise response or arrival timing.",
-      "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Photos and videos remain local on the customer's device until they choose to share them.",
+      "Booking: the customer can submit name, phone, optional email, job address, service, urgency, preferred date/time, and a description. Selected supported photos and videos are uploaded privately only when the customer submits the request, and only authorized staff can access them.",
       `Business service-offering verification: ${serviceCatalogVerified ? "at least one published service record is verified" : "not verified; service records are educational guidance only and do not establish an offering, price, duration, or availability"}.`,
       "Estimate policy: technicians inspect the system and explain options before work; do not promise a free estimate unless the website context says so.",
       "Services:",
@@ -299,14 +326,17 @@ async function getCustomerCareContext() {
   };
 }
 
-function suggestedServiceFor(message: string) {
+export function selectApprovedService(message: string, availableCodes: Iterable<string>) {
   const normalized = message.toLowerCase();
-  if (/spring|torsion|extension/.test(normalized)) return "springs";
-  if (/opener|remote|keypad|sensor|motor/.test(normalized)) return "opener";
-  if (/new (?:garage )?door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return "installation";
-  if (/maint|inspect|tune|lubricat|annual/.test(normalized)) return "maintenance";
-  if (/off.?track|track|roller|cable|hinge|slow|noisy|noise|squeak|grind/.test(normalized)) return "repair";
-  if (/price|cost|quote|estimate/.test(normalized)) return "Service assessment";
+  const available = new Set(availableCodes);
+  const choose = (codes: string[]) => codes.find((code) => available.has(code)) ?? "Service assessment";
+  if (/commercial|warehouse|loading bay|overhead door/.test(normalized)) return choose(["commercial-garage-door-services", "commercial"]);
+  if (/spring|torsion|extension/.test(normalized)) return choose(["broken-spring-replacement", "springs"]);
+  if (/off.?track|track|roller|cable|hinge/.test(normalized)) return choose(["cable-roller-off-track-repair", "hardware", "garage-door-repair", "repair"]);
+  if (/opener|remote|keypad|sensor|motor/.test(normalized)) return choose(["garage-door-opener-repair-installation", "opener"]);
+  if (/new (?:garage )?door|replace|replacement|install|insulated|carriage|glass/.test(normalized)) return choose(["new-garage-door-installation", "installation"]);
+  if (/maint|inspect|tune|lubricat|annual/.test(normalized)) return choose(["garage-door-maintenance-tune-ups", "maintenance"]);
+  if (/stuck|slow|noisy|noise|squeak|grind|repair/.test(normalized)) return choose(["garage-door-repair", "repair"]);
   return "Service assessment";
 }
 
@@ -360,7 +390,7 @@ const mapContent = (row: typeof garageContent.$inferSelect) => ({
 function toPublicContent(row: typeof garageContent.$inferSelect) {
   if (row.status !== "published") return null;
   if (row.verificationStatus !== "verified" && !row.reviewedSeed) return null;
-  if (row.kind === "trust" && row.verificationStatus !== "verified") return null;
+  if (["trust", "location"].includes(row.kind) && row.verificationStatus !== "verified") return null;
   return mapContent(row);
 }
 
@@ -405,20 +435,54 @@ async function validateContentRelations(
 }
 
 async function recordAdminAudit(
+  actor: GarageStaffActor,
   action: string,
   resourceType: string,
   resourceId: string | null,
   changedFields: string[],
 ) {
   await db.insert(garageAuditLogs).values({
-    actorUserId: "temporary-admin",
-    actorRole: "owner",
+    actorUserId: actor.userId,
+    actorRole: actor.role,
     action,
     resourceType,
     resourceId,
     changedFields,
   });
 }
+
+router.get("/garage/admin/session", (req, res) => {
+  res.setHeader("Cache-Control", "private, no-store");
+  res.json(req.garageStaff);
+});
+
+router.get("/garage/admin/access", async (_req, res) => {
+  res.setHeader("Cache-Control", "private, no-store");
+  res.json(await listGarageAccess());
+});
+
+router.post("/garage/admin/access", async (req, res) => {
+  const { email, role } = req.body ?? {};
+  if (typeof email !== "string" || (role !== "admin" && role !== "staff")) {
+    return res.status(400).json({ error: "Provide an email and either the admin or staff role." });
+  }
+  try {
+    return res.status(201).json(await grantGarageAccess(req.garageStaff!, email, role));
+  } catch (error) {
+    const status = typeof error === "object" && error && "status" in error ? Number(error.status) : 409;
+    return res.status(status).json({ error: error instanceof Error ? error.message : "Unable to grant access." });
+  }
+});
+
+router.delete("/garage/admin/access/:id", async (req, res) => {
+  try {
+    await revokeGarageAccess(req.garageStaff!, req.params.id);
+    return res.status(204).send();
+  } catch (error) {
+    const status = typeof error === "object" && error && "status" in error ? Number(error.status) : 409;
+    return res.status(status).json({ error: error instanceof Error ? error.message : "Unable to revoke access." });
+  }
+});
 
 router.get("/garage/services", async (_req, res) => {
   const rows = await db.select().from(garageContent).where(eq(garageContent.kind, "service")).orderBy(asc(garageContent.sortOrder));
@@ -429,9 +493,11 @@ router.get("/garage/services", async (_req, res) => {
   })));
 });
 router.get("/garage/cloudflare-config", (_req, res) => {
+  const developmentDisabled = process.env.NODE_ENV === "development" && !process.env.TURNSTILE_SITE_KEY;
+  const siteKey = process.env.TURNSTILE_SITE_KEY?.trim() || "";
   res.json({
-    turnstile: { enabled: false },
-    features: { turnstile: false, assistant: true, media: false },
+    turnstile: { enabled: !developmentDisabled, siteKey, configured: Boolean(siteKey && process.env.TURNSTILE_SECRET_KEY) },
+    features: { turnstile: !developmentDisabled, assistant: Boolean(process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL), media: Boolean(process.env.PRIVATE_OBJECT_DIR) },
   });
 });
 router.get("/garage/testimonials", (_req, res) => res.json([]));
@@ -456,7 +522,7 @@ router.get("/garage/availability", (req, res) => {
 
 router.get("/garage/site-settings", async (_req, res): Promise<void> => {
   const [settings] = await db.select().from(businessSettings).limit(1);
-  res.json(toPublicSettings(settings ? withRefreshedSeedImages(settings) : defaultSettings));
+  res.json(toPublicSettings(settings ? withRefreshedSeedImages(settings) : defaultSettings, await notificationReadiness()));
 });
 
 router.get("/garage/content", async (_req, res): Promise<void> => {
@@ -488,7 +554,7 @@ router.post("/garage/admin/content", async (req, res): Promise<void> => {
   }
   const id = crypto.randomUUID();
   const [created] = await db.insert(garageContent).values({ id, ...contentInput, reviewedSeed: false }).returning();
-  await recordAdminAudit("garage_content.created", "garage_content", id, Object.keys(parsed.data));
+  await recordAdminAudit(req.garageStaff!, "garage_content.created", "garage_content", id, Object.keys(parsed.data));
   res.status(201).json(mapContent(created));
 });
 
@@ -513,7 +579,7 @@ router.put("/garage/admin/content/:id", async (req, res): Promise<void> => {
     return;
   }
   const { verificationAcknowledged: _acknowledged, ...updateInput } = body.data;
-  const aliases = current.kind !== "page" && updateInput.slug !== current.slug
+  const aliases = !(current.kind === "page" && GARAGE_CORE_PAGE_SLUGS.has(current.slug)) && updateInput.slug !== current.slug
     ? [...new Set([...body.data.aliases, current.slug])].slice(0, 25)
     : updateInput.aliases;
   const next = { ...updateInput, aliases };
@@ -524,7 +590,7 @@ router.put("/garage/admin/content/:id", async (req, res): Promise<void> => {
     return;
   }
   const [updated] = await db.update(garageContent).set({ ...next, reviewedSeed: false, updatedAt: new Date() }).where(eq(garageContent.id, current.id)).returning();
-  await recordAdminAudit("garage_content.updated", "garage_content", current.id, Object.keys(next));
+  await recordAdminAudit(req.garageStaff!, "garage_content.updated", "garage_content", current.id, Object.keys(next));
   res.json(mapContent(updated));
 });
 
@@ -549,20 +615,121 @@ router.delete("/garage/admin/content/:id", async (req, res): Promise<void> => {
     return;
   }
   await db.delete(garageContent).where(eq(garageContent.id, current.id));
-  await recordAdminAudit("garage_content.deleted", "garage_content", current.id, []);
+  await recordAdminAudit(req.garageStaff!, "garage_content.deleted", "garage_content", current.id, []);
   res.status(204).send();
 });
 
 router.get("/garage/requests", async (_req, res): Promise<void> => {
   const rows = await db.select().from(serviceRequests).orderBy(desc(serviceRequests.createdAt));
-  res.json(rows.map(mapRequest));
+  res.json(await Promise.all(rows.map(async (row) => ({ ...mapRequest(row), ...await requestDeliveryDetails(row.id) }))));
 });
 
 router.post("/garage/requests", async (req, res) => {
+  if (!await persistentRateLimit(req, "booking", 5, 600)) return res.status(429).json({ error: "Too many requests. Please try again later." });
+  if (!await verifyRequestTurnstile(req, req.body?.turnstileToken, "booking")) return res.status(403).json({ error: "Verification failed. Please try again." });
   const parsed = CreateServiceRequestBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Please check the request details." });
-  const [created] = await db.insert(serviceRequests).values({ ...parsed.data, details: parsed.data.details ?? "" }).returning();
-  return res.status(201).json(mapRequest(created));
+  const idempotencyKey = String(req.headers["idempotency-key"] || req.body?.idempotencyKey || "");
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(idempotencyKey)) return res.status(400).json({ error: "A valid submission key is required." });
+  const uploadToken = randomUUID() + randomUUID();
+  const client = await pool.connect();
+  let created: typeof serviceRequests.$inferSelect;
+  let capability = uploadToken;
+  let statusCode = 201;
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [idempotencyKey]);
+    const existing = await client.query("SELECT request_id, upload_capability FROM garage_request_submissions WHERE idempotency_key=$1", [idempotencyKey]);
+    if (existing.rows[0]) {
+      const result = await client.query("SELECT * FROM garage_service_requests WHERE id=$1", [existing.rows[0].request_id]);
+      created = result.rows[0] as typeof serviceRequests.$inferSelect;
+      capability = existing.rows[0].upload_capability;
+      statusCode = 200;
+    } else {
+      const result = await client.query(
+        `INSERT INTO garage_service_requests
+        (customer_name,phone,email,street_address,city,state,zip,service,urgency,preferred_date,preferred_time,details)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+        [parsed.data.customerName, parsed.data.phone, parsed.data.email, parsed.data.streetAddress, parsed.data.city, parsed.data.state, parsed.data.zip, parsed.data.service, parsed.data.urgency, parsed.data.preferredDate, parsed.data.preferredTime ?? "", parsed.data.details ?? ""],
+      );
+      created = result.rows[0] as typeof serviceRequests.$inferSelect;
+      await client.query("INSERT INTO garage_request_submissions (idempotency_key,request_id,upload_capability) VALUES ($1,$2,$3)", [idempotencyKey, created.id, uploadToken]);
+      await client.query("INSERT INTO garage_notification_outbox (id,request_id,status,last_error) VALUES ($1,$2,'pending_uploads','Waiting for customer attachment uploads to complete.')", [crypto.randomUUID(), created.id]);
+    }
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    req.log.error({ error }, "Service request transaction failed");
+    return res.status(503).json({ error: "Unable to save the request right now." });
+  } finally {
+    client.release();
+  }
+  const [storedCreated] = await db.select().from(serviceRequests).where(eq(serviceRequests.id, created.id)).limit(1);
+  created = storedCreated;
+  return res.status(statusCode).json({ ...mapRequest(created), uploadCapability: capability || undefined, ...await requestDeliveryDetails(created.id) });
+});
+
+router.post("/garage/request-uploads/:id/prepare", prepareAttachment);
+router.post("/garage/request-uploads/:id/attachments/:attachmentId/finalize", finalizeAttachment);
+router.post("/garage/request-uploads/:id/complete", completeRequestUploads);
+router.get("/garage/requests/:id/attachments/:attachmentId", getPrivateAttachment);
+
+router.get("/garage/admin/notifications", async (_req, res) => {
+  const [settings] = await db.select().from(garageNotificationSettings).where(eq(garageNotificationSettings.id, 1)).limit(1);
+  let authorized = false;
+  try { if (settings?.webhookUrl) { await validateWebhookDestination(settings.webhookUrl); authorized = true; } } catch { authorized = false; }
+  res.json(settings ? { ...settings, configured: Boolean(settings.enabled && authorized), destinationVerified: settings.destinationVerified && authorized } : { id: 1, webhookUrl: null, enabled: false, configured: false, destinationVerified: false, testedAt: null, updatedAt: null });
+});
+
+router.put("/garage/admin/notifications", async (req, res) => {
+  const enabled = req.body?.enabled === true;
+  const rawUrl = String(req.body?.webhookUrl || "").trim();
+  let webhookUrl: string | null = null;
+  if (rawUrl) {
+    try { webhookUrl = await validateWebhookDestination(rawUrl); }
+    catch (error) { return res.status(400).json({ error: error instanceof Error ? error.message : "Invalid webhook URL." }); }
+  }
+  if (enabled && !webhookUrl) return res.status(400).json({ error: "A real HTTPS destination is required before notifications can be enabled." });
+  const [current] = await db.select().from(garageNotificationSettings).where(eq(garageNotificationSettings.id, 1)).limit(1);
+  const sameDestination = current?.webhookUrl === webhookUrl;
+  const [settings] = await db.insert(garageNotificationSettings).values({ id: 1, enabled, webhookUrl, destinationVerified: Boolean(webhookUrl) }).onConflictDoUpdate({
+    target: garageNotificationSettings.id,
+    set: { enabled, webhookUrl, destinationVerified: Boolean(webhookUrl), testedAt: sameDestination ? current?.testedAt : null, updatedAt: new Date() },
+  }).returning();
+  await recordAdminAudit(req.garageStaff!, "notification_settings.updated", "notification_settings", "1", ["enabled", "webhookUrl"]);
+  return res.json({ ...settings, configured: Boolean(settings.enabled && settings.webhookUrl) });
+});
+
+router.post("/garage/admin/notifications/test", async (req, res) => {
+  const rawUrl = String(req.body?.webhookUrl || "").trim();
+  try {
+    const destination = await validateWebhookDestination(rawUrl);
+    const [saved] = await db.select().from(garageNotificationSettings).where(eq(garageNotificationSettings.id, 1)).limit(1);
+    if (!saved || saved.webhookUrl !== destination) return res.status(409).json({ error: "Save this authorized receiver URL before sending its test." });
+    const response = await fetch(destination, {
+      method: "POST", redirect: "error", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ event: "notification.test", source: "Cumming Garage Door Service", sentAt: new Date().toISOString() }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) return res.status(502).json({ error: `Destination returned HTTP ${response.status}.` });
+    await db.update(garageNotificationSettings).set({ testedAt: new Date(), updatedAt: new Date() }).where(eq(garageNotificationSettings.id, 1));
+    await recordAdminAudit(req.garageStaff!, "notification_settings.test_delivered", "notification_settings", "1", []);
+    return res.json({ delivered: true });
+  } catch (error) {
+    return res.status(502).json({ error: error instanceof Error ? error.message : "Test delivery failed." });
+  }
+});
+
+router.post("/garage/requests/:id/notify", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: "Invalid request." });
+  const current = await requestDeliveryDetails(id);
+  if (current.uploadStatus !== "completed") return res.status(409).json({ error: "This request is still waiting for its private uploads to complete.", ...current });
+  const result = await pool.query("UPDATE garage_notification_outbox SET status='processing', updated_at=now() WHERE request_id=$1 AND (status IN ('pending_uploads','failed','unconfigured','pending') OR (status='processing' AND updated_at < now() - interval '2 minutes')) RETURNING request_id", [id]);
+  if (!result.rows[0]) return res.status(409).json({ error: "This notification is already delivered or does not exist." });
+  await deliverNotification(id);
+  await recordAdminAudit(req.garageStaff!, "service_request.notification_retried", "service_request", String(id), []);
+  return res.json(await requestDeliveryDetails(id));
 });
 
 router.patch("/garage/requests/:id", async (req, res): Promise<void> => {
@@ -578,6 +745,7 @@ router.patch("/garage/requests/:id", async (req, res): Promise<void> => {
     return;
   }
   await recordAdminAudit(
+    req.garageStaff!,
     "service_request.updated",
     "service_request",
     String(updated.id),
@@ -615,27 +783,34 @@ router.patch("/garage/settings", async (req, res): Promise<void> => {
   }
   const [storedSettings] = await db.select().from(businessSettings).limit(1);
   const currentSettings = storedSettings ? withRefreshedSeedImages(storedSettings) : defaultSettings;
-  const sensitiveKeys = ["businessName", "phone", "email", "serviceArea", "emergencyEnabled", "trustProfile"] as const;
+  const sensitiveKeys = ["businessName", "phone", "email", "serviceArea", "hours", "coverage", "urgentPolicy", "emergencyEnabled", "trustProfile"] as const;
   const sensitiveChanged = sensitiveKeys.some((key) =>
     key in parsed.data &&
     JSON.stringify(parsed.data[key]) !== JSON.stringify(currentSettings[key])
   );
-  if (parsed.data.verificationStatus === "verified" && parsed.data.verificationAcknowledged !== true) {
-    res.status(400).json({ error: "Explicit verification acknowledgement is required before publishing business claims." });
-    return;
-  }
   const { verificationAcknowledged: _acknowledged, ...settingsInput } = parsed.data;
-  const verificationStatus = parsed.data.verificationStatus === "verified" && parsed.data.verificationAcknowledged === true
-    ? "verified" as const
-    : parsed.data.verificationStatus === "unverified" || sensitiveChanged
-      ? "unverified" as const
-      : currentSettings.verificationStatus;
-  const persistedInput = { ...settingsInput, verificationStatus };
+  const now = new Date().toISOString();
+  const requestedClaims = settingsInput.claimVerification ?? currentSettings.claimVerification;
+  const claimVerification = Object.fromEntries(
+    Object.entries(requestedClaims).map(([key, claim]) => [
+      key,
+      {
+        ...claim,
+        verifiedAt: claim.status === "verified" ? claim.verifiedAt || now : null,
+      },
+    ]),
+  );
+  const persistedInput = {
+    ...settingsInput,
+    claimVerification,
+    verificationStatus: sensitiveChanged ? "unverified" as const : currentSettings.verificationStatus,
+  };
    const [settings] = await db.insert(businessSettings).values({ ...defaultSettings, ...persistedInput }).onConflictDoUpdate({
     target: businessSettings.id,
     set: persistedInput,
   }).returning();
   await recordAdminAudit(
+    req.garageStaff!,
     "business_settings.updated",
     "business_settings",
     String(settings.id),
@@ -645,8 +820,17 @@ router.patch("/garage/settings", async (req, res): Promise<void> => {
 });
 
 router.post("/garage/assistant", async (req, res) => {
+  if (!await persistentRateLimit(req, "assistant", 12, 600)) return res.status(429).json({ error: "Too many questions. Please try again later." });
+  if (!await verifyRequestTurnstile(req, req.body?.turnstileToken, "assistant")) return res.status(403).json({ error: "Verification failed. Please try again." });
   const parsed = AskGarageAssistantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Ask a question about your garage door." });
+  if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY || !process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) {
+    const urgent = urgentGarageTerms.test(parsed.data.message);
+    return res.status(503).json({
+      error: "Maya is unavailable because the AI provider is not configured.",
+      ...(urgent ? { safetyGuidance: "Stop using the door and keep people, pets, and vehicles clear. Do not touch springs, cables, or a crooked or hanging door." } : {}),
+    });
+  }
   try {
     const { settings, serviceCodes, text: websiteContext } = await getCustomerCareContext();
     const userHistory = (parsed.data.history ?? []).filter((message) => message.role === "user");
@@ -656,8 +840,7 @@ router.post("/garage/assistant", async (req, res) => {
       : garageIssueTerms.test(conversationText)
         ? "caution" as const
         : "safe" as const;
-    const candidateService = suggestedServiceFor(conversationText);
-    const suggestedService = serviceCodes.has(candidateService) ? candidateService : "Service assessment";
+    const suggestedService = selectApprovedService(conversationText, serviceCodes);
     const casualReply = casualCustomerCareReply(parsed.data.message, settings.businessName);
     if (casualReply) {
       return res.json({ reply: casualReply, safetyLevel: "safe", suggestedService: "Service assessment", serviceRequestRecommended: false });
@@ -713,7 +896,7 @@ router.post("/garage/assistant", async (req, res) => {
     const reply = fallbackSafetyLevel === "urgent"
       ? "I’m sorry—I couldn’t connect just now. Please stop using the door and keep people, pets, and vehicles clear. You can start a service request for the business to review."
       : "I’m sorry—I couldn’t pull that up just now. Tell me what the door is doing, or start a service request for the business to review.";
-    return res.json({ reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService, serviceRequestRecommended: true });
+    return res.status(503).json({ error: "Maya is temporarily unavailable because the AI provider could not be reached.", safetyGuidance: reply, safetyLevel: fallbackSafetyLevel, suggestedService: fallbackService, serviceRequestRecommended: true });
   }
 });
 

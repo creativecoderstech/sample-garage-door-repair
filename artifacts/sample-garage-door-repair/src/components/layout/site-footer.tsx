@@ -32,7 +32,7 @@ export function SiteFooter() {
           {/* Brand Col */}
           <div className="flex flex-col gap-6">
             <Link href="/" className="font-display text-3xl uppercase tracking-tighter text-primary">
-              {settings?.businessName || "Garage Doors"}
+              {settings?.businessName || "Cumming Garage Door Service"}
             </Link>
             <p className="text-muted-foreground font-serif italic text-lg leading-relaxed max-w-sm">
               Crafting reliable, beautiful, and secure garage doors for our local community.
@@ -157,15 +157,19 @@ export function SiteFooter() {
         
         <div className="border-t border-border/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground font-medium">
-            &copy; {new Date().getFullYear()} {settings?.businessName || "Garage Door Repair"}. All rights reserved.
+            &copy; {new Date().getFullYear()} {settings?.businessName || "Cumming Garage Door Service"}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            {content.some(page => page.kind === "page" && page.slug === "privacy-policy") && <Link href="/pages/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">
-              Privacy Policy
-            </Link>}
-            {content.some(page => page.kind === "page" && page.slug === "terms-of-service") && <Link href="/pages/terms-of-service" className="text-sm text-muted-foreground hover:text-primary">
-              Terms of Service
-            </Link>}
+          <div className="flex items-center gap-6">
+            {content.some(page => page.kind === "page" && page.slug === "privacy") && (
+              <Link href="/pages/privacy" className="text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                Privacy
+              </Link>
+            )}
+            {content.some(page => page.kind === "page" && page.slug === "service-request-terms") && (
+              <Link href="/pages/service-request-terms" className="text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                Request Terms
+              </Link>
+            )}
           </div>
         </div>
       </div>

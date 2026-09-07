@@ -5,21 +5,23 @@ import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
+export default defineConfig(async ({ command }) => {
 const rawPort = process.env.PORT;
-
-if (!rawPort) {
+if (command === 'serve' && !rawPort) {
   throw new Error(
     'PORT environment variable is required but was not provided.',
   );
 }
 
-const port = Number(rawPort);
+const port = rawPort ? Number(rawPort) : undefined;
 
-if (Number.isNaN(port) || port <= 0) {
+if (port !== undefined && (!Number.isInteger(port) || port <= 0 || port > 65535)) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-const basePath = process.env.BASE_PATH;
+// Pages production builds have no listening server and are mounted at root.
+// Managed development workflows still provide both their port and preview path.
+const basePath = process.env.BASE_PATH || (command === 'build' ? '/' : undefined);
 
 if (!basePath) {
   throw new Error(
@@ -27,7 +29,7 @@ if (!basePath) {
   );
 }
 
-export default defineConfig({
+return {
   base: basePath,
   plugins: [
     react(),
@@ -78,4 +80,5 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: true,
   },
+};
 });

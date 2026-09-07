@@ -5,22 +5,30 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema/index.ts"
+    "./schema": "./src/schema/index.ts",
+    "./garage-auth": "./src/garage-auth.ts"
   },
   "scripts": {
+    "test:auth": "tsx --test src/garage-auth.test.mjs",
+    "migrate:garage": "node ./scripts/migrate-garage.mjs && node --experimental-strip-types ./scripts/seed-garage-content.mjs",
+    "verify:migrations:garage": "node --experimental-strip-types ./scripts/verify-garage-migrations.mjs",
     "seed:garage-content": "node --experimental-strip-types ./scripts/seed-garage-content.mjs",
     "push": "drizzle-kit push --config ./drizzle.config.ts",
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts"
   },
   "dependencies": {
+    "@clerk/express": "^2.1.66",
     "drizzle-orm": "catalog:",
     "drizzle-zod": "^0.8.3",
+    "express": "^5.2.1",
     "pg": "^8.22.0",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "catalog:",
     "@types/pg": "^8.20.0",
-    "drizzle-kit": "^0.31.10"
+    "drizzle-kit": "^0.31.10",
+    "tsx": "catalog:"
   }
 }

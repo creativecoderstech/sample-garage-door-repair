@@ -19,7 +19,12 @@ function BlogPageContent() {
   const { data: settings } = useGetPublicBusinessSettings();
 
   const blogPage = content.find(c => c.kind === "page" && c.slug === "blog" && c.status === "published");
-  const articles = content.filter(c => c.kind === "article" && c.status === "published").sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  const articles = content.filter(c => c.kind === "article" && c.status === "published").sort((a, b) => {
+    if (!a.updatedAt && !b.updatedAt) return 0;
+    if (!a.updatedAt) return 1;
+    if (!b.updatedAt) return -1;
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
   const isVerified = settings?.verificationStatus === "verified";
 
   return (
@@ -49,19 +54,21 @@ function BlogPageContent() {
           {articles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {articles.map(article => (
-                <article key={article.id} className="group flex flex-col overflow-hidden bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow">
+                <article key={article.id} className="group flex flex-col overflow-hidden bg-card rounded-none border border-border">
                   {article.imageUrl && (
                     <Link href={`/blog/${article.slug}`} className="block h-56 overflow-hidden bg-muted">
                       <img src={publicAssetUrl(article.imageUrl)} alt={article.imageAlt || article.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     </Link>
                   )}
                   <div className="p-6 md:p-8 flex flex-col flex-grow">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
-                      <CalendarIcon className="w-4 h-4" />
-                      {new Date(article.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
+                    {article.updatedAt && (
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
+                        <CalendarIcon className="w-4 h-4" />
+                        {new Date(article.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </div>
+                    )}
                     <Link href={`/blog/${article.slug}`}>
-                      <h2 className="font-display text-2xl uppercase tracking-tight mb-3 group-hover:text-primary transition-colors">{article.title}</h2>
+                      <h2 className="garage-display text-2xl uppercase tracking-wide mb-3 group-hover:text-primary transition-colors">{article.title}</h2>
                     </Link>
                     <p className="text-muted-foreground mb-6 flex-grow line-clamp-3">{article.summary}</p>
                     <Link href={`/blog/${article.slug}`} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary w-fit">
