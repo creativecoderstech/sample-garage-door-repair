@@ -17,12 +17,12 @@ the Express adapter serve the isolated development environment.
 ```json
 {
   "schemaVersion": 1,
-  "runtime": "pages",
+  "runtime": "worker",
   "appDirectory": "artifacts/sample-garage-door-repair",
-  "healthPath": "/api/garage/site-settings",
+  "healthPath": "/",
   "commands": {
-    "build": "PORT=22004 BASE_PATH=/ pnpm --filter @workspace/sample-garage-door-repair run build:pages",
-    "deploy": "wrangler pages deploy dist/public --project-name sample-garage-door-repair",
+    "build": "PORT=22004 BASE_PATH=/ pnpm --filter @workspace/sample-garage-door-repair run build",
+    "deploy": "wrangler deploy --config wrangler.client.json",
     "migrations": {
       "directory": "cloudflare/migrations"
     }
@@ -34,29 +34,16 @@ the Express adapter serve the isolated development environment.
     "ai": true,
     "email": false
   },
-  "pages": {
+  "worker": {
     "package": "@workspace/sample-garage-door-repair",
+    "entry": "cloudflare/worker.mjs",
     "assetsDirectory": "dist/public",
-    "functionsEntry": "dist/public/_worker.js",
+    "assetsBinding": "ASSETS",
     "bindings": {
       "d1": "DB",
       "r2": "MEDIA",
-      "ai": "AI",
-      "assets": "ASSETS"
-    },
-    "variables": [
-      "CLOUDFLARE_ENV",
-      "PUBLIC_SITE_ORIGIN",
-      "TURNSTILE_SITE_KEY",
-      "NOTIFICATION_ALLOWED_HOSTS",
-      "CLERK_PUBLISHABLE_KEY",
-      "CLERK_ISSUER",
-      "GARAGE_BOOTSTRAP_EMAIL"
-    ],
-    "secrets": [
-      "TURNSTILE_SECRET_KEY",
-      "CLERK_SECRET_KEY"
-    ]
+      "ai": "AI"
+    }
   }
 }
 ```
