@@ -9,6 +9,12 @@ Keep the garage-door provisioning contract on Cloudflare Pages with its advanced
 
 **How to apply:** Before pushing provisioning metadata, validate the documented build and deploy commands. After any runtime or binding change, inspect the Pages production configuration, confirm every resource still exists, and curl D1-backed public endpoints before considering the release healthy.
 
+Immediately before a Pages release, confirm the configured production D1 ID still exists. If provisioning replaced it, do not bind the replacement while it is empty: apply the reviewed additive migrations, validate settings and catalog content, then update only the D1 binding and retry the release.
+
+**Why:** A clean commit-linked Pages release failed because the project still referenced a deleted D1 database while a newly provisioned replacement had no application tables.
+
+**How to apply:** Treat a missing binding as infrastructure drift, not an application build failure. Preserve every other Pages binding and secret while repairing only the validated D1 reference.
+
 Keep the browser and runtime verification-config contract explicit: production returns Turnstile enabled plus its site key, while the local API explicitly returns Turnstile disabled.
 
 **Why:** A shape mismatch between the Pages config response and browser parser caused production to omit tokens, while a missing local config route blocked Maya before requests were posted.
