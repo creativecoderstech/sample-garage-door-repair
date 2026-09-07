@@ -336,7 +336,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
   };
 
   return (
-    <div className={cn("phi-booking-card phi-card bg-card border shadow-xl overflow-hidden", className)}>
+    <div className={cn("phi-booking-card phi-card bg-card border shadow-xl overflow-hidden @container", className)}>
       <div className="phi-booking-header bg-primary text-primary-foreground">
          <h2 className="text-2xl font-display font-bold flex items-center gap-2">
           <CalendarCheck className="w-6 h-6" /> Book Service
@@ -350,13 +350,13 @@ export function BookingForm({ className = "" }: { className?: string }) {
         </div>
       )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} onFocusCapture={trackBookingStart} className="p-[var(--phi-space-4)] sm:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
+        <form onSubmit={form.handleSubmit(onSubmit)} onFocusCapture={trackBookingStart} className="p-[var(--phi-space-3)] @md:p-[var(--phi-space-5)] space-y-[var(--phi-space-4)]">
            <section aria-labelledby="contact-heading" className="space-y-4">
              <div>
                 <h3 id="contact-heading" className="font-display text-lg font-bold">1. Your contact details</h3>
                <p className="mt-1 text-sm text-muted-foreground">Used to respond to this request. A submission is not a confirmed appointment.</p>
              </div>
-          <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
+          <div className="phi-field-grid grid grid-cols-1 @md:grid-cols-2">
             <FormField control={form.control} name="customerName" render={({ field }) => (
               <FormItem>
                 <FormLabel>Full Name *</FormLabel>
@@ -373,7 +373,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )} />
           </div>
 
-          <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
+          <div className="phi-field-grid grid grid-cols-1 @md:grid-cols-2">
              <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem>
                 <FormLabel>Email (Optional)</FormLabel>
@@ -403,7 +403,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                 <FormMessage />
               </FormItem>
             )} />
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_5rem_7rem]">
+              <div className="grid grid-cols-1 gap-2 @md:grid-cols-[minmax(0,1fr)_5rem_7rem]">
               <FormField control={form.control} name="city" render={({ field }) => (
                 <FormItem>
                    <FormLabel>City *</FormLabel>
@@ -471,7 +471,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
                <FormLabel id="urgency-label">How soon do you need this?</FormLabel>
                 <FormControl>
                   <div
-                    className="grid grid-cols-1 sm:grid-cols-3 gap-[var(--phi-space-2)]"
+                    className="grid grid-cols-1 @md:grid-cols-3 gap-[var(--phi-space-2)]"
                     role="radiogroup"
                      aria-labelledby="urgency-label"
                   >
@@ -508,7 +508,7 @@ export function BookingForm({ className = "" }: { className?: string }) {
             )}
           />
 
-          <div className="phi-field-grid grid grid-cols-1 sm:grid-cols-2">
+          <div className="phi-field-grid grid grid-cols-1 @md:grid-cols-2">
             <FormField control={form.control} name="preferredDate" render={({ field }) => (
               <FormItem>
                 <FormLabel>Preferred Date (Optional)</FormLabel>

@@ -232,8 +232,8 @@
   --phi-space-5: 3.427rem;
   --phi-space-6: 5.545rem;
   --phi-space-7: 8.972rem;
-  --phi-content: 68rem;
-  --phi-copy: 42rem;
+  --phi-content: 88rem;
+  --phi-copy: 48rem;
   --phi-section: clamp(3.427rem, 7vw, 5.545rem);
   --phi-section-tight: clamp(2.118rem, 4vw, 3.427rem);
     --phi-control: 2.75rem;
@@ -508,6 +508,8 @@
 
   .phi-control {
     min-height: var(--phi-control);
+    border-radius: var(--phi-radius);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .phi-app-shell {
@@ -531,7 +533,7 @@
   }
 
   .phi-booking-header {
-    padding: var(--phi-space-4) var(--phi-space-5);
+    padding: var(--phi-space-3) var(--phi-space-4);
   }
 
   .phi-admin-shell {

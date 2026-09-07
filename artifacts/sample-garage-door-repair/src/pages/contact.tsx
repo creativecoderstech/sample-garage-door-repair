@@ -19,6 +19,12 @@ function ContactPageContent() {
 
   const contactPage = content.find(c => c.kind === "page" && c.slug === "contact" && c.status === "published");
   const isVerified = settings?.verificationStatus === "verified";
+  const hasContactInfo = Boolean(
+    settings?.phone ||
+    settings?.email ||
+    settings?.serviceArea ||
+    (isVerified && settings?.trustProfile?.hours),
+  );
   
   return (
     <>
@@ -44,10 +50,10 @@ function ContactPageContent() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          <div className={`grid grid-cols-1 gap-12 lg:gap-20 ${hasContactInfo ? "lg:grid-cols-2" : ""}`}>
             
             {/* Contact Details */}
-            <div className="flex flex-col gap-8">
+            {hasContactInfo && <div className="flex flex-col gap-8">
               <h2 className="garage-display text-4xl uppercase tracking-wide mb-4">Contact Information</h2>
               
               <div className="flex flex-col gap-6">
@@ -99,21 +105,15 @@ function ContactPageContent() {
                   </div>
                 )}
               </div>
-            </div>
+            </div>}
             
             {/* Booking Form */}
-            <div id="booking" className="bg-card border border-border shadow-sm p-6 md:p-10 rounded-none relative overflow-hidden scroll-mt-24">
-              <h2 className="garage-display text-4xl uppercase tracking-wide mb-2 relative z-10">Send a Request</h2>
-              <p className="text-muted-foreground mb-8 relative z-10 font-serif italic text-lg">Fill out the form below to get started.</p>
-              
-              <div className="relative z-10">
-                <BookingForm />
-              </div>
+            <div id="booking" className={`relative w-full scroll-mt-24 ${hasContactInfo ? "" : "mx-auto max-w-3xl"}`}>
+              <BookingForm />
             </div>
-            
+          </div>
           </div>
         </div>
-      </div>
     </>
   );
 }

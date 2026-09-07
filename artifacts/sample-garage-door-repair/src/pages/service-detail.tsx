@@ -59,7 +59,7 @@ function ServiceDetailPageContent() {
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
             
             {/* Main Content */}
-            <div className="w-full lg:w-2/3">
+            <div className="w-full lg:w-[58%] xl:w-2/3">
               {service.imageUrl && (
                 <div className="w-full aspect-[16/9] overflow-hidden mb-10 bg-muted border border-border">
                   <img src={publicAssetUrl(service.imageUrl)} alt={service.imageAlt || service.title} className="w-full h-full object-cover" />
@@ -147,14 +147,11 @@ function ServiceDetailPageContent() {
             </div>
             
             {/* Sidebar */}
-            <div className="w-full lg:w-1/3">
+            <div className="w-full lg:w-[42%] xl:w-1/3">
               <div className="sticky top-28 flex flex-col gap-8">
                 
                 {/* Booking Widget */}
-                <div className="bg-card border border-border p-6 shadow-sm">
-                  <h3 className="garage-display text-3xl uppercase tracking-wide mb-2">Request an Assessment</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Tell us about the issue. We'll review your request and confirm coverage, timing and next steps.</p>
-                  
+                <div id="booking" className="scroll-mt-28">
                   <BookingForm />
                 </div>
                 
